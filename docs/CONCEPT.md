@@ -37,9 +37,10 @@ Each was chosen because it stresses a different axis of the data model. If the m
 
 The central modeling decision is generalizing from one author to a platform. Shape:
 
-- **Work** - the abstract book: `id, title, authorIds, published, subseries, franchiseId, synopsis, canonTier (core | extended | apocrypha), publishedAs?, withAuthors?, externalIds { openLibrary, googleBooks, wikidata }`. Reading orders operate on **Works**. `publishedAs` = the name on the cover when it differs from the author's real name (a pen name); see §4b.
+- **Work** - the abstract book: `id, title, authorIds, published, subseries, franchiseId, synopsis, canonTier (core | extended | apocrypha), publishedAs?, withAuthorIds?, externalIds { openLibrary, googleBooks, wikidata }`. Reading orders operate on **Works**. `publishedAs` = the name on the cover when it differs from the author's real name (a pen name); see §4b. `withAuthorIds` reference global Authors (see §4c).
 - **Edition** - a concrete published edition: `id, workId, isbn, language, coverUrl, publisher, format`. Covers, ISBNs, and store links operate on **Editions**. *(Work vs Edition is the gotcha that bites if you skip it: an order is a sequence of Works; a "buy" link needs an Edition.)*
-- **Franchise** - the universe/author-world: `id, name, kind (author | shared-universe | series), theme (see §6), curatorIds[]`.
+- **Author** - a **global entity** (`id, name, aka[], born, bio, pseudonyms[], lifeEvents[], sources[]`), referenced by `authorIds` everywhere. Global because a person recurs across franchises (Sanderson: Cosmere + Wheel of Time) and names collide; **author-life events live here** (they follow the person). See §4c.
+- **Franchise** - the universe/author-world: `id, name, kind (author | shared-universe | series), authorIds[], theme (see §6), curatorIds[]`.
 - **ReadingOrder** - `id, franchiseId, name, type (official-publication | chronological-inuniverse | author-recommended | community | curated | user), source (canon | community | user), ownerId?, orderedWorkIds[], rationale`. A franchise has **many** orders - this is the completionist magnet. *Canon* orders come from git; *community/user* orders are Supabase rows (see §4a). Both reference the same stable Work IDs.
 - **Event** - the aura layer: `id, date | dateRange, title, description, impact (low | med | high), scope (author-life | world | culture | industry), reach (global | franchise-specific), sourceUrl, spoiler (see §9)`. Global-reach events (world/culture) are shared across every franchise; author-life events belong to one.
 - **Progress** (per user) - `userId, workId, status (unread | reading | read | abandoned), rating, dateRead, note`.
@@ -69,6 +70,17 @@ Net: curation stays PR-based and versioned, custom orders "just work" as DB rows
 - **Default: one franchise per author, all names included.** Pen-name works belong to the author and appear in the default all-works order regardless of the cover name. The pen name shows as a per-work badge and a filter.
 - **Exception: a distinct-brand pen name may get its own franchise** that links the same Author - when the pen name is a genuinely separate persona with its own substantial catalog and reader community (e.g. J.D. Robb vs Nora Roberts, Robert Galbraith vs J.K. Rowling). Curator's call, for its own page/branding/orders.
 - **Meta/in-universe pen-name lore** (e.g. Richard Bachman's staged "death," which King folded into *The Dark Half*) lives in the aura **events**, not as a data quirk.
+
+## 4c. References: entities and links
+
+**IDs are the source of truth; names are display-only. Nothing resolves by name.** This is what keeps ambiguous authors and works from colliding.
+
+- **Global entity IDs.** Works have `<franchise-slug>/<work-slug>` (permanent, §4a). **Authors are global** in `content/authors/<slug>.yaml` and are referenced by `authorIds` / `withAuthorIds` - so one person is one entity across every franchise, and two people who share a name get distinct slugs (`aka:` carries alternate spellings for search).
+- **Typed reference syntax, two forms of the same `type:id` scheme:**
+  - *Structured fields* use bare IDs: `authorIds: [stephen-king]`, `withAuthorIds: [peter-straub]`, and (for work-to-work links like a shared multiverse) a `connections: [<work-id>]` field.
+  - *Prose* (bios, synopses, event/era descriptions, order rationales) uses inline links: `[[work:stephen-king/the-stand|The Stand]]`, `[[author:peter-straub]]` - wiki-style, pipe for display text. The app linkifies them.
+- **Everything must resolve.** `scripts/validate.py` in the content repo's CI checks every reference - structured and inline - and fails the build on a dangling one. This is the reference resolver behind the validation Action.
+- **Extensible:** the same scheme extends later to `character:<id>` (a recurring character like Randall Flagg across the King multiverse) with no rework.
 
 ## 5. Feature set
 
