@@ -35,7 +35,12 @@ export default async function MePage() {
       <Link href="/" className="text-xs text-neutral-500 hover:text-neutral-300">
         ← Orrery
       </Link>
-      <h1 className="display mt-4 text-3xl font-semibold text-neutral-100">Your shelf</h1>
+      <div className="mt-4 flex items-baseline justify-between gap-4">
+        <h1 className="display text-3xl font-semibold text-neutral-100">Your shelf</h1>
+        <Link href="/import" className="shrink-0 text-sm text-neutral-400 underline hover:text-neutral-100">
+          Import reading
+        </Link>
+      </div>
 
       <Shelf progress={progress} bundles={bundles} owner />
 
