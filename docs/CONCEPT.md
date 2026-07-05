@@ -108,9 +108,19 @@ Grouped by the phase that unlocks them (see §11).
 
 ## 6. Author branding / theming
 
-Each franchise should feel like a distinct wing of a museum - King's page in blood-red + typewriter serif + 80s-paperback grain; Discworld in Josh-Kirby chaos. But bespoke design per author does not scale.
+Each franchise should feel like a distinct wing of the same museum. Personality comes through a **modern editorial system**, not genre costume.
 
-**Approach:** a **Franchise Theme** = `{ palette, type pairing, texture/motif, hero treatment }` applied via CSS custom properties keyed off a `data-franchise` attribute on the root. Swapping themes is flipping a token set, not rebuilding pages (the existing shadcn + Tailwind + CSS-vars stack supports this directly). Ship a **library of mood presets** (pulp-horror, whimsical-fantasy, cosmic-epic, epic-fantasy, literary-contemporary…) that a curator picks and tweaks. Atmospheric per-author pages are hard to copy and very shareable - the theming doubles as marketing.
+**The design law (non-negotiable):**
+- **Modern, editorial, readable first.** A shared, contemporary baseline (generous type scale, real hierarchy, high contrast) is constant across every franchise. An author's identity is a *variation on that baseline*, never a skin over it.
+- **Personality lives in three levers only:** the **palette** (4-6 considered hex values drawn from the author's world), one **display typeface** (characterful but modern, from a curated set, used with restraint on headings) over a shared highly-readable body + mono-for-data, and **one signature element** per franchise that embodies the world.
+- **Hard anti-goals - no cringe.** No novelty/decorative/genre fonts (no dripping-horror, no comic whimsy). No literal genre textures (paper grain, blood, parchment, starfields). No word-art. No low-contrast atmosphere at the cost of readability. And avoid the AI-default looks (near-black + one neon accent; cream + serif + terracotta) - those are defaults, not choices.
+- **Readability floor:** WCAG AA contrast for body text, sane measure and line-height, visible focus, reduced-motion respected, responsive to mobile.
+
+A franchise that reads as a tasteful, distinctive literary edition - not a Halloween costume - is what's hard to copy and worth sharing.
+
+**Approach:** a **Franchise Theme** = `{ palette, displayFace, signature, notes }` applied via CSS custom properties keyed off a `data-franchise` attribute. The body and mono faces stay constant for readability; only the display face and palette vary per author, plus the one signature. Swapping a theme is flipping a token set, not rebuilding pages. A curator picks a starting **preset** (each maps to a real modern display face + a palette family) and tunes it.
+
+Example - **Stephen King** is *not* "black + blood-red horror." It's a serious literary edition: a warm near-black paper, bone-white text (high contrast), a single restrained oxblood accent used sparingly, a characterful literary serif for display, and the **signature "Beam"** - a continuous vertical line the works are strung along, echoing the Dark Tower connecting his whole multiverse. Atmosphere through restraint.
 
 ## 7. Achievements engine
 

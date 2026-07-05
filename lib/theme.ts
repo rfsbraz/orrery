@@ -7,6 +7,7 @@ const DEFAULT = {
   surface: "#171a21",
   accent: "#8a8f98",
   ink: "#e8e6e1",
+  muted: "#8b8f98",
 };
 
 /** Turn a franchise theme's palette into CSS custom properties for its page. */
@@ -17,6 +18,7 @@ export function themeVars(theme?: Theme): CSSProperties {
     ["--surface" as string]: p.surface,
     ["--accent" as string]: p.accent,
     ["--ink" as string]: p.ink,
+    ["--muted" as string]: p.muted,
   };
 }
 

@@ -14,11 +14,11 @@ export default function Home() {
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
       <header className="mb-14">
-        <p className="mb-2 text-sm uppercase tracking-[0.2em] text-neutral-500">Orrery</p>
-        <h1 className="text-4xl font-semibold tracking-tight text-neutral-100 sm:text-5xl">
+        <p className="mb-3 text-sm uppercase tracking-[0.2em] text-neutral-500">Orrery</p>
+        <h1 className="display text-5xl font-semibold tracking-tight text-neutral-100 sm:text-6xl">
           Read the whole thing, in context.
         </h1>
-        <p className="mt-4 max-w-2xl text-lg text-neutral-400">
+        <p className="prose-read mt-5 max-w-2xl text-lg text-neutral-400">
           Not just <em>what order</em> to read a franchise, but how to experience it in its
           moment - each book set against the life, world, and cultural events that shaped it.
         </p>
@@ -35,7 +35,7 @@ export default function Home() {
               href={`/f/${f.id}`}
               className="group rounded-lg border border-neutral-800 bg-neutral-900/40 p-5 transition-colors hover:border-neutral-600"
             >
-              <h3 className="text-lg font-medium text-neutral-100 group-hover:text-white">
+              <h3 className="display text-xl font-semibold text-neutral-100 group-hover:text-white">
                 {f.name}
               </h3>
               {f.description && (

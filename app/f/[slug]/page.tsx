@@ -43,11 +43,14 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
         </Link>
 
         <header className="mt-4 mb-10">
-          <h1 className="text-4xl font-bold tracking-tight">{b.franchise.name}</h1>
+          <h1 className="display text-5xl font-semibold tracking-tight">{b.franchise.name}</h1>
           {b.franchise.description && (
-            <Prose text={b.franchise.description} className="mt-3 block text-lg text-[var(--ink)]/75" />
+            <Prose
+              text={b.franchise.description}
+              className="prose-read mt-3 block max-w-2xl text-lg text-[var(--ink)]/80"
+            />
           )}
-          <p className="mt-4 text-sm text-[var(--ink)]/50">
+          <p className="mt-4 text-sm text-[var(--muted)]">
             {b.works.length} works ·{" "}
             {b.authors.map((a, i) => (
               <span key={a.id}>
@@ -68,12 +71,15 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
             <div className="space-y-3">
               {b.eras.map((e) => (
                 <div key={e.id} className="rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-4">
-                  <div className="flex items-baseline gap-2">
-                    <h3 className="font-semibold">{e.title}</h3>
-                    <span className="font-mono text-xs text-[var(--ink)]/40">{e.period}</span>
+                  <div className="flex items-baseline gap-2.5">
+                    <h3 className="display text-lg font-semibold">{e.title}</h3>
+                    <span className="font-mono text-xs text-[var(--muted)]">{e.period}</span>
                   </div>
                   {e.description && (
-                    <Prose text={e.description} className="mt-1 block text-sm text-[var(--ink)]/65" />
+                    <Prose
+                      text={e.description}
+                      className="prose-read mt-1 block text-sm text-[var(--ink)]/70"
+                    />
                   )}
                 </div>
               ))}
