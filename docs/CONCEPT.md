@@ -40,7 +40,7 @@ The central modeling decision is generalizing from one author to a platform. Sha
 - **Work** - the abstract book: `id, title, author(s), pubDate, subseries, franchiseId, synopsis, canonTier (core | extended | apocrypha), externalIds { openLibrary, googleBooks, wikidata }`. Reading orders operate on **Works**.
 - **Edition** - a concrete published edition: `id, workId, isbn, language, coverUrl, publisher, format`. Covers, ISBNs, and store links operate on **Editions**. *(Work vs Edition is the gotcha that bites if you skip it: an order is a sequence of Works; a "buy" link needs an Edition.)*
 - **Franchise** - the universe/author-world: `id, name, kind (author | shared-universe | series), theme (see §6), curatorIds[]`.
-- **ReadingOrder** - `id, franchiseId, name, type (official-publication | chronological-inuniverse | author-recommended | community | curated), curatorId, orderedWorkIds[], rationale`. A franchise has **many** orders - this is the completionist magnet.
+- **ReadingOrder** - `id, franchiseId, name, type (official-publication | chronological-inuniverse | author-recommended | community | curated | user), source (canon | community | user), ownerId?, orderedWorkIds[], rationale`. A franchise has **many** orders - this is the completionist magnet. *Canon* orders come from git; *community/user* orders are Supabase rows (see §4a). Both reference the same stable Work IDs.
 - **Event** - the aura layer: `id, date | dateRange, title, description, impact (low | med | high), scope (author-life | world | culture | industry), reach (global | franchise-specific), sourceUrl, spoiler (see §9)`. Global-reach events (world/culture) are shared across every franchise; author-life events belong to one.
 - **Progress** (per user) - `userId, workId, status (unread | reading | read | abandoned), rating, dateRead, note`.
 - **Achievement** - data-driven (see §7): `id, name, description, icon, tier, category, criteria`.
@@ -48,6 +48,18 @@ The central modeling decision is generalizing from one author to a platform. Sha
 - **StoreLink** - monetization (see §8): `editionId, country, retailer, affiliateUrl`.
 - **User** - `id, handle, publicProfile, country (drives store links + locale), progress, achievements, groupIds[], curatorCredits[]`.
 - **Curator** - a credited role (see §5): a User with editorial rights over one or more franchises' orders and events.
+
+## 4a. Content sources: canon (git) vs user data (Supabase)
+
+The one seam that could break the git-content model is **user-created reading orders** - they're runtime writes, they can't live in git. Resolution:
+
+- **Git = source of truth for canon only.** Works, Editions, Franchises, Events, and *official / author-recommended / curated* ReadingOrders. Reviewed via PR, versioned, never contains user data.
+- **The bridge is stable Work IDs.** Every Work has a permanent slug defined in git, `<franchise-slug>/<work-slug>` (e.g. `stephen-king/the-stand`). **These IDs are immutable forever** - DB rows and user orders reference them, so renaming one orphans data. This is a hard content-discipline rule.
+- **A deploy-time sync upserts the git canon into Supabase** (`works`, `editions`, `events`, and `reading_orders` where `source = 'canon'`). So at runtime *everything* is queryable in one place, with uniform joins.
+- **Custom and community orders are rows in the same `reading_orders` table**, with `source = 'user' | 'community'` and an `ownerId`, their `orderedWorkIds` pointing at the same git-defined Work IDs. A query for "all orders for franchise X" returns canon + community + the user's own, uniformly - a custom order is just a private row.
+- **Round-trip:** a community order that earns promotion to canon gets exported by a curator into a git file (and its DB row retired or remarked). Canon always ends up back in git.
+
+Net: curation stays PR-based and versioned, custom orders "just work" as DB rows, and there's a single runtime query path.
 
 ## 5. Feature set
 
@@ -131,11 +143,13 @@ Building auth before the read-only experience is delightful yields a tracker wit
 
 **Frontend - the one real architecture fork:** the prototype is a Vite + React SPA (client-rendered), which is **bad for SEO** - and search discovery is core to the passion-project-with-affiliate goal. Recommendation: move the public "museum" to an **SSR/SSG framework (Next.js)**, keeping React + shadcn/ui + Tailwind (components port over). SSR/SSG gives crawlable franchise/book pages; it containerizes cleanly on homeberry and later deploys to Vercel or any Node host unchanged. Theming via CSS custom properties (§6) works the same.
 
-**Content model - decide early, it shapes curation:** franchise/order/event data is curation-heavy and read-mostly. Recommendation: **git-versioned content files** (YAML/JSON per franchise, reviewed via PR) for Phase 1 - versioned, no CMS to build, and curation *is* pull requests (fits the credited-curator model in §5). Build to a database only when user data arrives in Phase 2; the content can move into Postgres later, or stay file-sourced and built at deploy. User data (accounts/progress/groups) is Postgres from the start of Phase 2.
+**Content model (decided):** **git-versioned content files** (YAML per franchise, reviewed via PR) are the source of truth for canon; a deploy-time sync loads them into Supabase; user/community orders are DB rows referencing stable Work IDs (§4a). Curation is pull requests, fitting the credited-curator model (§5).
+
+**Backend (decided): Supabase.** Provides Postgres + Auth (GoTrue) + row-level security + storage in one - covers the DB, the auth provider, and the S3-compatible asset layer at once. Fits the hosting plan: **self-host Supabase via its Docker compose on homeberry now → Supabase Cloud (or plain managed Postgres) later.** Mild lock-in to flag: Supabase Auth + RLS are somewhat coupled, so migrating *off* Supabase entirely is more work than swapping a connection string - acceptable for a passion project, and "for now" per the decision.
 
 **i18n**: not optional - João Tordo forces multi-language content (Portuguese) and non-English retail early. Design content and store links locale-aware from Phase 1.
 
-**Auth**: public profiles need the app's **own** user accounts (not Authelia SSO, which is a dev-edge concern only). Choose a provider at Phase 2 - own (Postgres + Lucia/Auth.js) vs a service (Supabase Auth / Clerk). Deferred, but it's a Phase-2 blocker, not a detail.
+**Curation workflow (decided): authored Claude Code skills.** The LLM-assisted curation is concrete tooling, not a vague step - a set of skills (versioned in this repo under `.claude/skills/`) that research a franchise and emit the git content bundle for curator review. First one: **`franchise-research`** (authors + life events, world/culture events, eras, bibliography, known orders). See that skill for the output schema.
 
 **Releases**: release-please once it has versioned releases, per convention.
 
@@ -144,20 +158,20 @@ Building auth before the read-only experience is delightful yields a tracker wit
 **Resolved**
 - **Hosting** - Docker stack on homeberry, built cloud-portable (§12).
 - **Repo visibility** - **private** at concept stage; flip public when there's something to show (SEO/affiliate angle).
+- **Backend + auth** - **Supabase** (Postgres + Auth + RLS + storage), self-hosted on homeberry now → cloud later (§12).
+- **Content model** - git canon synced to Supabase; user/community orders as DB rows (§4a, §12).
+- **Profile privacy** - **private by default**, opt-in public.
+- **Curation workflow** - **authored Claude Code skills**; first is `franchise-research` (§12).
 
-**Decide now (they shape the foundation)**
-- **Frontend architecture** - SSR/SSG (Next.js) for SEO vs keeping the Vite SPA. Recommendation: migrate to Next.js (§12). This is the expensive-to-reverse one.
-- **Content model** - git-versioned content files vs database-first for franchise/order/event data. Recommendation: git files in Phase 1, Postgres for user data in Phase 2 (§12).
-- **Cover-image and metadata rights** - can we legally display covers, and from where? OpenLibrary covers are generally usable; Google Books has API ToS; Amazon cover art requires being an affiliate; Wikidata is CC0. Resolve before public launch (not blocking Phase 1 dev). Store all assets behind the S3-compatible layer regardless.
+**Decide now (shapes the foundation)**
+- **Frontend architecture** - SSR/SSG (Next.js) for SEO vs keeping the Vite SPA. Recommendation: migrate to Next.js (§12). The expensive-to-reverse one - still open.
+- **Cover-image and metadata rights** - can we legally display covers, and from where? OpenLibrary covers are generally usable; Google Books has API ToS; Amazon cover art requires being an affiliate; Wikidata is CC0. Resolve before public launch (not blocking Phase 1 dev). Assets sit behind Supabase storage regardless.
 
 **Decide later (named, deferred)**
-- **Auth provider** - own (Lucia/Auth.js) vs service (Supabase/Clerk). Phase 2 blocker.
-- **Profile privacy default** - recommend private-by-default, opt-in public (reading habits are personal).
-- **Aura curation workflow** - LLM-assisted drafting + curator review; tooling TBD. The bottleneck (§8).
 - **Community moderation model** - Phase 3; keep the data model group-aware early.
 
 **Homework / curation**
 - **Name** - "Orrery" is a codename; real brand should signal "reading journeys in context," not "book tracker."
-- **João Tordo bibliography** - needs genuine curation; do not assume series/order structure.
+- **João Tordo bibliography** - genuine curation via `franchise-research`; do not assume series/order structure.
 - **Portugal affiliate programs** - confirm Bertrand / FNAC / Wook affiliate availability.
 - **Phase 1 "definition of done"** - how many orders per franchise and how deep the aura before it's shippable (scope discipline).
