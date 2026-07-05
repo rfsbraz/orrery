@@ -145,11 +145,13 @@ Building auth before the read-only experience is delightful yields a tracker wit
 
 **Content model (decided):** **git-versioned content files** (YAML per franchise, reviewed via PR) are the source of truth for canon; a deploy-time sync loads them into Supabase; user/community orders are DB rows referencing stable Work IDs (§4a). Curation is pull requests, fitting the credited-curator model (§5).
 
+**Two-repo split (decided):** canon content lives in a **separate repo, [`orrery-content`](https://github.com/rfsbraz/orrery-content)** - no app code, no secrets, so it can be opened to community contribution independently of the app. The app never reads those files at runtime; a sync step (deploy/CI) validates and upserts them into Supabase. The `franchise-research` skill lives in `orrery-content` (it authors content, so it belongs with the content). This app repo holds the frontend/backend and this concept doc.
+
 **Backend (decided): Supabase.** Provides Postgres + Auth (GoTrue) + row-level security + storage in one - covers the DB, the auth provider, and the S3-compatible asset layer at once. Fits the hosting plan: **self-host Supabase via its Docker compose on homeberry now → Supabase Cloud (or plain managed Postgres) later.** Mild lock-in to flag: Supabase Auth + RLS are somewhat coupled, so migrating *off* Supabase entirely is more work than swapping a connection string - acceptable for a passion project, and "for now" per the decision.
 
 **i18n**: not optional - João Tordo forces multi-language content (Portuguese) and non-English retail early. Design content and store links locale-aware from Phase 1.
 
-**Curation workflow (decided): authored Claude Code skills.** The LLM-assisted curation is concrete tooling, not a vague step - a set of skills (versioned in this repo under `.claude/skills/`) that research a franchise and emit the git content bundle for curator review. First one: **`franchise-research`** (authors + life events, world/culture events, eras, bibliography, known orders). See that skill for the output schema.
+**Curation workflow (decided): authored Claude Code skills.** The LLM-assisted curation is concrete tooling, not a vague step - a set of skills (in the `orrery-content` repo under `.claude/skills/`) that research a franchise and emit the git content bundle for curator review. First one: **`franchise-research`** (authors + life events, world/culture events, eras, bibliography, known orders) - it also defines the content schema.
 
 **Releases**: release-please once it has versioned releases, per convention.
 

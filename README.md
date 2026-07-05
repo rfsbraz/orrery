@@ -9,6 +9,7 @@ Passion project first, with tasteful good-faith affiliate income (per-country bo
 - **Status:** concept stage. No implementation yet.
 - **Codename:** "Orrery" is a working title, not the final brand.
 - **The plan:** see [`docs/CONCEPT.md`](docs/CONCEPT.md) - the full concept, data model, feature set, and phased roadmap.
+- **Canon content lives in a separate repo:** [`orrery-content`](https://github.com/rfsbraz/orrery-content) holds the curated franchises, works, aura events, and reading orders (plus the `franchise-research` skill). This repo is the app; that one is the data.
 
 ## Launch franchises
 
