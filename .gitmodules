@@ -1,0 +1,3 @@
+[submodule "orrery-content"]
+	path = orrery-content
+	url = https://github.com/rfsbraz/orrery-content
