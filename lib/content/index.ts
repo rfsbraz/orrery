@@ -99,6 +99,13 @@ export function listFranchises(): Franchise[] {
     .filter((f): f is Franchise => Boolean(f));
 }
 
+/** Every franchise, fully loaded - for cross-franchise views (profile, achievements). */
+export function getAllBundles(): FranchiseBundle[] {
+  return listFranchiseSlugs()
+    .map((slug) => getFranchise(slug))
+    .filter((b): b is FranchiseBundle => Boolean(b));
+}
+
 /** First year of an event's date/dateRange, for sorting. */
 export function eventYear(e: AuraEvent): number {
   const raw = String(e.date ?? e.dateRange ?? "");

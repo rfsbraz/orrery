@@ -83,6 +83,17 @@ create policy "achievements: write own"
   using (auth.uid() = user_id)
   with check (auth.uid() = user_id);
 
+-- ---------------------------------------------------------------------------
+-- Table privileges. RLS decides *which rows*; these grant the operation at all.
+-- Supabase's default privileges don't always reach migration-created tables, and
+-- a self-hosted Postgres (homeberry) needs these explicitly. anon gets SELECT so
+-- logged-out visitors can read public profiles (RLS still limits to is_public).
+-- ---------------------------------------------------------------------------
+grant select, insert, update, delete on public.profiles to authenticated;
+grant select, insert, update, delete on public.progress to authenticated;
+grant select, insert, update, delete on public.achievements_earned to authenticated;
+grant select on public.profiles, public.progress, public.achievements_earned to anon;
+
 -- keep updated_at fresh
 create or replace function public.touch_updated_at()
 returns trigger language plpgsql as $$

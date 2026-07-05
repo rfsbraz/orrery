@@ -6,6 +6,7 @@ import { stripRefs } from "@/lib/content/refs";
 import { themeVars } from "@/lib/theme";
 import { Prose } from "@/components/prose";
 import { Timeline } from "@/components/timeline";
+import { ProgressProvider } from "@/components/progress/provider";
 
 export function generateStaticParams() {
   return listFranchiseSlugs().map((slug) => ({ slug }));
@@ -132,7 +133,9 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
           <h2 className="mb-5 text-xs font-medium uppercase tracking-widest text-[var(--ink)]/50">
             The timeline
           </h2>
-          <Timeline works={b.works} events={b.timeline} />
+          <ProgressProvider>
+            <Timeline works={b.works} events={b.timeline} />
+          </ProgressProvider>
         </section>
       </main>
     </div>

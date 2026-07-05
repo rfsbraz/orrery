@@ -51,6 +51,7 @@ export async function setMyProgress(entry: ProgressEntry): Promise<{ ok: boolean
     date_read: entry.dateRead ?? null,
     note: entry.note ?? null,
   });
+  if (error) console.error("[setMyProgress] upsert failed:", error.code, error.message);
   return error ? { ok: false, error: error.message } : { ok: true };
 }
 

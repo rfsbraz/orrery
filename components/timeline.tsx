@@ -1,4 +1,5 @@
 import { Prose } from "./prose";
+import { ProgressControl } from "./progress/control";
 import { impactStyles } from "@/lib/theme";
 import type { AuraEvent, Work } from "@/lib/content/types";
 
@@ -65,6 +66,7 @@ export function Timeline({ works, events }: { works: Work[]; events: AuraEvent[]
                     className="prose-read mt-2 block text-sm text-[var(--ink)]/80"
                   />
                 )}
+                <ProgressControl workId={item.work.id} />
               </div>
             </li>
           ) : (
