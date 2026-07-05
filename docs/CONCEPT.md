@@ -121,18 +121,43 @@ Building auth before the read-only experience is delightful yields a tracker wit
 - **Phase 2 - the completionist's home**: accounts; public profiles; solo progress; the **personal timeline overlay**; achievements engine; Goodreads/StoryGraph import; per-country store links (Works now have Editions/ISBNs). Goal: a place that's *yours to return to*.
 - **Phase 3 - community**: groups / book clubs; community orders (submission + moderation); curation roles + credits. Goal: the community carries the data load.
 
-## 12. Tech notes
+## 12. Tech and hosting
 
-- **Frontend**: existing prototype is Vite + React + shadcn/ui + Tailwind + TypeScript (Lovable-originated). Theming via CSS custom properties fits §6 directly.
-- **Backend** (needed from Phase 2 for accounts/progress; Phase 1 can run off static/generated data): needs a database (Works/Editions/Orders/Events/Users/Progress/Groups) and an API. Direction TBD - keep it boring and cheap for a passion project (managed Postgres + a thin API, or an edge/serverless stack). Content (Works/Orders/Events) is read-heavy and cacheable; user data is the write path.
-- **i18n**: not optional - João Tordo forces multi-language content (Portuguese) and non-English retail early. Design content and store links locale-aware from Phase 1.
-- **Deployment**: per Rodrigo's convention, if it becomes a hostable service it can live on homeberry behind Authelia during development; a public launch wants a public host + CDN for SEO. release-please for versioning when it has releases.
+**Hosting decision (2026-07-05):** start as a **Docker-based stack on the media server (homeberry)**, architected so migrating to a cloud host later is a config change, not a rewrite. Principles:
+- **Portable containers, no homeberry-specific coupling.** Everything env-configured; nothing assumes local paths, the Authelia edge, or the mergerfs pool.
+- **Portable data.** Containerized **Postgres** now → managed Postgres (Neon / Supabase / RDS) later by changing a connection string. Cover images and assets behind an **S3-compatible** interface (MinIO container now → Cloudflare R2 / S3 / B2 later) - never the local filesystem.
+- **Stateless app containers** so they scale/move freely; state lives only in Postgres + object storage.
+- During dev it can sit behind Authelia on homeberry; the **public launch wants a public host + CDN** for SEO (see below).
+
+**Frontend - the one real architecture fork:** the prototype is a Vite + React SPA (client-rendered), which is **bad for SEO** - and search discovery is core to the passion-project-with-affiliate goal. Recommendation: move the public "museum" to an **SSR/SSG framework (Next.js)**, keeping React + shadcn/ui + Tailwind (components port over). SSR/SSG gives crawlable franchise/book pages; it containerizes cleanly on homeberry and later deploys to Vercel or any Node host unchanged. Theming via CSS custom properties (§6) works the same.
+
+**Content model - decide early, it shapes curation:** franchise/order/event data is curation-heavy and read-mostly. Recommendation: **git-versioned content files** (YAML/JSON per franchise, reviewed via PR) for Phase 1 - versioned, no CMS to build, and curation *is* pull requests (fits the credited-curator model in §5). Build to a database only when user data arrives in Phase 2; the content can move into Postgres later, or stay file-sourced and built at deploy. User data (accounts/progress/groups) is Postgres from the start of Phase 2.
+
+**i18n**: not optional - João Tordo forces multi-language content (Portuguese) and non-English retail early. Design content and store links locale-aware from Phase 1.
+
+**Auth**: public profiles need the app's **own** user accounts (not Authelia SSO, which is a dev-edge concern only). Choose a provider at Phase 2 - own (Postgres + Lucia/Auth.js) vs a service (Supabase Auth / Clerk). Deferred, but it's a Phase-2 blocker, not a detail.
+
+**Releases**: release-please once it has versioned releases, per convention.
 
 ## 13. Open questions / decisions
 
-- **Name** - "Orrery" is a codename. Real brand TBD; should signal "reading journeys in context," not "book tracker."
-- **Repo visibility** - created **private** at concept stage (reversible); flip public when there's something to show, especially given the SEO/affiliate angle.
-- **Backend choice** - defer until Phase 2 is real; Phase 1 can be static.
+**Resolved**
+- **Hosting** - Docker stack on homeberry, built cloud-portable (§12).
+- **Repo visibility** - **private** at concept stage; flip public when there's something to show (SEO/affiliate angle).
+
+**Decide now (they shape the foundation)**
+- **Frontend architecture** - SSR/SSG (Next.js) for SEO vs keeping the Vite SPA. Recommendation: migrate to Next.js (§12). This is the expensive-to-reverse one.
+- **Content model** - git-versioned content files vs database-first for franchise/order/event data. Recommendation: git files in Phase 1, Postgres for user data in Phase 2 (§12).
+- **Cover-image and metadata rights** - can we legally display covers, and from where? OpenLibrary covers are generally usable; Google Books has API ToS; Amazon cover art requires being an affiliate; Wikidata is CC0. Resolve before public launch (not blocking Phase 1 dev). Store all assets behind the S3-compatible layer regardless.
+
+**Decide later (named, deferred)**
+- **Auth provider** - own (Lucia/Auth.js) vs service (Supabase/Clerk). Phase 2 blocker.
+- **Profile privacy default** - recommend private-by-default, opt-in public (reading habits are personal).
+- **Aura curation workflow** - LLM-assisted drafting + curator review; tooling TBD. The bottleneck (§8).
+- **Community moderation model** - Phase 3; keep the data model group-aware early.
+
+**Homework / curation**
+- **Name** - "Orrery" is a codename; real brand should signal "reading journeys in context," not "book tracker."
 - **João Tordo bibliography** - needs genuine curation; do not assume series/order structure.
-- **Portugal affiliate programs** - confirm Bertrand/FNAC/Wook affiliate availability.
-- **Community moderation model** - defer to Phase 3, but keep the data model group-aware early.
+- **Portugal affiliate programs** - confirm Bertrand / FNAC / Wook affiliate availability.
+- **Phase 1 "definition of done"** - how many orders per franchise and how deep the aura before it's shippable (scope discipline).
