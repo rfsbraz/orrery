@@ -31,6 +31,7 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
 
   const workTitle = (id: string) => b.works.find((w) => w.id === id)?.title ?? id;
   const curated = b.orders.filter((o) => !o.derived);
+  const authorNames = new Map(b.authors.map((a) => [a.id, a.name]));
 
   return (
     <div
@@ -134,7 +135,7 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
             The timeline
           </h2>
           <ProgressProvider>
-            <Timeline works={b.works} events={b.timeline} />
+            <Timeline works={b.works} events={b.timeline} authorNames={authorNames} />
           </ProgressProvider>
         </section>
       </main>

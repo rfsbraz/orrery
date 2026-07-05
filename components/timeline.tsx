@@ -1,5 +1,6 @@
 import { Prose } from "./prose";
 import { ProgressControl } from "./progress/control";
+import { FindACopy } from "./find-a-copy";
 import { impactStyles } from "@/lib/theme";
 import type { AuraEvent, Work } from "@/lib/content/types";
 
@@ -17,7 +18,15 @@ type Item =
  * strung along the "Beam" - the signature vertical line (echoing the Dark Tower
  * connecting the whole body of work). Atmosphere through structure, not decor.
  */
-export function Timeline({ works, events }: { works: Work[]; events: AuraEvent[] }) {
+export function Timeline({
+  works,
+  events,
+  authorNames,
+}: {
+  works: Work[];
+  events: AuraEvent[];
+  authorNames?: Map<string, string>;
+}) {
   const items: Item[] = [
     ...works.map((w) => ({ kind: "work" as const, year: w.published, work: w })),
     ...events.map((e) => ({ kind: "event" as const, year: yearOf(e), event: e })),
@@ -67,6 +76,11 @@ export function Timeline({ works, events }: { works: Work[]; events: AuraEvent[]
                   />
                 )}
                 <ProgressControl workId={item.work.id} />
+                <FindACopy
+                  title={item.work.title}
+                  author={authorNames?.get(item.work.authorIds[0])}
+                  openLibraryId={item.work.externalIds?.openLibrary}
+                />
               </div>
             </li>
           ) : (
