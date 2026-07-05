@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: daily
+    groups:
+      npm-packages:
+        patterns: ["*"]
+  - package-ecosystem: docker
+    directory: "/"
+    schedule:
+      interval: daily
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: daily
+    groups:
+      actions:
+        patterns: ["*"]
+  # Keep the content submodule fresh (the content-sync workflow also PRs bumps)
+  - package-ecosystem: gitsubmodule
+    directory: "/"
+    schedule:
+      interval: daily

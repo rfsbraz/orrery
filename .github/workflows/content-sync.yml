@@ -1,0 +1,37 @@
+name: Content sync
+
+# Bumps the orrery-content submodule to the latest canon and opens a PR, so
+# merged content changes flow into the site automatically. CI (with SSG build)
+# then validates the bump before it merges.
+on:
+  schedule:
+    - cron: "0 5 * * *" # daily
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+      - name: Update submodule to latest content
+        run: |
+          git submodule update --remote orrery-content
+          echo "content_sha=$(git -C orrery-content rev-parse --short HEAD)" >> "$GITHUB_ENV"
+      - name: Open bump PR if content changed
+        uses: peter-evans/create-pull-request@v6
+        with:
+          add-paths: orrery-content
+          branch: bot/content-sync
+          delete-branch: true
+          title: "content: sync to latest canon (${{ env.content_sha }})"
+          commit-message: "content: bump orrery-content submodule to ${{ env.content_sha }}"
+          body: |
+            Automated bump of the `orrery-content` submodule to the latest canon (`${{ env.content_sha }}`).
+            CI builds the SSG pages against the new content; merge once green.
+          labels: "content,automated"
