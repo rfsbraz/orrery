@@ -3,12 +3,12 @@ import { getFranchise, getAuthor } from "../content";
 import { parseCsv, parseExport, matchToCanon } from "./csv";
 
 const king = getFranchise("stephen-king")!;
-const authorNames = new Map(
-  king.authors.map((a) => [a.id, a.name]).concat(
-    // include collaborators referenced by works
-    ["peter-straub", "owen-king", "richard-chizmar"].map((id) => [id, getAuthor(id)?.name ?? id])
-  )
-);
+const authorNames = new Map<string, string>();
+for (const a of king.authors) authorNames.set(a.id, a.name);
+// include collaborators referenced by works
+for (const id of ["peter-straub", "owen-king", "richard-chizmar"]) {
+  authorNames.set(id, getAuthor(id)?.name ?? id);
+}
 
 const GOODREADS = `Title,Author,My Rating,Exclusive Shelf,Date Read
 "The Stand",Stephen King,5,read,2019/07/15
