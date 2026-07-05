@@ -139,6 +139,18 @@ export async function setVote(orderId: string, voted: boolean): Promise<{ ok: bo
   return error ? { ok: false, error: error.message } : { ok: true };
 }
 
+/** Count a user's approved community-order submissions (their curation credit). */
+export async function countApprovedOrdersBy(userId: string): Promise<number> {
+  const supabase = await createServerSupabase();
+  if (!supabase) return 0;
+  const { count } = await supabase
+    .from("reading_orders")
+    .select("id", { count: "exact", head: true })
+    .eq("author_id", userId)
+    .eq("status", "approved");
+  return count ?? 0;
+}
+
 /** Is the signed-in user a moderator? */
 export async function isModerator(): Promise<boolean> {
   const supabase = await createServerSupabase();

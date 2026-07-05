@@ -25,6 +25,9 @@ export function AuthNav() {
     <nav className="fixed right-4 top-4 z-50 flex items-center gap-3 text-sm">
       {authed ? (
         <>
+          <Link href="/groups" className="text-neutral-400 hover:text-neutral-100">
+            Clubs
+          </Link>
           <Link href="/me" className="text-neutral-400 hover:text-neutral-100">
             My shelf
           </Link>

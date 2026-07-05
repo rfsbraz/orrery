@@ -15,6 +15,7 @@ function toProfile(row: Record<string, unknown>): Profile {
     bio: (row.bio as string) ?? null,
     country: (row.country as string) ?? null,
     isPublic: Boolean(row.is_public),
+    isModerator: Boolean(row.is_moderator),
   };
 }
 
@@ -25,7 +26,7 @@ export async function getMyProfile(): Promise<Profile | null> {
   if (!supabase || !user) return null;
   const { data } = await supabase
     .from("profiles")
-    .select("id,handle,display_name,bio,country,is_public")
+    .select("id,handle,display_name,bio,country,is_public,is_moderator")
     .eq("id", user.id)
     .maybeSingle();
   return data ? toProfile(data) : null;
@@ -62,7 +63,7 @@ export async function getProfileByHandle(handle: string): Promise<Profile | null
   if (!supabase) return null;
   const { data } = await supabase
     .from("profiles")
-    .select("id,handle,display_name,bio,country,is_public")
+    .select("id,handle,display_name,bio,country,is_public,is_moderator")
     .eq("handle", handle)
     .maybeSingle();
   return data ? toProfile(data) : null;

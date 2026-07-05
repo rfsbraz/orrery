@@ -4,7 +4,9 @@ import { notFound } from "next/navigation";
 import { getAllBundles } from "@/lib/content";
 import { getProfileByHandle } from "@/lib/supabase/profiles";
 import { getPublicProgress } from "@/lib/supabase/progress";
+import { countApprovedOrdersBy } from "@/lib/supabase/orders";
 import { Shelf } from "@/components/shelf";
+import { CuratorCredit } from "@/components/curator-credit";
 
 // RLS returns a profile only if public (or to its owner), so a private or
 // missing handle 404s for everyone else - no separate visibility check needed.
@@ -32,7 +34,10 @@ export default async function PublicProfilePage({
   if (!profile) notFound();
 
   const bundles = getAllBundles();
-  const progress = await getPublicProgress(profile.id);
+  const [progress, approvedOrders] = await Promise.all([
+    getPublicProgress(profile.id),
+    countApprovedOrdersBy(profile.id),
+  ]);
   const name = profile.displayName || `@${profile.handle}`;
 
   return (
@@ -43,6 +48,7 @@ export default async function PublicProfilePage({
       <h1 className="display mt-4 text-3xl font-semibold text-neutral-100">{name}</h1>
       <p className="mt-1 text-sm text-neutral-500">@{profile.handle}</p>
       {profile.bio && <p className="mt-3 max-w-prose text-neutral-300">{profile.bio}</p>}
+      <CuratorCredit isModerator={profile.isModerator} approvedOrders={approvedOrders} />
 
       <Shelf progress={progress} bundles={bundles} owner={false} />
     </main>

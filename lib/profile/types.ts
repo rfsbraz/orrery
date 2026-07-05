@@ -9,6 +9,7 @@ export interface Profile {
   bio: string | null;
   country: string | null;
   isPublic: boolean;
+  isModerator: boolean;
 }
 
 export interface ProfileInput {

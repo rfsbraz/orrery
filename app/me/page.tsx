@@ -4,8 +4,10 @@ import { getAllBundles } from "@/lib/content";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { getMyProgress } from "@/lib/supabase/progress";
 import { getMyProfile } from "@/lib/supabase/profiles";
+import { countApprovedOrdersBy } from "@/lib/supabase/orders";
 import { Shelf } from "@/components/shelf";
 import { ProfileEditor } from "@/components/profile/editor";
+import { CuratorCredit } from "@/components/curator-credit";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "My shelf | Orrery" };
@@ -28,7 +30,11 @@ export default async function MePage() {
   }
 
   const bundles = getAllBundles();
-  const [progress, profile] = await Promise.all([getMyProgress(), getMyProfile()]);
+  const [progress, profile, approvedOrders] = await Promise.all([
+    getMyProgress(),
+    getMyProfile(),
+    countApprovedOrdersBy(user.id),
+  ]);
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-14">
@@ -37,10 +43,21 @@ export default async function MePage() {
       </Link>
       <div className="mt-4 flex items-baseline justify-between gap-4">
         <h1 className="display text-3xl font-semibold text-neutral-100">Your shelf</h1>
-        <Link href="/import" className="shrink-0 text-sm text-neutral-400 underline hover:text-neutral-100">
-          Import reading
-        </Link>
+        <div className="flex shrink-0 items-center gap-4 text-sm">
+          {profile?.isModerator && (
+            <Link href="/moderate" className="text-amber-400/90 hover:text-amber-300">
+              Moderate
+            </Link>
+          )}
+          <Link href="/import" className="text-neutral-400 underline hover:text-neutral-100">
+            Import reading
+          </Link>
+        </div>
       </div>
+
+      {profile && (
+        <CuratorCredit isModerator={profile.isModerator} approvedOrders={approvedOrders} />
+      )}
 
       <Shelf progress={progress} bundles={bundles} owner />
 
