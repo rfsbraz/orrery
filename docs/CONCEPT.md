@@ -162,6 +162,7 @@ Building auth before the read-only experience is delightful yields a tracker wit
 - **Phase 0 - done-ish**: King prototype, initial data model, three timeline views.
 - **Phase 1 - the atmospheric museum (read-only)**: generalize the data model; author theming; metadata enrichment (OpenLibrary + Google Books + Wikidata seeding); the five launch franchises' orders + aura; order-diff and "where to start." No auth. Goal: beautiful and shareable, proves it's a platform.
 - **Phase 2 - the completionist's home**: accounts; public profiles; solo progress; the **personal timeline overlay**; achievements engine; Goodreads/StoryGraph import; per-country store links (Works now have Editions/ISBNs). Goal: a place that's *yours to return to*.
+  - *In progress:* Supabase schema + RLS (`supabase/migrations/`), the data-driven achievements engine (`lib/achievements/`), Goodreads/StoryGraph CSV import (`lib/import/`), and the personal-timeline overlay (`lib/progress/`) are built and unit-tested against real canon. Supabase client/server helpers (`lib/supabase/`) are scaffolded and env-guarded (app runs read-only until configured). **Next:** provision a Supabase instance (local `supabase` CLI for dev → homeberry self-host / cloud later), apply the migrations, set `NEXT_PUBLIC_SUPABASE_*`, then build auth UI + wire progress/profile/import pages against it.
 - **Phase 3 - community**: groups / book clubs; community orders (submission + moderation); curation roles + credits. Goal: the community carries the data load.
 
 ## 12. Tech and hosting
