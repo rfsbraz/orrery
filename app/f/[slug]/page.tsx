@@ -7,6 +7,7 @@ import { themeVars } from "@/lib/theme";
 import { Prose } from "@/components/prose";
 import { Timeline } from "@/components/timeline";
 import { ProgressProvider } from "@/components/progress/provider";
+import { CommunityOrders } from "@/components/orders/community-orders";
 
 export function generateStaticParams() {
   return listFranchiseSlugs().map((slug) => ({ slug }));
@@ -32,6 +33,7 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
   const workTitle = (id: string) => b.works.find((w) => w.id === id)?.title ?? id;
   const curated = b.orders.filter((o) => !o.derived);
   const authorNames = new Map(b.authors.map((a) => [a.id, a.name]));
+  const workTitles = Object.fromEntries(b.works.map((w) => [w.id, w.title]));
 
   return (
     <div
@@ -128,6 +130,8 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
               </details>
             ))}
           </div>
+
+          <CommunityOrders franchiseSlug={slug} workTitles={workTitles} />
         </section>
 
         <section>
