@@ -1,0 +1,50 @@
+import Link from "next/link";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getAllBundles } from "@/lib/content";
+import { getProfileByHandle } from "@/lib/supabase/profiles";
+import { getPublicProgress } from "@/lib/supabase/progress";
+import { Shelf } from "@/components/shelf";
+
+// RLS returns a profile only if public (or to its owner), so a private or
+// missing handle 404s for everyone else - no separate visibility check needed.
+export const dynamic = "force-dynamic";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ handle: string }>;
+}): Promise<Metadata> {
+  const { handle } = await params;
+  const profile = await getProfileByHandle(handle);
+  if (!profile) return { title: "Not found | Orrery" };
+  const name = profile.displayName || `@${profile.handle}`;
+  return { title: `${name} | Orrery`, description: `${name}'s reading, in context.` };
+}
+
+export default async function PublicProfilePage({
+  params,
+}: {
+  params: Promise<{ handle: string }>;
+}) {
+  const { handle } = await params;
+  const profile = await getProfileByHandle(handle);
+  if (!profile) notFound();
+
+  const bundles = getAllBundles();
+  const progress = await getPublicProgress(profile.id);
+  const name = profile.displayName || `@${profile.handle}`;
+
+  return (
+    <main className="mx-auto max-w-3xl px-6 py-14">
+      <Link href="/" className="text-xs text-neutral-500 hover:text-neutral-300">
+        ← Orrery
+      </Link>
+      <h1 className="display mt-4 text-3xl font-semibold text-neutral-100">{name}</h1>
+      <p className="mt-1 text-sm text-neutral-500">@{profile.handle}</p>
+      {profile.bio && <p className="mt-3 max-w-prose text-neutral-300">{profile.bio}</p>}
+
+      <Shelf progress={progress} bundles={bundles} owner={false} />
+    </main>
+  );
+}
