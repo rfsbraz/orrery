@@ -16,7 +16,7 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Update submodule to latest content
@@ -24,7 +24,7 @@ jobs:
           git submodule update --remote orrery-content
           echo "content_sha=$(git -C orrery-content rev-parse --short HEAD)" >> "$GITHUB_ENV"
       - name: Open bump PR if content changed
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           add-paths: orrery-content
           branch: bot/content-sync
