@@ -49,6 +49,12 @@ export default async function MePage() {
               Moderate
             </Link>
           )}
+          <Link
+            href={`/me/recap/${new Date().getFullYear()}`}
+            className="text-neutral-400 underline hover:text-neutral-100"
+          >
+            Year in reading
+          </Link>
           <Link href="/import" className="text-neutral-400 underline hover:text-neutral-100">
             Import reading
           </Link>
