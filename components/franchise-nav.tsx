@@ -7,6 +7,7 @@ import type { Capabilities, CapabilityKey } from "@/lib/content/capabilities";
 // broken). Ordering is editorial: browse features first, tools after.
 const ITEMS: { key: CapabilityKey; href: (slug: string) => string; label: string }[] = [
   // Feature pages register here as they land.
+  { key: "river", href: (s) => `/f/${s}/river`, label: "The River" },
 ];
 
 export function FranchiseNav({ slug, caps }: { slug: string; caps: Capabilities }) {
