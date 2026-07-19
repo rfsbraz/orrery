@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getFranchise, listFranchiseSlugs } from "@/lib/content";
 import { capabilities } from "@/lib/content/capabilities";
+import { companionFor } from "@/lib/progress/companion";
 import { stripRefs } from "@/lib/content/refs";
 import { themeVars } from "@/lib/theme";
 import { Prose } from "@/components/prose";
@@ -33,6 +34,9 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
   if (!b) notFound();
 
   const caps = capabilities(b);
+  const companions = caps.companion
+    ? Object.fromEntries(b.works.map((w) => [w.id, companionFor(w, b)]))
+    : undefined;
   const workTitle = (id: string) => b.works.find((w) => w.id === id)?.title ?? id;
   const curated = b.orders.filter((o) => !o.derived);
   const authorNames = new Map(b.authors.map((a) => [a.id, a.name]));
@@ -143,7 +147,12 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
             The timeline
           </h2>
           <ProgressProvider>
-            <Timeline works={b.works} events={b.timeline} authorNames={authorNames} />
+            <Timeline
+              works={b.works}
+              events={b.timeline}
+              authorNames={authorNames}
+              companions={companions}
+            />
           </ProgressProvider>
         </section>
       </main>

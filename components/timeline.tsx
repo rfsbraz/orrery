@@ -2,8 +2,10 @@ import { Prose } from "./prose";
 import { ProgressControl } from "./progress/control";
 import { FindACopy } from "./find-a-copy";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
+import { CompanionPanel } from "./companion/panel";
 import { impactStyles } from "@/lib/theme";
 import type { AuraEvent, Work } from "@/lib/content/types";
+import type { CompanionData } from "@/lib/progress/companion";
 
 function yearOf(e: AuraEvent): number {
   const m = String(e.date ?? e.dateRange ?? "").match(/\d{4}/);
@@ -23,10 +25,13 @@ export function Timeline({
   works,
   events,
   authorNames,
+  companions,
 }: {
   works: Work[];
   events: AuraEvent[];
   authorNames?: Map<string, string>;
+  /** Per-work companion data; present only when the capability is active. */
+  companions?: Record<string, CompanionData>;
 }) {
   const items: Item[] = [
     ...works.map((w) => ({ kind: "work" as const, year: w.published, work: w })),
@@ -80,6 +85,12 @@ export function Timeline({
                   />
                 )}
                 <ProgressControl workId={item.work.id} />
+                {companions?.[item.work.id] && (
+                  <CompanionPanel
+                    data={companions[item.work.id]}
+                    workTitles={Object.fromEntries(titles)}
+                  />
+                )}
                 <FindACopy
                   title={item.work.title}
                   author={authorNames?.get(item.work.authorIds[0])}
