@@ -1,6 +1,7 @@
 import { Prose } from "./prose";
 import { ProgressControl } from "./progress/control";
 import { FindACopy } from "./find-a-copy";
+import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { impactStyles } from "@/lib/theme";
 import type { AuraEvent, Work } from "@/lib/content/types";
 
@@ -31,6 +32,9 @@ export function Timeline({
     ...works.map((w) => ({ kind: "work" as const, year: w.published, work: w })),
     ...events.map((e) => ({ kind: "event" as const, year: yearOf(e), event: e })),
   ].sort((a, b) => a.year - b.year || (a.kind === "event" ? -1 : 1));
+
+  const titles = new Map(works.map((w) => [w.id, w.title]));
+  const titleOf = (id: string) => titles.get(id);
 
   return (
     <div className="relative">
@@ -92,23 +96,28 @@ export function Timeline({
                 }`}
               />
               <div className={`border-l-2 pl-3.5 ${impactStyles[item.event.impact] ?? ""}`}>
-                <div className="flex flex-wrap items-baseline gap-x-2">
-                  <span className="font-mono text-[11px] text-[var(--muted)]/80">{item.year}</span>
-                  <span className="text-sm font-medium text-[var(--ink)]/90">
-                    {item.event.title}
-                  </span>
-                  {item.event.scope && item.event.scope !== "author-life" && (
-                    <span className="text-[10px] uppercase tracking-wide text-[var(--muted)]/70">
-                      {item.event.scope}
+                <SpoilerGate
+                  spoilerAfter={item.event.spoilerAfter}
+                  boundaryTitle={titleOf(item.event.spoilerAfter ?? "")}
+                >
+                  <div className="flex flex-wrap items-baseline gap-x-2">
+                    <span className="font-mono text-[11px] text-[var(--muted)]/80">{item.year}</span>
+                    <span className="text-sm font-medium text-[var(--ink)]/90">
+                      {item.event.title}
                     </span>
+                    {item.event.scope && item.event.scope !== "author-life" && (
+                      <span className="text-[10px] uppercase tracking-wide text-[var(--muted)]/70">
+                        {item.event.scope}
+                      </span>
+                    )}
+                  </div>
+                  {item.event.description && (
+                    <Prose
+                      text={item.event.description}
+                      className="prose-read mt-0.5 block text-xs text-[var(--ink)]/65"
+                    />
                   )}
-                </div>
-                {item.event.description && (
-                  <Prose
-                    text={item.event.description}
-                    className="prose-read mt-0.5 block text-xs text-[var(--ink)]/65"
-                  />
-                )}
+                </SpoilerGate>
               </div>
             </li>
           )

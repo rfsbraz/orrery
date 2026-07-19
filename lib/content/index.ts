@@ -4,6 +4,8 @@ import { parse as parseYaml } from "yaml";
 import type {
   Author,
   AuraEvent,
+  Character,
+  Edition,
   Era,
   Franchise,
   FranchiseBundle,
@@ -73,6 +75,8 @@ export function getFranchise(slug: string): FranchiseBundle | null {
   const curatedOrders = readYaml<ReadingOrder[]>(path.join(dir, "orders.yaml")) ?? [];
   const theme = readYaml<Theme>(path.join(dir, "theme.yaml")) ?? undefined;
   const franchiseEvents = readYaml<AuraEvent[]>(path.join(dir, "events.yaml")) ?? [];
+  const characters = readYaml<Character[]>(path.join(dir, "characters.yaml")) ?? [];
+  const editions = readYaml<Edition[]>(path.join(dir, "editions.yaml")) ?? [];
 
   const authors = franchise.authorIds
     .map((id) => authorMap().get(id))
@@ -90,7 +94,7 @@ export function getFranchise(slug: string): FranchiseBundle | null {
 
   const orders = [deriveDefaultOrder(slug, works), ...curatedOrders];
 
-  return { franchise, authors, works, eras, orders, timeline, theme };
+  return { franchise, authors, works, eras, orders, timeline, characters, editions, theme };
 }
 
 export function listFranchises(): Franchise[] {
