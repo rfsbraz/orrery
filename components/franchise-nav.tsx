@@ -8,6 +8,7 @@ import type { Capabilities, CapabilityKey } from "@/lib/content/capabilities";
 const ITEMS: { key: CapabilityKey; href: (slug: string) => string; label: string }[] = [
   // Feature pages register here as they land.
   { key: "river", href: (s) => `/f/${s}/river`, label: "The River" },
+  { key: "orderDiff", href: (s) => `/f/${s}/compare`, label: "Compare orders" },
 ];
 
 export function FranchiseNav({ slug, caps }: { slug: string; caps: Capabilities }) {
