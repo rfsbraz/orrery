@@ -26,12 +26,15 @@ export function Timeline({
   events,
   authorNames,
   companions,
+  editions,
 }: {
   works: Work[];
   events: AuraEvent[];
   authorNames?: Map<string, string>;
   /** Per-work companion data; present only when the capability is active. */
   companions?: Record<string, CompanionData>;
+  /** Per-work cover URL + buy ISBN (editions layer; absent entries fall back). */
+  editions?: Record<string, { cover: string | null; isbn13?: string }>;
 }) {
   const items: Item[] = [
     ...works.map((w) => ({ kind: "work" as const, year: w.published, work: w })),
@@ -56,7 +59,17 @@ export function Timeline({
                 aria-hidden
                 className="absolute -ml-[1.72rem] mt-2 h-2.5 w-2.5 rounded-full border border-[var(--bg)] bg-[var(--accent)]"
               />
-              <div className="rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-4">
+              <div className="flex gap-4 rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-4">
+                {editions?.[item.work.id]?.cover && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={editions[item.work.id].cover!}
+                    alt=""
+                    loading="lazy"
+                    className="h-24 w-16 shrink-0 rounded object-cover shadow-sm max-sm:hidden"
+                  />
+                )}
+                <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                   <span className="font-mono text-xs text-[var(--muted)]">{item.year}</span>
                   <h3 className="display text-lg font-semibold text-[var(--ink)]">
@@ -95,7 +108,9 @@ export function Timeline({
                   title={item.work.title}
                   author={authorNames?.get(item.work.authorIds[0])}
                   openLibraryId={item.work.externalIds?.openLibrary}
+                  isbn13={editions?.[item.work.id]?.isbn13}
                 />
+                </div>
               </div>
             </li>
           ) : (
