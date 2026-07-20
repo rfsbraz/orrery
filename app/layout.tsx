@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Fraunces, Spectral, Source_Serif_4 } from "next/font/google";
-import { AuthNav } from "@/components/auth-nav";
 import "./globals.css";
 
 const geistSans = Geist({ variable: "--font-sans", subsets: ["latin"] });
@@ -37,7 +36,6 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${spectral.variable} ${sourceSerif.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-neutral-950 font-sans text-neutral-200">
-        <AuthNav />
         {children}
       </body>
     </html>

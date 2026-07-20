@@ -1,8 +1,10 @@
 "use client";
 
+import { useT } from "@/components/i18n/provider";
+
 import { useState } from "react";
 import { useProgress } from "@/components/progress/provider";
-import { isRevealed, shieldCopy } from "@/lib/spoilers";
+import { isRevealed } from "@/lib/spoilers";
 
 /**
  * Progressive spoiler disclosure (CONCEPT §9). Content behind a boundary is
@@ -20,6 +22,7 @@ export function SpoilerGate({
   boundaryTitle?: string;
   children: React.ReactNode;
 }) {
+  const t = useT();
   const ctx = useProgress();
   const [forced, setForced] = useState(false);
 
@@ -30,12 +33,16 @@ export function SpoilerGate({
 
   return (
     <span className="inline-flex flex-wrap items-center gap-2 rounded border border-dashed border-[var(--ink)]/25 bg-[var(--surface)] px-2 py-1 align-baseline">
-      <span className="text-xs italic text-[var(--muted)]">{shieldCopy(boundaryTitle)}</span>
+      <span className="text-xs italic text-[var(--muted)]">
+        {boundaryTitle
+          ? t("spoiler.hiddenUntil", { work: boundaryTitle })
+          : t("spoiler.hidden")}
+      </span>
       <button
         onClick={() => setForced(true)}
         className="rounded border border-[var(--ink)]/20 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--ink)]/60 transition-colors hover:border-[var(--accent)] hover:text-[var(--ink)]"
       >
-        Reveal
+        {t("spoiler.reveal")}
       </button>
     </span>
   );

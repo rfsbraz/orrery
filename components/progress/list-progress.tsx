@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/i18n/provider";
+
 import { useProgress } from "./provider";
 
 /**
@@ -8,6 +10,7 @@ import { useProgress } from "./provider";
  * alike, and stays silent until progress has loaded (no 0-flash).
  */
 export function ListProgress({ workIds }: { workIds: string[] }) {
+  const t = useT();
   const ctx = useProgress();
   if (!ctx || !ctx.ready) return null;
 
@@ -20,9 +23,9 @@ export function ListProgress({ workIds }: { workIds: string[] }) {
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-xs text-[var(--ink)]/70">
           <span className="font-mono font-semibold text-[var(--ink)]">{read}</span>
-          <span className="text-[var(--muted)]"> of {workIds.length} read</span>
+          <span className="text-[var(--muted)]"> {t("progress.ofRead", { total: workIds.length })}</span>
           {reading > 0 && (
-            <span className="ml-2 text-[var(--muted)]">· {reading} in progress</span>
+            <span className="ml-2 text-[var(--muted)]">· {t("progress.inProgress", { n: reading })}</span>
           )}
         </p>
         <p className="font-mono text-[10px] text-[var(--muted)]">{Math.round(pct)}%</p>
@@ -35,7 +38,7 @@ export function ListProgress({ workIds }: { workIds: string[] }) {
       </div>
       {ctx.guest && (
         <p className="mt-1 text-[10px] text-[var(--muted)]/70">
-          Tracked in this browser - sign in to keep it.
+          {t("progress.guestNote")}
         </p>
       )}
     </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/i18n/provider";
+
 import { useProgress } from "./provider";
 import type { ReadStatus } from "@/lib/progress/types";
 
@@ -8,6 +10,7 @@ const chip =
 
 /** Per-work Reading / Read toggles. Signed-out readers track locally (guest mode). */
 export function ProgressControl({ workId }: { workId: string }) {
+  const t = useT();
   const ctx = useProgress();
   if (!ctx || !ctx.ready) return null;
   const status = ctx.get(workId);
@@ -23,10 +26,10 @@ export function ProgressControl({ workId }: { workId: string }) {
   return (
     <div className="mt-2.5 flex gap-1.5">
       <button className={`${chip} ${on("reading")}`} onClick={() => toggle("reading")}>
-        Reading
+        {t("progress.reading")}
       </button>
       <button className={`${chip} ${on("read")}`} onClick={() => toggle("read")}>
-        {status === "read" ? "Read ✓" : "Read"}
+        {status === "read" ? t("progress.readDone") : t("progress.read")}
       </button>
     </div>
   );

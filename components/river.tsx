@@ -28,6 +28,8 @@ export function River({
   companions,
   authorNames,
   isbns,
+  localTitles,
+  orderPositions,
 }: {
   layers: RiverLayer[];
   series: Map<string, SeriesEntry>;
@@ -39,6 +41,10 @@ export function River({
   authorNames?: Map<string, string>;
   /** Verified buy-ISBNs per work (editions capability). */
   isbns?: Record<string, string | undefined>;
+  /** Published title in the reader's language, where such an edition exists. */
+  localTitles?: Record<string, string>;
+  /** 1-based position per work within the selected reading order. */
+  orderPositions?: Map<string, number>;
   /** The franchise's signature element, from its theme.yaml. */
   signature?: SignatureKind;
 }) {
@@ -133,8 +139,16 @@ export function River({
                       <article
                         key={w.id}
                         id={`w-${w.id.split("/").pop()}`}
-                        className="flex w-[calc(50%-0.375rem)] scroll-mt-20 gap-3 rounded-md border border-[var(--ink)]/10 bg-[var(--surface)] p-3 max-md:w-full"
+                        className="relative flex w-[calc(50%-0.375rem)] scroll-mt-20 gap-3 rounded-md border border-[var(--ink)]/10 bg-[var(--surface)] p-3 max-md:w-full"
                       >
+                        {orderPositions?.has(w.id) && (
+                          <span
+                            aria-hidden
+                            className="absolute -left-3 -top-2 rounded-full bg-[var(--accent)] px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[var(--bg)]"
+                          >
+                            {orderPositions.get(w.id)}
+                          </span>
+                        )}
                         <Cover
                           src={covers[w.id]}
                           title={w.title}
@@ -143,8 +157,15 @@ export function River({
                         />
                         <div className="min-w-0 flex-1">
                           <h3 className="display text-[15px] font-semibold leading-tight">
-                            {w.title}
+                            {localTitles?.[w.id] ?? w.title}
                           </h3>
+                          {localTitles?.[w.id] && (
+                            // The original title stays visible: a reader
+                            // searching or discussing needs both.
+                            <p className="mt-0.5 text-[11px] italic text-[var(--muted)]">
+                              {w.title}
+                            </p>
+                          )}
                           <p className="mt-0.5 text-[10px] uppercase tracking-wide text-[var(--muted)]">
                             {entry && (
                               <span className="text-[var(--accent)]/90">

@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/i18n/provider";
+
 import { useEffect, useMemo, useState } from "react";
 import { diffOrders } from "@/lib/orders/diff";
 import { Prose } from "@/components/prose";
@@ -18,6 +20,7 @@ export function OrderCompare({
   orders: ReadingOrder[];
   workTitles: Record<string, string>;
 }) {
+  const t = useT();
   const [aId, setAId] = useState(orders[0]?.id ?? "");
   const [bId, setBId] = useState(orders[1]?.id ?? "");
 
@@ -68,21 +71,21 @@ export function OrderCompare({
   return (
     <div>
       <div className="flex flex-wrap gap-4">
-        {select(aId, setAId, "Order A")}
-        {select(bId, setBId, "Order B")}
+        {select(aId, setAId, t("compare.orderA"))}
+        {select(bId, setBId, t("compare.orderB"))}
       </div>
 
       {a && b && diff && (
         <>
           <p className="mt-4 text-sm text-[var(--ink)]/65">
             {diff.forks === 0 ? (
-              <>These two orders agree completely on the works they share.</>
+              <>{t("compare.agree")}</>
             ) : (
               <>
-                {diff.shared} works on the shared spine · {diff.forks}{" "}
-                {diff.forks === 1 ? "divergence" : "divergences"}
-                {diff.onlyA.length > 0 && <> · {diff.onlyA.length} only in A</>}
-                {diff.onlyB.length > 0 && <> · {diff.onlyB.length} only in B</>}
+                {t("compare.sharedSpine", { n: diff.shared })} · {diff.forks}{" "}
+                {diff.forks === 1 ? t("compare.divergence") : t("compare.divergences")}
+                {diff.onlyA.length > 0 && <> · {t("compare.onlyInA", { n: diff.onlyA.length })}</>}
+                {diff.onlyB.length > 0 && <> · {t("compare.onlyInB", { n: diff.onlyB.length })}</>}
               </>
             )}
           </p>
@@ -124,7 +127,7 @@ export function OrderCompare({
                     <div className="rounded-lg border border-dashed border-[var(--accent)]/40 p-2">
                       {seg.a.length === 0 ? (
                         <p className="px-1 py-0.5 text-center text-xs italic text-[var(--muted)]">
-                          A continues below
+                          {t("compare.continues", { side: "A" })}
                         </p>
                       ) : (
                         <ol className="space-y-1">
@@ -139,7 +142,7 @@ export function OrderCompare({
                     <div className="rounded-lg border border-dashed border-[var(--accent)]/40 p-2">
                       {seg.b.length === 0 ? (
                         <p className="px-1 py-0.5 text-center text-xs italic text-[var(--muted)]">
-                          B continues below
+                          {t("compare.continues", { side: "B" })}
                         </p>
                       ) : (
                         <ol className="space-y-1">
@@ -160,7 +163,7 @@ export function OrderCompare({
           {(a.debated?.length || b.debated?.length) ? (
             <div className="mt-6 rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-4">
               <h3 className="text-xs font-medium uppercase tracking-widest text-[var(--ink)]/50">
-                The debate
+                {t("compare.theDebate")}
               </h3>
               <ul className="mt-2 space-y-1.5 text-xs text-[var(--ink)]/65">
                 {[...(a.debated ?? []), ...(b.debated ?? [])].map((d, i) => (

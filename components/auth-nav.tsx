@@ -4,9 +4,14 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createBrowserSupabase } from "@/lib/supabase/client";
+import { useT, useLocale } from "@/components/i18n/provider";
+import { LocaleSwitcher } from "@/components/i18n/locale-switcher";
+import { localePath } from "@/lib/i18n/config";
 
-/** Tiny top-right nav: Sign in when logged out; My shelf + Sign out when in. */
+/** Tiny top-right nav: language switcher, plus sign in / shelf when accounts are on. */
 export function AuthNav() {
+  const t = useT();
+  const locale = useLocale();
   const router = useRouter();
   const [authed, setAuthed] = useState<boolean | null>(null);
   const supabase = createBrowserSupabase();
@@ -19,17 +24,26 @@ export function AuthNav() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  if (authed === null || !supabase) return null;
+  // The language switcher shows even when accounts are unconfigured - it is
+  // navigation, not an account feature.
+  if (authed === null || !supabase) {
+    return (
+      <nav className="fixed right-4 top-4 z-50 flex items-center gap-3 text-sm">
+        <LocaleSwitcher />
+      </nav>
+    );
+  }
 
   return (
     <nav className="fixed right-4 top-4 z-50 flex items-center gap-3 text-sm">
+      <LocaleSwitcher />
       {authed ? (
         <>
-          <Link href="/groups" className="text-neutral-400 hover:text-neutral-100">
-            Clubs
+          <Link href={localePath(locale, "/groups")} className="text-neutral-400 hover:text-neutral-100">
+            {t("nav.clubs")}
           </Link>
-          <Link href="/me" className="text-neutral-400 hover:text-neutral-100">
-            My shelf
+          <Link href={localePath(locale, "/me")} className="text-neutral-400 hover:text-neutral-100">
+            {t("nav.myShelf")}
           </Link>
           <button
             className="text-neutral-500 hover:text-neutral-300"
@@ -39,12 +53,12 @@ export function AuthNav() {
               router.refresh();
             }}
           >
-            Sign out
+            {t("nav.signOut")}
           </button>
         </>
       ) : (
-        <Link href="/login" className="text-neutral-400 hover:text-neutral-100">
-          Sign in
+        <Link href={localePath(locale, "/login")} className="text-neutral-400 hover:text-neutral-100">
+          {t("nav.signIn")}
         </Link>
       )}
     </nav>

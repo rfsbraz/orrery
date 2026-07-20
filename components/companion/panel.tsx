@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/i18n/provider";
+
 import { useProgress } from "@/components/progress/provider";
 import { SpoilerGate } from "@/components/spoilers/spoiler-gate";
 import type { CompanionData } from "@/lib/progress/companion";
@@ -17,6 +19,7 @@ export function CompanionPanel({
   data: CompanionData;
   workTitles: Record<string, string>;
 }) {
+  const t = useT();
   const ctx = useProgress();
   if (!ctx || !ctx.ready || !ctx.authed) return null;
   if (ctx.get(data.workId) !== "reading") return null;
@@ -27,11 +30,11 @@ export function CompanionPanel({
       className="mt-3 rounded-md border border-[var(--accent)]/30 bg-[var(--accent)]/5 p-3.5"
     >
       <p className="text-[10px] font-medium uppercase tracking-widest text-[var(--accent)]">
-        While you read
+        {t("companion.whileYouRead")}
       </p>
 
       <p className="mt-1.5 text-xs text-[var(--ink)]/70">
-        {data.position.index} of {data.position.total} in publication order
+        {t("companion.position", { n: data.position.index, total: data.position.total })}
         {data.eraTitle && (
           <>
             {" "}
@@ -69,7 +72,7 @@ export function CompanionPanel({
 
       {data.connections.length > 0 && (
         <p className="mt-2.5 text-xs text-[var(--ink)]/60">
-          Connects to{" "}
+          {t("companion.connectsTo")}{" "}
           {data.connections.map((c, i) => (
             <span key={c.id}>
               {i > 0 && ", "}

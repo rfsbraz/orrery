@@ -81,7 +81,11 @@ export interface Edition {
   id: string;
   workId: string;
   isbn13?: string;
+  /** BCP-47; region matters for books (pt-PT and pt-BR differ). */
   language?: string;
+  /** The title AS PUBLISHED in that language - never an invented translation. */
+  title?: string;
+  translator?: string;
   format?: "hardcover" | "paperback" | "ebook" | "audiobook";
   publisher?: string;
   year?: number;

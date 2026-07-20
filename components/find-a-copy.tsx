@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/i18n/provider";
+
 import { useEffect, useState } from "react";
 import { storeLinks, type StoreLinkInput } from "@/lib/stores/links";
 
@@ -23,6 +25,7 @@ const KEY = "orrery.country";
  * stay static; this is a small client affordance layered on top.
  */
 export function FindACopy(props: StoreLinkInput) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const [country, setCountry] = useState<string>("");
 
@@ -47,7 +50,7 @@ export function FindACopy(props: StoreLinkInput) {
         className="text-neutral-500 hover:text-neutral-300"
         aria-expanded={open}
       >
-        {open ? "Hide copies" : "Find a copy"}
+        {open ? t("copy.hide") : t("copy.find")}
       </button>
 
       {open && (
@@ -66,7 +69,7 @@ export function FindACopy(props: StoreLinkInput) {
           <select
             value={country}
             onChange={(e) => pick(e.target.value)}
-            aria-label="Country for store links"
+            aria-label={t("copy.country")}
             className="ml-auto rounded border border-neutral-800 bg-neutral-900 px-1.5 py-0.5 text-neutral-400 outline-none focus:border-neutral-600"
           >
             {COUNTRIES.map(([code, name]) => (

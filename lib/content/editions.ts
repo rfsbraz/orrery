@@ -17,19 +17,34 @@ const COUNTRY_LANGUAGE: Record<string, string> = {
 };
 
 /**
- * The edition to buy in a given country: language match first, then the most
- * recent (most likely in print). Null when the work has no editions on file.
+ * The edition to surface for a work: the reader's *locale* wins (it is an
+ * explicit choice), then the country's shop language, then English, then the
+ * most recent (most likely in print). Null when the work has no editions.
+ *
+ * Locale matching is region-aware on purpose: pt-PT and pt-BR are different
+ * translations with different titles and ISBNs, so an exact match scores
+ * highest and a same-language-different-region edition scores below English
+ * rather than being treated as equivalent.
  */
 export function pickEdition(
   workId: string,
   editions: Edition[],
-  country?: string
+  country?: string,
+  locale?: string
 ): Edition | null {
   const candidates = editions.filter((e) => e.workId === workId);
   if (candidates.length === 0) return null;
-  const lang = COUNTRY_LANGUAGE[(country ?? "").toUpperCase()] ?? "en";
-  const score = (e: Edition) =>
-    (e.language === lang ? 2 : e.language === "en" ? 1 : 0) * 10_000 + (e.year ?? 0);
+  const shopLang = COUNTRY_LANGUAGE[(country ?? "").toUpperCase()] ?? "en";
+  const base = (tag?: string) => (tag ?? "").split("-")[0].toLowerCase();
+
+  const score = (e: Edition) => {
+    let rank = 0;
+    if (locale && e.language === locale) rank = 4; // exact locale (pt-PT)
+    else if (base(e.language) === base(shopLang) && e.language === shopLang) rank = 3;
+    else if (e.language === "en" || base(e.language) === "en") rank = 2;
+    else if (locale && base(e.language) === base(locale)) rank = 1; // pt-BR for a pt-PT reader
+    return rank * 10_000 + (e.year ?? 0);
+  };
   return [...candidates].sort((a, b) => score(b) - score(a))[0];
 }
 
