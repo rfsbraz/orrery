@@ -19,7 +19,7 @@ export function ListProgress({ workIds }: { workIds: string[] }) {
   const pct = workIds.length > 0 ? (read / workIds.length) * 100 : 0;
 
   return (
-    <div className="sticky top-0 z-20 -mx-6 border-b border-[var(--ink)]/10 bg-[var(--bg)]/95 px-6 py-2.5 backdrop-blur">
+    <div className="sticky top-0 z-20 -mx-6 border-b border-[var(--ink)]/10 bg-[var(--bg)]/95 px-6 py-2.5 backdrop-blur pr-28 md:pr-6">
       <div className="flex items-baseline justify-between gap-3">
         <p className="text-xs text-[var(--ink)]/70">
           <span className="font-mono font-semibold text-[var(--ink)]">{read}</span>

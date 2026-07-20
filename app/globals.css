@@ -23,6 +23,28 @@
   text-wrap: pretty;
 }
 
+/* Installed as a PWA the app draws under the notch and home indicator, so the
+   fixed nav and the page gutters respect the safe areas. No effect in a normal
+   browser window, where the insets are 0. */
+@media (max-width: 767px) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  main {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);
+  }
+}
+
+/* Touch devices: no hover states left stuck after a tap, and text stays
+   selectable for quoting a synopsis. */
+@media (hover: none) {
+  .display,
+  .prose-read {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;

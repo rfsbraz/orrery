@@ -57,6 +57,11 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Run on all routes except static assets and images.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  // Run on all routes except static assets and the PWA's root-level files.
+  // Those must never be locale-rewritten: /en/manifest.webmanifest does not
+  // exist, and a service worker's scope is decided by the path it is served
+  // from, so /sw.js has to stay at the root to control the whole origin.
+  matcher: [
+    "/((?!_next/static|_next/image|favicon.ico|manifest.webmanifest|sw.js|icons/|robots.txt|sitemap.xml|.*\\.(?:svg|png|jpg|jpeg|gif|webp|webmanifest|xml|txt)$).*)",
+  ],
 };
