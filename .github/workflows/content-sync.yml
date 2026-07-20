@@ -1,9 +1,17 @@
 name: Content sync
 
 # Bumps the orrery-content submodule to the latest canon and opens a PR, so
-# merged content changes flow into the site automatically. CI (with SSG build)
-# then validates the bump before it merges.
+# merged content changes flow into the site automatically.
+#
+# Triggered three ways:
+#   repository_dispatch - the content repo pushes to main and tells us at once
+#                         (its "Notify app of content change" workflow)
+#   schedule            - daily safety net, in case a dispatch is missed or the
+#                         content repo's token is absent
+#   workflow_dispatch   - manual
 on:
+  repository_dispatch:
+    types: [content-updated]
   schedule:
     - cron: "0 5 * * *" # daily
   workflow_dispatch:
@@ -11,6 +19,12 @@ on:
 permissions:
   contents: write
   pull-requests: write
+
+# One rolling bump PR. Several content merges in a row update the same branch
+# rather than racing each other.
+concurrency:
+  group: content-sync
+  cancel-in-progress: false
 
 jobs:
   sync:
@@ -26,6 +40,17 @@ jobs:
       - name: Open bump PR if content changed
         uses: peter-evans/create-pull-request@v8
         with:
+          # A PR opened with the default GITHUB_TOKEN does NOT trigger
+          # pull_request workflows - GitHub blocks that to prevent loops. This
+          # workflow's own comment used to claim CI validated the bump; it never
+          # did, and an unbuildable content change would have reached main
+          # unchallenged. CONTENT_SYNC_TOKEN (a fine-grained PAT with Contents
+          # and Pull requests write on this repo) makes CI actually run.
+          #
+          # The fallback keeps the bump working without the token, but then the
+          # PR is unvalidated, so the step below says so out loud rather than
+          # letting it look green.
+          token: ${{ secrets.CONTENT_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
           add-paths: orrery-content
           branch: bot/content-sync
           delete-branch: true
@@ -33,5 +58,17 @@ jobs:
           commit-message: "content: bump orrery-content submodule to ${{ env.content_sha }}"
           body: |
             Automated bump of the `orrery-content` submodule to the latest canon (`${{ env.content_sha }}`).
-            CI builds the SSG pages against the new content; merge once green.
+
+            Triggered by: `${{ github.event_name }}`.
+
+            CI builds the SSG pages against the new content. Merge once green.
           labels: "content,automated"
+      - name: Warn if the bump PR is unvalidated
+        env:
+          # The secrets context is not usable in a step-level `if`, so test it
+          # through the environment instead.
+          TOKEN: ${{ secrets.CONTENT_SYNC_TOKEN }}
+        run: |
+          if [ -z "${TOKEN}" ]; then
+            echo "::warning title=Bump PR has no CI::Opened with GITHUB_TOKEN, so pull_request workflows will not run on it. Add CONTENT_SYNC_TOKEN (fine-grained PAT, Contents + Pull requests: write) so the SSG build actually validates content bumps."
+          fi
