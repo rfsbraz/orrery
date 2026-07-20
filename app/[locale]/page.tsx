@@ -16,7 +16,7 @@ export default async function Home(props: { params: Promise<{ locale: string }> 
   const { locale: localeSeg } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
   const t = translator(locale);
-  const authors = listAuthorEntries();
+  const authors = listAuthorEntries(locale);
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
       <header className="mb-14">

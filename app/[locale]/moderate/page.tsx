@@ -29,7 +29,7 @@ export default async function ModeratePage(props: { params: Promise<{ locale: st
 
   const pending = await getPendingOrders();
   const titles: Record<string, string> = {};
-  for (const b of getAllBundles()) for (const w of b.works) titles[w.id] = w.title;
+  for (const b of getAllBundles(locale)) for (const w of b.works) titles[w.id] = w.title;
 
   return (
     <main className="mx-auto max-w-3xl px-6 py-14">

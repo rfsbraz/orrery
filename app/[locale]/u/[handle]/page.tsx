@@ -35,7 +35,7 @@ export default async function PublicProfilePage({
   const profile = await getProfileByHandle(handle);
   if (!profile) notFound();
 
-  const bundles = getAllBundles();
+  const bundles = getAllBundles(locale);
   const [progress, approvedOrders] = await Promise.all([
     getPublicProgress(profile.id),
     countApprovedOrdersBy(profile.id),

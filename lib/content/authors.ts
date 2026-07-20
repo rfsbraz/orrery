@@ -22,8 +22,8 @@ export interface AuthorEntry {
  * Every author with a body of work to walk, sorted by surname-ish (last token
  * of the name), which is how a reader scans a shelf.
  */
-export function listAuthorEntries(): AuthorEntry[] {
-  const franchises = listFranchises();
+export function listAuthorEntries(locale?: string): AuthorEntry[] {
+  const franchises = listFranchises(locale);
   const primary = new Map<string, Franchise[]>();
   const secondary = new Map<string, Franchise[]>();
 
@@ -39,7 +39,7 @@ export function listAuthorEntries(): AuthorEntry[] {
 
   const entries: AuthorEntry[] = [];
   for (const [authorId, own] of primary) {
-    const author = getAuthor(authorId);
+    const author = getAuthor(authorId, locale);
     if (!author) continue;
     entries.push({
       author,

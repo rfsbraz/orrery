@@ -16,7 +16,7 @@ export default async function GroupsPage(props: { params: Promise<{ locale: stri
   const [user, groups] = await Promise.all([getCurrentUser(), getPublicGroups()]);
 
   // Build the franchise + order options for the create form from canon.
-  const franchises = getAllBundles().map((b) => ({
+  const franchises = getAllBundles(locale).map((b) => ({
     slug: b.franchise.id,
     name: b.franchise.name,
     orders: orderRefOptions(

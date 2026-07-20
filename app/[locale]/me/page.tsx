@@ -32,7 +32,7 @@ export default async function MePage(props: { params: Promise<{ locale: string }
     );
   }
 
-  const bundles = getAllBundles();
+  const bundles = getAllBundles(locale);
   const [progress, profile, approvedOrders] = await Promise.all([
     getMyProgress(),
     getMyProfile(),

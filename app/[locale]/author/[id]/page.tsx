@@ -29,7 +29,7 @@ export async function generateMetadata(props: {
 export default async function AuthorPage(props: { params: Promise<{ locale: string; id: string }> }) {
   const { locale: localeSeg, id } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
-  const a = getAuthor(id);
+  const a = getAuthor(id, locale);
   if (!a) notFound();
 
   return (

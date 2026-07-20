@@ -33,7 +33,7 @@ export default async function RecapPage(props: { params: Promise<{ locale: strin
     );
   }
 
-  const recap = buildYearRecap(year, getAllBundles(), await getMyProgress());
+  const recap = buildYearRecap(year, getAllBundles(locale), await getMyProgress());
 
   return (
     <main className="mx-auto max-w-2xl px-6 py-14">
