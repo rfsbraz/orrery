@@ -6,7 +6,7 @@ import { capabilities } from "@/lib/content/capabilities";
 import { companionFor } from "@/lib/progress/companion";
 import { coverFor, pickEdition } from "@/lib/content/editions";
 import { stripRefs } from "@/lib/content/refs";
-import { themeVars } from "@/lib/theme";
+import { signatureOf, themeVars } from "@/lib/theme";
 import { Prose } from "@/components/prose";
 import { Timeline } from "@/components/timeline";
 import { FranchiseNav } from "@/components/franchise-nav";
@@ -164,6 +164,7 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
               authorNames={authorNames}
               companions={companions}
               editions={editionInfo}
+              signature={signatureOf(b.theme)}
             />
           </ProgressProvider>
         </section>

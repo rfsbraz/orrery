@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { getFranchise, listFranchiseSlugs } from "@/lib/content";
 import { capabilities } from "@/lib/content/capabilities";
 import { coverFor, pickEdition } from "@/lib/content/editions";
-import { themeVars } from "@/lib/theme";
+import { signatureOf, themeVars } from "@/lib/theme";
 import { ProgressProvider } from "@/components/progress/provider";
 import { ListProgress } from "@/components/progress/list-progress";
 import { BeamConcept } from "@/components/river-lab/beam";
@@ -123,7 +123,7 @@ export default async function RiverLabPage(props: {
         <ProgressProvider>
           <ListProgress workIds={b.works.map((w) => w.id)} />
           <div className="pt-8">
-            <Concept {...labProps} />
+            <Concept {...labProps} signature={signatureOf(b.theme)} />
           </div>
         </ProgressProvider>
       </main>

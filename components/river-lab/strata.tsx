@@ -1,6 +1,7 @@
 import { Prose } from "@/components/prose";
 import { ProgressControl } from "@/components/progress/control";
 import { SpoilerGate } from "@/components/spoilers/spoiler-gate";
+import { signatureLine, type SignatureKind } from "@/lib/theme";
 import { Cover } from "./cover";
 import { groupByYear, subseriesEntries, type LabProps } from "./shared";
 
@@ -14,7 +15,8 @@ import { groupByYear, subseriesEntries, type LabProps } from "./shared";
  * ruptures: full-bleed inverted bands that break the stratigraphy the way
  * the event broke the life. The feeling: depth - how far down you've read.
  */
-export function StrataConcept(props: LabProps) {
+export function StrataConcept(props: LabProps & { signature?: SignatureKind }) {
+  const signature = props.signature ?? "thread";
   const groups = groupByYear(props);
   const series = subseriesEntries(props.works);
 
@@ -52,7 +54,12 @@ export function StrataConcept(props: LabProps) {
           ))}
 
           {(g.works.length > 0 || g.texture.length > 0) && (
-            <section className="relative overflow-hidden border-t border-[var(--ink)]/8 py-5">
+            <section className="relative overflow-hidden border-t border-[var(--ink)]/8 py-5 pl-4">
+              {/* the franchise signature threads the layers together */}
+              <span
+                aria-hidden
+                className={`pointer-events-none absolute left-0 top-0 bottom-0 ${signatureLine[signature]}`}
+              />
               {/* ghosted year numeral behind the layer */}
               <span
                 aria-hidden

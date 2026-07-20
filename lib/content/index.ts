@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
+import type { Achievement } from "../achievements/types";
 import type {
   Author,
   AuraEvent,
@@ -19,6 +20,7 @@ const CONTENT_ROOT = path.join(process.cwd(), "orrery-content", "content");
 const FRANCHISES = path.join(CONTENT_ROOT, "franchises");
 const AUTHORS = path.join(CONTENT_ROOT, "authors");
 const GLOBAL_EVENTS = path.join(CONTENT_ROOT, "events", "global.yaml");
+const GLOBAL_ACHIEVEMENTS = path.join(CONTENT_ROOT, "achievements.yaml");
 
 function readYaml<T>(file: string): T | null {
   if (!fs.existsSync(file)) return null;
@@ -115,6 +117,19 @@ export function eventYear(e: AuraEvent): number {
   const raw = String(e.date ?? e.dateRange ?? "");
   const m = raw.match(/\d{4}/);
   return m ? Number(m[0]) : 0;
+}
+
+/**
+ * Every achievement definition: the global set plus each franchise's own
+ * (CONCEPT §7 - achievements are data). Adding a badge is a content PR; only
+ * a new criteria *kind* needs app code.
+ */
+export function listAchievements(): Achievement[] {
+  const global = readYaml<Achievement[]>(GLOBAL_ACHIEVEMENTS) ?? [];
+  const perFranchise = listFranchiseSlugs().flatMap(
+    (slug) => readYaml<Achievement[]>(path.join(FRANCHISES, slug, "achievements.yaml")) ?? []
+  );
+  return [...global, ...perFranchise];
 }
 
 /** Reset caches (tests). */

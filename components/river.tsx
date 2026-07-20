@@ -1,6 +1,7 @@
 import { Prose } from "./prose";
 import { ProgressControl } from "./progress/control";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
+import { signatureLine, type SignatureKind } from "@/lib/theme";
 import type { RiverSection } from "@/lib/content/river";
 import type { Work } from "@/lib/content/types";
 
@@ -12,13 +13,22 @@ import type { Work } from "@/lib/content/types";
  * Atmosphere through structure and typography - no decor, no motion demands
  * (pure document flow; respects reduced motion by having none to reduce).
  */
-export function River({ sections, workTitles }: { sections: RiverSection[]; workTitles: Map<string, string> }) {
+export function River({
+  sections,
+  workTitles,
+  signature = "thread",
+}: {
+  sections: RiverSection[];
+  workTitles: Map<string, string>;
+  /** The franchise's signature element, from its theme.yaml. */
+  signature?: SignatureKind;
+}) {
   return (
     <div className="relative">
       {/* The beam runs the whole walk */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-gradient-to-b from-[var(--accent)]/70 via-[var(--ink)]/15 to-transparent max-md:left-2"
+        className={`pointer-events-none absolute left-1/2 top-0 bottom-0 -translate-x-1/2 max-md:left-2 ${signatureLine[signature]}`}
       />
       {sections.map((s, si) => (
         <section key={s.era?.id ?? `s-${si}`} className="relative">

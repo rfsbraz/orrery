@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { getAllBundles } from "@/lib/content";
+import { getAllBundles, listAchievements } from "@/lib/content";
 import { getCurrentUser } from "@/lib/supabase/server";
 import { getMyProgress } from "@/lib/supabase/progress";
 import { getMyProfile } from "@/lib/supabase/profiles";
@@ -65,7 +65,7 @@ export default async function MePage() {
         <CuratorCredit isModerator={profile.isModerator} approvedOrders={approvedOrders} />
       )}
 
-      <Shelf progress={progress} bundles={bundles} owner />
+      <Shelf progress={progress} bundles={bundles} achievements={listAchievements()} owner />
 
       <ProfileEditor initial={profile} />
     </main>

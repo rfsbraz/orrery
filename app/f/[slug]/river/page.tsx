@@ -5,7 +5,7 @@ import { getFranchise, listFranchiseSlugs } from "@/lib/content";
 import { capabilities } from "@/lib/content/capabilities";
 import { buildRiver } from "@/lib/content/river";
 import { stripRefs } from "@/lib/content/refs";
-import { themeVars } from "@/lib/theme";
+import { signatureOf, themeVars } from "@/lib/theme";
 import { River } from "@/components/river";
 import { ProgressProvider } from "@/components/progress/provider";
 
@@ -62,7 +62,7 @@ export default async function RiverPage(props: { params: Promise<{ slug: string 
           </p>
         </header>
         <ProgressProvider>
-          <River sections={sections} workTitles={workTitles} />
+          <River sections={sections} workTitles={workTitles} signature={signatureOf(b.theme)} />
         </ProgressProvider>
       </main>
     </div>

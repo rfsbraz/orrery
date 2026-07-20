@@ -3,7 +3,7 @@ import type { FranchiseBundle } from "@/lib/content/types";
 import type { ProgressEntry } from "@/lib/progress/types";
 import { buildPersonalOverlay, overlayCaption } from "@/lib/progress/overlay";
 import { buildContext, evaluate } from "@/lib/achievements/evaluate";
-import { ACHIEVEMENTS } from "@/lib/achievements/defs";
+import type { Achievement } from "@/lib/achievements/types";
 
 /**
  * The reader's shelf: stats, earned badges, the read-vs-written personal
@@ -13,15 +13,18 @@ import { ACHIEVEMENTS } from "@/lib/achievements/defs";
 export function Shelf({
   progress,
   bundles,
+  achievements,
   owner,
 }: {
   progress: ProgressEntry[];
   bundles: FranchiseBundle[];
+  /** Definitions from the content repo (global + per franchise). */
+  achievements: Achievement[];
   owner: boolean;
 }) {
   const allWorks = bundles.flatMap((b) => b.works);
   const overlay = buildPersonalOverlay(allWorks, progress);
-  const earnedIds = new Set(evaluate(ACHIEVEMENTS, buildContext(bundles, progress)));
+  const earnedIds = new Set(evaluate(achievements, buildContext(bundles, progress)));
   const reading = progress.filter((p) => p.status === "reading");
   const who = owner ? "you" : "they";
   const You = owner ? "You" : "They";
@@ -54,7 +57,7 @@ export function Shelf({
         <section className="mt-10">
           <h2 className="mb-4 text-xs font-medium uppercase tracking-widest text-neutral-500">Badges</h2>
           <div className="flex flex-wrap gap-3">
-            {ACHIEVEMENTS.filter((a) => earnedIds.has(a.id)).map((a) => (
+            {achievements.filter((a) => earnedIds.has(a.id)).map((a) => (
               <div
                 key={a.id}
                 title={a.description}
