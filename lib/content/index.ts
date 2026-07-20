@@ -134,6 +134,62 @@ function deriveDefaultOrder(slug: string, works: Work[]): ReadingOrder {
   };
 }
 
+/** First four-digit year in a `born`/`died` value ("1975", "12 Aug 1975"). */
+function yearOf(v: string | number | undefined): number | null {
+  if (v === undefined || v === null) return null;
+  const m = String(v).match(/\d{4}/);
+  return m ? Number(m[0]) : null;
+}
+
+/**
+ * Decide which global events belong on THIS franchise's timeline.
+ *
+ * `reach: global` means "any franchise could carry this", not "every franchise
+ * must". Without a relevance test, João Tordo (born 1975) opened his page in
+ * 1910 and walked a reader through both world wars before reaching his first
+ * novel in 2004. The events were correctly curated; they were just being shown
+ * to an author they could not possibly have touched.
+ *
+ * The default test is the author's lifetime: an event is the weather a writer
+ * wrote in, and a writer cannot have written in weather that predates them.
+ * That is arithmetic, not judgement, so it costs no curation and never needs
+ * re-running when a franchise is added.
+ *
+ * Judgement is opt-in on top. A franchise may name global events it claims
+ * regardless of the span (`globalEvents.include`, for an inheritance a later
+ * author genuinely writes out of) or ones it refuses despite overlapping
+ * (`globalEvents.exclude`, for an event that happened around an author without
+ * reaching the page). Both are explicit, both live with the franchise that
+ * knows, and `global.yaml` stays franchise-agnostic.
+ */
+function relevantGlobalEvents(
+  events: AuraEvent[],
+  authors: Author[],
+  franchise: Franchise
+): AuraEvent[] {
+  const rule = franchise.globalEvents ?? {};
+  const include = new Set(rule.include ?? []);
+  const exclude = new Set(rule.exclude ?? []);
+
+  const births = authors.map((a) => yearOf(a.born)).filter((y): y is number => y !== null);
+  // No birth data means no defensible span, so fall back to showing everything
+  // rather than silently hiding context. Absent data must not look like a rule.
+  if (births.length === 0) return events.filter((e) => !exclude.has(e.id));
+
+  const from = Math.min(...births);
+  const deaths = authors.map((a) => yearOf(a.died));
+  // A living author has an open-ended present; one dead author among several
+  // must not close the window on the others.
+  const to = deaths.some((d) => d === null) ? 9999 : Math.max(...(deaths as number[]));
+
+  return events.filter((e) => {
+    if (exclude.has(e.id)) return false;
+    if (include.has(e.id)) return true;
+    const y = eventYear(e);
+    return y >= from && y <= to;
+  });
+}
+
 export function getFranchise(slug: string, locale?: string): FranchiseBundle | null {
   const dir = path.join(FRANCHISES, slug);
   const franchiseBase = readYaml<Franchise>(path.join(dir, "franchise.yaml"));
@@ -185,9 +241,10 @@ export function getFranchise(slug: string, locale?: string): FranchiseBundle | n
   const lifeEvents = authors.flatMap((a) =>
     (a.lifeEvents ?? []).map((e) => ({ ...e, scope: e.scope ?? "author-life" }))
   );
-  const globalEvents = (readYaml<{ events: AuraEvent[] }>(GLOBAL_EVENTS)?.events ?? []).map(
-    (e) => merge(e, overlayFor(locale, path.join("events", "global.yaml")))
+  const allGlobal = (readYaml<{ events: AuraEvent[] }>(GLOBAL_EVENTS)?.events ?? []).map((e) =>
+    merge(e, overlayFor(locale, path.join("events", "global.yaml")))
   );
+  const globalEvents = relevantGlobalEvents(allGlobal, authors, franchise);
   const timeline = [...lifeEvents, ...franchiseEvents, ...globalEvents].sort(
     (a, b) => eventYear(a) - eventYear(b)
   );
