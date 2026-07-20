@@ -1,6 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { parse as parseYaml } from "yaml";
+import { translator } from "../i18n/messages";
+import { DEFAULT_LOCALE, isLocale } from "../i18n/config";
 import type { Achievement } from "../achievements/types";
 import type {
   Author,
@@ -140,16 +142,16 @@ export function listFranchiseSlugs(): string[] {
 }
 
 /** The default order: every work in publication-chronological order (CONCEPT §4b). */
-function deriveDefaultOrder(slug: string, works: Work[]): ReadingOrder {
+function deriveDefaultOrder(slug: string, works: Work[], locale?: string): ReadingOrder {
+  const t = translator(locale && isLocale(locale) ? locale : DEFAULT_LOCALE);
   const ordered = [...works].sort((a, b) => a.published - b.published);
   return {
     id: `${slug}/default`,
-    name: "Complete, in publication order",
+    name: t("order.defaultName"),
     type: "official-publication",
     source: "canon",
     derived: true,
-    rationale:
-      "Every published work in the order it appeared - the default way to read the whole body of work.",
+    rationale: t("order.defaultRationale"),
     orderedWorkIds: ordered.map((w) => w.id),
   };
 }
@@ -269,7 +271,7 @@ export function getFranchise(slug: string, locale?: string): FranchiseBundle | n
     (a, b) => eventYear(a) - eventYear(b)
   );
 
-  const orders = [deriveDefaultOrder(slug, works), ...curatedOrders];
+  const orders = [deriveDefaultOrder(slug, works, locale), ...curatedOrders];
 
   return { franchise, authors, works, eras, orders, timeline, characters, editions, theme };
 }

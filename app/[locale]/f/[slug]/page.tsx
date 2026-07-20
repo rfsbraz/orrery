@@ -149,6 +149,7 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
               isbns={isbns}
               signature={signatureOf(b.theme)}
               allWorkIds={b.works.map((w) => w.id)}
+              enteringLabel={t("franchise.entering")}
             />
           </ProgressProvider>
           <CommunityOrders franchiseSlug={slug} workTitles={workTitles} />
