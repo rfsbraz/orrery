@@ -11,8 +11,8 @@ import { stripRefs } from "@/lib/content/refs";
 import { signatureOf, themeVars } from "@/lib/theme";
 import { buildRiver, subseriesEntries } from "@/lib/content/river";
 import { Prose } from "@/components/prose";
-import { River } from "@/components/river";
-import { ListProgress } from "@/components/progress/list-progress";
+import { RiverView } from "@/components/river-view";
+import { Contribute } from "@/components/contribute";
 import { FranchiseNav } from "@/components/franchise-nav";
 import { ProgressProvider } from "@/components/progress/provider";
 import { CommunityOrders } from "@/components/orders/community-orders";
@@ -61,8 +61,6 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
     // A published title in the reader's language (never an invented one).
     if (edition?.title && edition.language === locale) localTitles[w.id] = edition.title;
   }
-  const workTitle = (id: string) => b.works.find((w) => w.id === id)?.title ?? id;
-  const curated = b.orders.filter((o) => !o.derived);
   const authorNames = new Map(b.authors.map((a) => [a.id, a.name]));
   const workTitles = Object.fromEntries(b.works.map((w) => [w.id, w.title]));
 
@@ -99,67 +97,26 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
           <FranchiseNav slug={slug} caps={caps} locale={locale} />
         </header>
 
-        <section className="mb-12">
-          <h2 className="mb-1 text-xs font-medium uppercase tracking-widest text-[var(--ink)]/50">
-            {t("franchise.readingOrders")}
-          </h2>
-          <p className="mb-4 text-sm text-[var(--ink)]/60">
-            {t("franchise.walkBlurb")}
-            {curated.length > 0 && ` ${t("franchise.curatedAlternatives")}`}
-          </p>
-          <div className="space-y-4">
-            {curated.map((o) => (
-              <details key={o.id} className="rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-4">
-                <summary className="cursor-pointer font-medium">
-                  {o.name}{" "}
-                  <span className="text-xs font-normal text-[var(--ink)]/45">
-                    ({o.orderedWorkIds.length})
-                  </span>
-                </summary>
-                {o.rationale && (
-                  <Prose text={o.rationale} className="mt-2 block text-sm text-[var(--ink)]/65" />
-                )}
-                <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm text-[var(--ink)]/80">
-                  {o.orderedWorkIds.map((id) => (
-                    <li key={id}>
-                      <a href={`#w-${id.split("/").pop()}`} className="hover:underline">
-                        {workTitle(id)}
-                      </a>
-                    </li>
-                  ))}
-                </ol>
-                {o.debated && o.debated.length > 0 && (
-                  <ul className="mt-3 space-y-1 text-xs text-[var(--ink)]/45">
-                    {o.debated.map((d, i) => (
-                      <li key={i}>· {d}</li>
-                    ))}
-                  </ul>
-                )}
-              </details>
-            ))}
-          </div>
-
+        <section>
+          <ProgressProvider>
+            <RiverView
+              layers={layers}
+              orders={b.orders}
+              series={series}
+              covers={covers}
+              workTitles={workTitles}
+              localTitles={localTitles}
+              companions={companions}
+              authorNames={authorNames}
+              isbns={isbns}
+              signature={signatureOf(b.theme)}
+              allWorkIds={b.works.map((w) => w.id)}
+            />
+          </ProgressProvider>
           <CommunityOrders franchiseSlug={slug} workTitles={workTitles} />
         </section>
 
-        <section>
-          <ProgressProvider>
-            <ListProgress workIds={b.works.map((w) => w.id)} />
-            <div className="pt-6">
-              <River
-                layers={layers}
-                series={series}
-                covers={covers}
-                workTitles={workTitles}
-                signature={signatureOf(b.theme)}
-                localTitles={localTitles}
-                companions={companions}
-                authorNames={authorNames}
-                isbns={isbns}
-              />
-            </div>
-          </ProgressProvider>
-        </section>
+        <Contribute locale={locale} franchiseName={b.franchise.name} />
 
       </main>
     </div>
