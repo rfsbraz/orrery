@@ -6,9 +6,10 @@
 
 Passion project first, with tasteful good-faith affiliate income (per-country bookstore links) as a background layer. Built by and for completionists.
 
-- **Status:** concept stage. No implementation yet.
+- **Status:** feature-complete on the local stack through Phase 4 (museum, accounts, community, and the framework feature set - River, order diff, wizard, connections, companion, recap, Hall, editions). Awaiting production provisioning (Supabase) for a public beta.
 - **Codename:** "Orrery" is a working title, not the final brand.
 - **The plan:** see [`docs/CONCEPT.md`](docs/CONCEPT.md) - the full concept, data model, feature set, and phased roadmap.
+- **The features and the capability model:** see [`docs/FEATURES.md`](docs/FEATURES.md) - every feature activates per franchise from the shape of its content; a sparse chronology is a first-class citizen.
 - **Canon content lives in a separate repo:** [`orrery-content`](https://github.com/rfsbraz/orrery-content) holds the curated franchises, works, aura events, and reading orders (plus the `franchise-research` skill). This repo is the app; that one is the data.
 
 ## Launch franchises
