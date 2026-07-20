@@ -9,7 +9,12 @@ import { orderRefOptions } from "@/lib/groups/order-ref";
 import { CreateGroupForm } from "@/components/groups/create-form";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Book clubs | Orrery" };
+export async function generateMetadata(props: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: seg } = await props.params;
+  return { title: translator(localeFromSegment(seg === "en" ? undefined : seg))("meta.groups") };
+}
 
 export default async function GroupsPage(props: { params: Promise<{ locale: string }> }) {
   const { locale: localeSeg } = await props.params;

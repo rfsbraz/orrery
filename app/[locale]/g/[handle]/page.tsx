@@ -55,7 +55,7 @@ export default async function GroupPage({ params }: { params: Promise<{ locale: 
   return (
     <main className="mx-auto max-w-3xl px-6 py-14">
       <Link href={localePath(locale, "/groups")} className="text-xs text-neutral-500 hover:text-neutral-300">
-        ← Book clubs
+        ← {t("groups.title")}
       </Link>
 
       <div className="mt-4 flex flex-wrap items-start justify-between gap-4">

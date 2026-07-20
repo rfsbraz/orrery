@@ -161,6 +161,10 @@ export const messages = {
     "profile.public": "Public profile",
     "profile.displayName": "Display name",
     "profile.makePublic": "Make my shelf public",
+    "shelf.backLink": "Your shelf",
+    "shelf.privateNote": "Your shelf is private until you make it public. A public shelf lives at",
+    "meta.groups": "Book clubs | Orrery",
+    "meta.recap": "Year in reading | Orrery",
     "locale.switch": "Language",
   },
 
@@ -319,6 +323,10 @@ export const messages = {
     "profile.public": "Perfil público",
     "profile.displayName": "Nome a mostrar",
     "profile.makePublic": "Tornar a minha estante pública",
+    "shelf.backLink": "A sua estante",
+    "shelf.privateNote": "A sua estante fica privada até a tornar pública. Uma estante pública vive em",
+    "meta.groups": "Clubes de leitura | Orrery",
+    "meta.recap": "O ano em leituras | Orrery",
     "locale.switch": "Idioma",
   },
 } as const;

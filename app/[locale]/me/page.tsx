@@ -23,7 +23,7 @@ export default async function MePage(props: { params: Promise<{ locale: string }
     return (
       <main className="mx-auto max-w-md px-6 py-24 text-center">
         <h1 className="display text-2xl font-semibold text-neutral-100">{t("shelf.title")}</h1>
-        <p className="mt-2 text-neutral-400">Sign in to track your reading and see it in context.</p>
+        <p className="mt-2 text-neutral-400">{t("shelf.signInPrompt")}</p>
         <Link
           href={localePath(locale, "/login")}
           className="mt-6 inline-block rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white"

@@ -62,7 +62,7 @@ export default function ImportPage() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-14">
       <Link href={localePath(locale, "/me")} className="text-xs text-neutral-500 hover:text-neutral-300">
-        ← Your shelf
+        ← {t("shelf.backLink")}
       </Link>
       <h1 className="display mt-4 text-3xl font-semibold text-neutral-100">{t("import.title")}</h1>
       <p className="mt-2 max-w-prose text-neutral-400">
