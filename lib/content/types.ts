@@ -169,6 +169,10 @@ export interface Franchise {
   themePreset?: string;
   features?: FranchiseFeatures;
   startHere?: StartHere;
+  /** Overrides to the default "global events within the author's lifetime"
+   * rule. `include` claims an event outside the span the author writes out of;
+   * `exclude` refuses one that overlaps but never reached the page. */
+  globalEvents?: { include?: string[]; exclude?: string[] };
 }
 
 /** A franchise with everything needed to render its page. */

@@ -85,10 +85,13 @@ describe("translation overlays (pt-PT)", () => {
     const ptOrder = pt.orders.find((o) => !o.derived);
     expect(differs(enOrder?.rationale, ptOrder?.rationale)).toBe(true);
 
-    // aura events, including the shared global layer
-    const enWar = en.timeline.find((e) => e.id === "world-war-ii-1939");
-    const ptWar = pt.timeline.find((e) => e.id === "world-war-ii-1939");
-    expect(differs(enWar?.title, ptWar?.title)).toBe(true);
+    // aura events, including the shared global layer. Pick an event inside the
+    // author's lifetime: global events are now filtered to the span the author
+    // actually wrote in, so WWII is (correctly) absent from a 1947-born writer.
+    const enGlobal = en.timeline.find((e) => e.id === "covid-19-pandemic-2020");
+    const ptGlobal = pt.timeline.find((e) => e.id === "covid-19-pandemic-2020");
+    expect(enGlobal, "global layer should reach this franchise").toBeTruthy();
+    expect(differs(enGlobal?.title, ptGlobal?.title)).toBe(true);
 
     // startHere paths (nested prose, reached through the wizard)
     const enPath = en.franchise.startHere?.paths?.[0];
