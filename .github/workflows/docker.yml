@@ -85,7 +85,11 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
+          # amd64 only: homeberry (the deploy target) is x86_64, and the
+          # emulated arm64 leg crashes under QEMU during Next's static page
+          # generation ("uncaught target signal 4 (Illegal instruction)").
+          # Restore arm64 via a native ARM runner if a target ever needs it.
+          platforms: linux/amd64
           push: true
           build-args: |
             NEXT_PUBLIC_SUPABASE_URL=${{ vars.NEXT_PUBLIC_SUPABASE_URL }}
