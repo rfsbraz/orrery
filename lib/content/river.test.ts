@@ -1,13 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { buildRiver, eraSpan } from "./river";
+import { buildRiver, eraSpan, subseriesEntries } from "./river";
 import type { AuraEvent, Era, FranchiseBundle, Work } from "./types";
 
-const work = (id: string, published: number): Work => ({
+const work = (id: string, published: number, subseries?: string): Work => ({
   id,
-  title: id,
+  title: id.split("/")[1],
   authorIds: ["a"],
   published,
   canonTier: "core",
+  subseries,
 });
 
 const event = (id: string, date: number, impact: AuraEvent["impact"]): AuraEvent => ({
@@ -20,7 +21,7 @@ const event = (id: string, date: number, impact: AuraEvent["impact"]): AuraEvent
 
 const era = (id: string, period: string): Era => ({ id, title: id, period });
 
-function bundle(works: Work[], events: AuraEvent[], eras: Era[]): FranchiseBundle {
+function bundle(works: Work[], events: AuraEvent[] = [], eras: Era[] = []): FranchiseBundle {
   return {
     franchise: { id: "x", name: "X", kind: "author", authorIds: [] },
     authors: [],
@@ -34,46 +35,73 @@ function bundle(works: Work[], events: AuraEvent[], eras: Era[]): FranchiseBundl
 }
 
 describe("eraSpan", () => {
-  it("parses ranges, decades, and single years", () => {
+  it("parses ranges, decades, single years, and open-ended eras", () => {
     expect(eraSpan(era("a", "1974-1979"))).toEqual([1974, 1979]);
     expect(eraSpan(era("b", "1980s"))).toEqual([1980, 1989]);
     expect(eraSpan(era("c", "1999"))).toEqual([1999, 1999]);
+    expect(eraSpan(era("d", "2020-present"))).toEqual([2020, 9999]);
   });
 });
 
-describe("buildRiver", () => {
-  it("promotes high-impact events to anchors and keeps the rest as texture", () => {
-    const [section] = buildRiver(
-      bundle([work("x/w", 1980)], [event("big", 1979, "high"), event("small", 1981, "low")], [])
-    );
-    expect(section.items.map((i) => i.kind)).toEqual(["anchor", "work", "event"]);
-  });
-
-  it("sections by era and attaches out-of-span years to the nearest era", () => {
-    const sections = buildRiver(
+describe("buildRiver (strata layers)", () => {
+  it("one layer per year, chronological, splitting ruptures from texture", () => {
+    const layers = buildRiver(
       bundle(
-        [work("x/early", 1960), work("x/mid", 1976), work("x/late", 1999)],
-        [],
-        [era("seventies", "1974-1979"), era("nineties", "1990-1999")]
+        [work("x/a", 1980), work("x/b", 1980), work("x/c", 1990)],
+        [event("big", 1980, "high"), event("small", 1980, "low")]
       )
     );
-    expect(sections).toHaveLength(2);
-    // 1960 is closest to the seventies era start
-    expect(sections[0].items.map((i) => i.work?.id)).toEqual(["x/early", "x/mid"]);
-    expect(sections[1].items.map((i) => i.work?.id)).toEqual(["x/late"]);
+    expect(layers.map((l) => l.year)).toEqual([1980, 1990]);
+    expect(layers[0].works.map((w) => w.id)).toEqual(["x/a", "x/b"]);
+    expect(layers[0].ruptures.map((e) => e.id)).toEqual(["big"]);
+    expect(layers[0].texture.map((e) => e.id)).toEqual(["small"]);
   });
 
-  it("a franchise with no eras yields a single unlabeled section", () => {
-    const sections = buildRiver(bundle([work("x/w", 2000)], [event("e", 2001, "med")], []));
-    expect(sections).toHaveLength(1);
-    expect(sections[0].era).toBeNull();
-    expect(sections[0].items).toHaveLength(2);
-  });
-
-  it("events precede works within the same year (context first)", () => {
-    const [section] = buildRiver(
-      bundle([work("x/w", 1986)], [event("e", 1986, "low")], [])
+  it("marks decade boundaries for the decade rules", () => {
+    const layers = buildRiver(
+      bundle([work("x/a", 1979), work("x/b", 1980), work("x/c", 1985)])
     );
-    expect(section.items.map((i) => i.kind)).toEqual(["event", "work"]);
+    expect(layers.map((l) => l.decadeStart)).toEqual([true, true, false]);
+  });
+
+  it("assigns eras and marks the first layer of each", () => {
+    const layers = buildRiver(
+      bundle(
+        [work("x/a", 1975), work("x/b", 1977), work("x/c", 1985)],
+        [],
+        [era("seventies", "1974-1979"), era("eighties", "1980-1989")]
+      )
+    );
+    expect(layers.map((l) => l.era?.id)).toEqual(["seventies", "seventies", "eighties"]);
+    expect(layers.map((l) => l.eraStart)).toEqual([true, false, true]);
+  });
+
+  it("a franchise with no eras still walks (no era markers)", () => {
+    const layers = buildRiver(bundle([work("x/a", 2000)], [event("e", 2001, "med")]));
+    expect(layers).toHaveLength(2);
+    expect(layers.every((l) => l.era === null && !l.eraStart)).toBe(true);
+  });
+
+  it("a year with only an event still gets its layer", () => {
+    const layers = buildRiver(bundle([work("x/a", 1990)], [event("e", 1995, "high")]));
+    expect(layers.map((l) => l.year)).toEqual([1990, 1995]);
+    expect(layers[1].works).toEqual([]);
+    expect(layers[1].ruptures).toHaveLength(1);
+  });
+});
+
+describe("subseriesEntries", () => {
+  it("numbers each series by publication, ignoring standalones", () => {
+    const works = [
+      work("x/tower-2", 1987, "The Dark Tower"),
+      work("x/standalone", 1985),
+      work("x/tower-1", 1982, "The Dark Tower"),
+      work("x/other-1", 1990, "Other"),
+    ];
+    const entries = subseriesEntries(works);
+    expect(entries.get("x/tower-1")).toEqual({ name: "The Dark Tower", n: 1, total: 2 });
+    expect(entries.get("x/tower-2")).toEqual({ name: "The Dark Tower", n: 2, total: 2 });
+    expect(entries.get("x/other-1")).toEqual({ name: "Other", n: 1, total: 1 });
+    expect(entries.has("x/standalone")).toBe(false);
   });
 });

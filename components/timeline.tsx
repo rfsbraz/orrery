@@ -1,6 +1,7 @@
 import { Prose } from "./prose";
 import { ProgressControl } from "./progress/control";
 import { FindACopy } from "./find-a-copy";
+import { Cover } from "./cover";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { CompanionPanel } from "./companion/panel";
 import { impactStyles, signatureLine, type SignatureKind } from "@/lib/theme";
@@ -63,15 +64,12 @@ export function Timeline({
                 className="absolute -ml-[1.72rem] mt-2 h-2.5 w-2.5 rounded-full border border-[var(--bg)] bg-[var(--accent)]"
               />
               <div className="flex gap-4 rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-4">
-                {editions?.[item.work.id]?.cover && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={editions[item.work.id].cover!}
-                    alt=""
-                    loading="lazy"
-                    className="h-24 w-16 shrink-0 rounded object-cover shadow-sm max-sm:hidden"
-                  />
-                )}
+                <Cover
+                  src={editions?.[item.work.id]?.cover ?? undefined}
+                  title={item.work.title}
+                  year={item.work.published}
+                  className="h-24 w-16 max-sm:hidden"
+                />
                 <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                   <span className="font-mono text-xs text-[var(--muted)]">{item.year}</span>

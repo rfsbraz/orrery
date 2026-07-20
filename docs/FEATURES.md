@@ -56,12 +56,25 @@ threads, and the reading companion.
 ## The features
 
 ### The River - `/f/<slug>/river`
-The atmospheric context browse (CONCEPT calls it the soul of the product).
-Era bands set the scene; works drift along the signature beam alternating
-sides; high-impact events stand full-width as anchors; low/med events sit as
-marginalia. Pure document flow - nothing for reduced-motion to reduce.
-Model: `lib/content/river.ts` (era-span parsing, anchor promotion, era
-sectioning with nearest-era attachment). View: `components/river.tsx`.
+The atmospheric context browse (CONCEPT calls it the soul of the product),
+rendered as **strata**: time as sediment that you descend through. Chosen over
+two alternatives (a centered "beam" spine and an annotated "margin" edition)
+because it is the only one that makes event *weight* physical - see the river
+lab in this branch's history if the alternatives are ever worth revisiting.
+
+- Every year is a layer with a ghosted year numeral behind it.
+- Decades cut heavy rules with a sticky decade marker riding the scroll.
+- Works are cover-led cards inside their layer, showing series membership
+  ("The Dark Tower · #3 of 8", derived from `subseries`), pen name, canon tier,
+  synopsis, and a Reading/Read control.
+- Low and medium events are thin interbedded seams; **high-impact events are
+  ruptures**: full-bleed inverted bands that break the stratigraphy.
+- The franchise's `signature` (theme.yaml) threads the layers.
+- A sticky **overall progress bar** tops the walk ("12 of 77 read").
+
+Pure document flow - no scroll-jacking, nothing for reduced-motion to undo.
+Model: `lib/content/river.ts` (`buildRiver` layers, era-span parsing, era and
+decade boundaries, `subseriesEntries`). View: `components/river.tsx`.
 
 ### Compare orders - `/f/<slug>/compare`
 Two orders side by side: the spine they agree on renders once down the
