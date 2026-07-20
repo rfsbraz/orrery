@@ -1,9 +1,12 @@
 import { Prose } from "./prose";
 import { ProgressControl } from "./progress/control";
 import { FindACopy } from "./find-a-copy";
+import { Cover } from "./cover";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
-import { impactStyles } from "@/lib/theme";
+import { CompanionPanel } from "./companion/panel";
+import { impactStyles, signatureLine, type SignatureKind } from "@/lib/theme";
 import type { AuraEvent, Work } from "@/lib/content/types";
+import type { CompanionData } from "@/lib/progress/companion";
 
 function yearOf(e: AuraEvent): number {
   const m = String(e.date ?? e.dateRange ?? "").match(/\d{4}/);
@@ -16,17 +19,26 @@ type Item =
 
 /**
  * The aura: works and the events around them, interwoven chronologically and
- * strung along the "Beam" - the signature vertical line (echoing the Dark Tower
- * connecting the whole body of work). Atmosphere through structure, not decor.
+ * strung along the franchise's signature line (its theme.yaml picks which -
+ * a beam, a quiet thread, a rule). Atmosphere through structure, not decor.
  */
 export function Timeline({
   works,
   events,
   authorNames,
+  companions,
+  editions,
+  signature = "thread",
 }: {
   works: Work[];
   events: AuraEvent[];
   authorNames?: Map<string, string>;
+  /** Per-work companion data; present only when the capability is active. */
+  companions?: Record<string, CompanionData>;
+  /** Per-work cover URL + buy ISBN (editions layer; absent entries fall back). */
+  editions?: Record<string, { cover: string | null; isbn13?: string }>;
+  /** The franchise's signature element, from its theme.yaml. */
+  signature?: SignatureKind;
 }) {
   const items: Item[] = [
     ...works.map((w) => ({ kind: "work" as const, year: w.published, work: w })),
@@ -38,10 +50,10 @@ export function Timeline({
 
   return (
     <div className="relative">
-      {/* The Beam */}
+      {/* The franchise's signature line (beam / thread / rule / none) */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-0 top-1.5 bottom-1.5 w-px bg-gradient-to-b from-[var(--accent)]/80 via-[var(--ink)]/20 to-transparent"
+        className={`pointer-events-none absolute left-0 top-1.5 bottom-1.5 ${signatureLine[signature]}`}
       />
       <ol className="space-y-6 pl-6">
         {items.map((item, i) =>
@@ -51,7 +63,14 @@ export function Timeline({
                 aria-hidden
                 className="absolute -ml-[1.72rem] mt-2 h-2.5 w-2.5 rounded-full border border-[var(--bg)] bg-[var(--accent)]"
               />
-              <div className="rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-4">
+              <div className="flex gap-4 rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-4">
+                <Cover
+                  src={editions?.[item.work.id]?.cover ?? undefined}
+                  title={item.work.title}
+                  year={item.work.published}
+                  className="h-24 w-16 max-sm:hidden"
+                />
+                <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                   <span className="font-mono text-xs text-[var(--muted)]">{item.year}</span>
                   <h3 className="display text-lg font-semibold text-[var(--ink)]">
@@ -80,11 +99,19 @@ export function Timeline({
                   />
                 )}
                 <ProgressControl workId={item.work.id} />
+                {companions?.[item.work.id] && (
+                  <CompanionPanel
+                    data={companions[item.work.id]}
+                    workTitles={Object.fromEntries(titles)}
+                  />
+                )}
                 <FindACopy
                   title={item.work.title}
                   author={authorNames?.get(item.work.authorIds[0])}
                   openLibraryId={item.work.externalIds?.openLibrary}
+                  isbn13={editions?.[item.work.id]?.isbn13}
                 />
+                </div>
               </div>
             </li>
           ) : (

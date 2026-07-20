@@ -7,9 +7,12 @@
 }
 
 /* Characterful literary serif for display headings; body stays a clean,
-   highly-readable sans. Personality via type + palette, never novelty fonts. */
+   highly-readable sans. Personality via type + palette, never novelty fonts.
+   --font-display is set per franchise from its theme.yaml displayFace (see
+   lib/theme.ts); this fallback covers pages outside a franchise. */
 .display {
-  font-family: var(--font-display), Georgia, "Times New Roman", serif;
+  font-family: var(--font-display, var(--font-display-fraunces)), Georgia,
+    "Times New Roman", serif;
   font-optical-sizing: auto;
   letter-spacing: -0.01em;
 }

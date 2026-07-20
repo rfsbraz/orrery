@@ -7,6 +7,10 @@ import type { Capabilities, CapabilityKey } from "@/lib/content/capabilities";
 // broken). Ordering is editorial: browse features first, tools after.
 const ITEMS: { key: CapabilityKey; href: (slug: string) => string; label: string }[] = [
   // Feature pages register here as they land.
+  { key: "wizard", href: (s) => `/f/${s}/start`, label: "Where to start" },
+  { key: "river", href: (s) => `/f/${s}/river`, label: "The River" },
+  { key: "orderDiff", href: (s) => `/f/${s}/compare`, label: "Compare orders" },
+  { key: "connections", href: (s) => `/f/${s}/connections`, label: "Connections" },
 ];
 
 export function FranchiseNav({ slug, caps }: { slug: string; caps: Capabilities }) {

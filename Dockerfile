@@ -12,6 +12,15 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+# Supabase connection. NEXT_PUBLIC_* values are inlined into the client bundle
+# at build time, so they must be present HERE - setting them at runtime does
+# nothing. Both are public by design (the anon key is shipped to browsers and
+# is safe to expose; RLS is what protects the data). Omit them and the image
+# still builds: the museum works and account features hide themselves.
+ARG NEXT_PUBLIC_SUPABASE_URL
+ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
+ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 RUN npm run build
 
 FROM node:26-alpine AS runner
