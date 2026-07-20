@@ -1,9 +1,12 @@
 import { Prose } from "./prose";
 import { Cover } from "./cover";
+import { FindACopy } from "./find-a-copy";
 import { ProgressControl } from "./progress/control";
+import { CompanionPanel } from "./companion/panel";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { signatureLine, type SignatureKind } from "@/lib/theme";
 import type { RiverLayer, SeriesEntry } from "@/lib/content/river";
+import type { CompanionData } from "@/lib/progress/companion";
 
 /**
  * The River: the atmospheric context browse (CONCEPT §5 - "the soul of the
@@ -22,11 +25,20 @@ export function River({
   covers,
   workTitles,
   signature = "thread",
+  companions,
+  authorNames,
+  isbns,
 }: {
   layers: RiverLayer[];
   series: Map<string, SeriesEntry>;
   covers: Record<string, string>;
   workTitles: Record<string, string>;
+  /** Per-work companion data; present only when the capability is active. */
+  companions?: Record<string, CompanionData>;
+  /** Author display names, for store-link queries. */
+  authorNames?: Map<string, string>;
+  /** Verified buy-ISBNs per work (editions capability). */
+  isbns?: Record<string, string | undefined>;
   /** The franchise's signature element, from its theme.yaml. */
   signature?: SignatureKind;
 }) {
@@ -43,14 +55,33 @@ export function River({
           )}
 
           {l.eraStart && l.era && (
-            <header className="mt-6 mb-2">
-              <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent)]/90">
-                {l.era.title} <span className="text-[var(--muted)]">· {l.era.period}</span>
+            // The era plate: an unmistakable "you are entering a new era"
+            // threshold. Full-bleed, generous air, double rule - structural
+            // rather than loud, so it reads as a chapter break in the strata
+            // without competing with the ruptures (which are inverted).
+            <header className="-mx-6 mt-16 mb-4 border-y border-[var(--accent)]/35 bg-[var(--accent)]/[0.06] px-6 py-9 first:mt-0">
+              <div className="flex items-center gap-3">
+                <span aria-hidden className="h-px flex-1 bg-[var(--accent)]/30" />
+                <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--accent)]">
+                  entering
+                </p>
+                <span aria-hidden className="h-px flex-1 bg-[var(--accent)]/30" />
+              </div>
+              <h2 className="display mt-3 text-center text-3xl font-semibold tracking-tight">
+                {l.era.title}
+              </h2>
+              <p className="mt-1 text-center font-mono text-xs text-[var(--muted)]">
+                {l.era.period}
               </p>
+              {l.era.themes && l.era.themes.length > 0 && (
+                <p className="mt-2.5 text-center text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
+                  {l.era.themes.join(" · ")}
+                </p>
+              )}
               {l.era.description && (
                 <Prose
                   text={l.era.description}
-                  className="prose-read mt-1.5 block max-w-2xl text-sm text-[var(--ink)]/65"
+                  className="prose-read mx-auto mt-3 block max-w-xl text-center text-sm text-[var(--ink)]/70"
                 />
               )}
             </header>
@@ -136,6 +167,15 @@ export function River({
                             />
                           )}
                           <ProgressControl workId={w.id} />
+                          {companions?.[w.id] && (
+                            <CompanionPanel data={companions[w.id]} workTitles={workTitles} />
+                          )}
+                          <FindACopy
+                            title={w.title}
+                            author={authorNames?.get(w.authorIds[0])}
+                            openLibraryId={w.externalIds?.openLibrary}
+                            isbn13={isbns?.[w.id]}
+                          />
                         </div>
                       </article>
                     );

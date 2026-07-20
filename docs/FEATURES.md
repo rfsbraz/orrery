@@ -55,7 +55,7 @@ threads, and the reading companion.
 
 ## The features
 
-### The River - `/f/<slug>/river`
+### The River - the franchise root, `/f/<slug>`
 The atmospheric context browse (CONCEPT calls it the soul of the product),
 rendered as **strata**: time as sediment that you descend through. Chosen over
 two alternatives (a centered "beam" spine and an annotated "margin" edition)
@@ -69,12 +69,22 @@ lab in this branch's history if the alternatives are ever worth revisiting.
   synopsis, and a Reading/Read control.
 - Low and medium events are thin interbedded seams; **high-impact events are
   ruptures**: full-bleed inverted bands that break the stratigraphy.
+- **Era plates** announce each new era as a threshold: a full-bleed band
+  ("ENTERING" / era title / period / themes / description) between double
+  rules, structurally distinct from the inverted rupture bands.
 - The franchise's `signature` (theme.yaml) threads the layers.
 - A sticky **overall progress bar** tops the walk ("12 of 77 read").
 
 Pure document flow - no scroll-jacking, nothing for reduced-motion to undo.
+The strata walk **is** the franchise root: an author's page opens straight
+into the chronological order rather than a summary above a timeline. The old
+`/f/<slug>/river` route permanently redirects to the root so shared links
+survive.
+
 Model: `lib/content/river.ts` (`buildRiver` layers, era-span parsing, era and
-decade boundaries, `subseriesEntries`). View: `components/river.tsx`.
+decade boundaries, `subseriesEntries`). View: `components/river.tsx`, which
+also carries the per-work progress control, companion panel, and find-a-copy
+links.
 
 ### Compare orders - `/f/<slug>/compare`
 Two orders side by side: the spine they agree on renders once down the

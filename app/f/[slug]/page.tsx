@@ -7,8 +7,10 @@ import { companionFor } from "@/lib/progress/companion";
 import { coverFor, pickEdition } from "@/lib/content/editions";
 import { stripRefs } from "@/lib/content/refs";
 import { signatureOf, themeVars } from "@/lib/theme";
+import { buildRiver, subseriesEntries } from "@/lib/content/river";
 import { Prose } from "@/components/prose";
-import { Timeline } from "@/components/timeline";
+import { River } from "@/components/river";
+import { ListProgress } from "@/components/progress/list-progress";
 import { FranchiseNav } from "@/components/franchise-nav";
 import { ProgressProvider } from "@/components/progress/provider";
 import { CommunityOrders } from "@/components/orders/community-orders";
@@ -40,14 +42,16 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
     : undefined;
   // Covers resolve from curated editions or OpenLibrary IDs; buy-ISBNs only
   // from curated editions (the editions capability). Text-first when neither.
-  const editionInfo = Object.fromEntries(
-    b.works.flatMap((w) => {
-      const edition = caps.editions ? pickEdition(w.id, b.editions) : null;
-      const cover = coverFor(w, edition);
-      if (!cover && !edition?.isbn13) return [];
-      return [[w.id, { cover, isbn13: edition?.isbn13 }]];
-    })
-  );
+  const isbns: Record<string, string | undefined> = {};
+  const layers = buildRiver(b);
+  const series = subseriesEntries(b.works);
+  const covers: Record<string, string> = {};
+  for (const w of b.works) {
+    const edition = caps.editions ? pickEdition(w.id, b.editions) : null;
+    const cover = coverFor(w, edition);
+    if (cover) covers[w.id] = cover;
+    if (edition?.isbn13) isbns[w.id] = edition.isbn13;
+  }
   const workTitle = (id: string) => b.works.find((w) => w.id === id)?.title ?? id;
   const curated = b.orders.filter((o) => !o.derived);
   const authorNames = new Map(b.authors.map((a) => [a.id, a.name]));
@@ -59,7 +63,7 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
       style={themeVars(b.theme)}
       className="min-h-screen bg-[var(--bg)] text-[var(--ink)]"
     >
-      <main className="mx-auto max-w-3xl px-6 py-14">
+      <main className="mx-auto max-w-4xl px-6 py-14">
         <Link href="/" className="text-xs text-[var(--ink)]/50 hover:text-[var(--ink)]">
           ← Orrery
         </Link>
@@ -86,36 +90,13 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
           <FranchiseNav slug={slug} caps={caps} />
         </header>
 
-        {b.eras.length > 0 && (
-          <section className="mb-12">
-            <h2 className="mb-4 text-xs font-medium uppercase tracking-widest text-[var(--ink)]/50">
-              Eras
-            </h2>
-            <div className="space-y-3">
-              {b.eras.map((e) => (
-                <div key={e.id} className="rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-4">
-                  <div className="flex items-baseline gap-2.5">
-                    <h3 className="display text-lg font-semibold">{e.title}</h3>
-                    <span className="font-mono text-xs text-[var(--muted)]">{e.period}</span>
-                  </div>
-                  {e.description && (
-                    <Prose
-                      text={e.description}
-                      className="prose-read mt-1 block text-sm text-[var(--ink)]/70"
-                    />
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
         <section className="mb-12">
           <h2 className="mb-1 text-xs font-medium uppercase tracking-widest text-[var(--ink)]/50">
             Reading orders
           </h2>
           <p className="mb-4 text-sm text-[var(--ink)]/60">
-            The <strong>default</strong> is every work in publication order - the timeline below.
+            Below is the <strong>chronological walk</strong>: every work in publication
+            order, in the weather it was written in.
             {curated.length > 0 && " Curated alternatives:"}
           </p>
           <div className="space-y-4">
@@ -154,20 +135,23 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
         </section>
 
         <section>
-          <h2 className="mb-5 text-xs font-medium uppercase tracking-widest text-[var(--ink)]/50">
-            The timeline
-          </h2>
           <ProgressProvider>
-            <Timeline
-              works={b.works}
-              events={b.timeline}
-              authorNames={authorNames}
-              companions={companions}
-              editions={editionInfo}
-              signature={signatureOf(b.theme)}
-            />
+            <ListProgress workIds={b.works.map((w) => w.id)} />
+            <div className="pt-6">
+              <River
+                layers={layers}
+                series={series}
+                covers={covers}
+                workTitles={workTitles}
+                signature={signatureOf(b.theme)}
+                companions={companions}
+                authorNames={authorNames}
+                isbns={isbns}
+              />
+            </div>
           </ProgressProvider>
         </section>
+
       </main>
     </div>
   );
