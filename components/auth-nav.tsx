@@ -28,14 +28,14 @@ export function AuthNav() {
   // navigation, not an account feature.
   if (authed === null || !supabase) {
     return (
-      <nav className="fixed right-3 top-3 z-50 flex items-center gap-2 text-xs md:right-4 md:top-4 md:gap-3 md:text-sm">
+      <nav className="fixed right-3 top-3 z-50 flex items-center gap-2 text-xs lg:right-4 lg:top-4 lg:gap-3 lg:text-sm">
         <LocaleSwitcher />
       </nav>
     );
   }
 
   return (
-    <nav className="fixed right-3 top-3 z-50 flex items-center gap-2 text-xs md:right-4 md:top-4 md:gap-3 md:text-sm">
+    <nav className="fixed right-3 top-3 z-50 flex items-center gap-2 text-xs lg:right-4 lg:top-4 lg:gap-3 lg:text-sm">
       <LocaleSwitcher />
       {authed ? (
         <>
