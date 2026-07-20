@@ -90,30 +90,45 @@ edge for free.
 4. Domain: add the real domain when the name is chosen; until then the
    vercel.app URL is fine for a quiet beta.
 
-### Option B - homeberry (Docker, private beta behind Authelia)
+### Option B - homeberry (Docker) - the chosen deployment
 
-The image already builds and pushes to GHCR via `.github/workflows/docker.yml`.
+`orrery.homeberry.me`, image published to GHCR by
+`.github/workflows/docker.yml`.
 
-1. On homeberry, add to TheOneStack compose:
+**The build-time gotcha, handled:** `NEXT_PUBLIC_*` values are inlined into the
+client bundle when Next builds, so setting them as container environment does
+nothing - the image would ship with accounts silently disabled. The Dockerfile
+now takes them as build args and the workflow passes them from **repository
+variables** (not secrets: both values are public by design, and Actions masks
+secrets in ways that break inlined build args).
+
+1. Set the repo variables once (Settings -> Secrets and variables -> Actions ->
+   Variables), or via CLI:
+   ```bash
+   gh variable set NEXT_PUBLIC_SUPABASE_URL --body "https://<ref>.supabase.co"
+   gh variable set NEXT_PUBLIC_SUPABASE_ANON_KEY --body "<anon key>"
+   ```
+   Then re-run the Docker workflow so `:latest` is rebuilt with them baked in.
+2. On homeberry, add to TheOneStack compose:
    ```yaml
    orrery:
      image: ghcr.io/rfsbraz/orrery:latest
      container_name: orrery
      environment:
-       NEXT_PUBLIC_SUPABASE_URL: ${ORRERY_SUPABASE_URL}
-       NEXT_PUBLIC_SUPABASE_ANON_KEY: ${ORRERY_SUPABASE_ANON_KEY}
        HOSTNAME: 0.0.0.0        # Next standalone binds the container id otherwise
      labels: [the standard Traefik pair for orrery.homeberry.me]
      restart: unless-stopped
    ```
-   Note: env vars are **build-time** in Next.js. The GHCR image is built
-   without them, which yields the accounts-hidden museum. For accounts on
-   homeberry, build the image with build args instead (docker.yml would need
-   the two vars as build-args) - or just use Vercel for the account-bearing
-   deployment; this option is best as a museum mirror / staging.
-2. Authelia: one_factor rule for `orrery.homeberry.me` ABOVE the wildcard
-   `^/api` bypass (health-history lesson: rule order is first-match).
-3. Cloudflare DNS record like the other services.
+   No Supabase env here - it is already in the image.
+3. **Authelia: do NOT put this site behind one_factor.** Orrery has its own
+   accounts and is meant to be public; an SSO wall in front defeats both the
+   SEO goal and public signups. It needs a **bypass** rule for
+   `orrery.homeberry.me`. (This is the opposite of health-history, which is
+   family-private and must stay SSO-gated - do not copy that rule here.)
+4. Cloudflare DNS record like the other services.
+5. In Supabase -> Authentication -> URL Configuration, set Site URL to
+   `https://orrery.homeberry.me` and add it to Redirect URLs, or confirmation
+   emails will point at localhost.
 
 ## 6. Post-deploy checklist
 
