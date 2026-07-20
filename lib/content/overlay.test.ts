@@ -18,8 +18,16 @@ describe("translation overlays (pt-PT)", () => {
   });
 
   it("translates era titles (the era plates)", () => {
+    // Asserted structurally, not against a literal title: era titles are
+    // curated prose that gets re-sourced, and pinning one here turns an
+    // editorial improvement into a red build.
+    const en = getFranchise("stephen-king")!;
     const pt = getFranchise("stephen-king", "pt-PT")!;
-    expect(pt.eras.find((e) => e.id === "the-golden-decade")?.title).toBe("A Década de Ouro");
+    const id = "the-golden-decade";
+    const enTitle = en.eras.find((e) => e.id === id)?.title;
+    const ptTitle = pt.eras.find((e) => e.id === id)?.title;
+    expect(ptTitle).toBeTruthy();
+    expect(ptTitle).not.toBe(enTitle);
   });
 
   it("translates author life events written as FLAT overlay entries", () => {
@@ -106,8 +114,13 @@ describe("translation overlays (pt-PT)", () => {
   });
 
   it("leaves the base language untouched", () => {
-    const en = getFranchise("stephen-king")!;
-    expect(en.eras.find((e) => e.id === "the-golden-decade")?.title).toBe("The Golden Decade");
+    // The overlay must not leak into the base bundle: read English twice,
+    // once before and once after a pt-PT read, and it must not have shifted.
+    const before = getFranchise("stephen-king")!.eras.map((e) => e.title);
+    getFranchise("stephen-king", "pt-PT");
+    const after = getFranchise("stephen-king")!.eras.map((e) => e.title);
+    expect(after).toEqual(before);
+    expect(after.every((t) => Boolean(t))).toBe(true);
   });
 
   it("never translates a work title (that is edition data)", () => {

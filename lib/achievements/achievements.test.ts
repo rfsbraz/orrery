@@ -40,10 +40,15 @@ describe("achievements evaluation", () => {
     expect(earnedFrom(ten)).toContain("stephen-king/devotee");
   });
 
-  it("awards the Golden Decade era badge at 5 works from 1980-1989", () => {
-    const eighties = king.works.filter((w) => w.published >= 1980 && w.published <= 1989).slice(0, 5);
-    expect(eighties.length).toBe(5);
-    expect(earnedFrom(eighties.map((w) => read(w.id)))).toContain("stephen-king/golden-decade");
+  it("awards the era badge at 5 works from inside that era", () => {
+    // Derived from the era itself rather than hardcoded years: curation
+    // re-sources era boundaries (this span moved from 1980-1989 to 1981-1989)
+    // and that must not read as a regression in the rules engine.
+    const era = king.eras.find((e) => e.id === "the-golden-decade")!;
+    const [start, end] = eraYears(era.period);
+    const inEra = king.works.filter((w) => w.published >= start && w.published <= end).slice(0, 5);
+    expect(inEra.length).toBe(5);
+    expect(earnedFrom(inEra.map((w) => read(w.id)))).toContain("stephen-king/golden-decade");
   });
 
   it("awards Pilgrim of the Beam only when the Dark Tower order is complete", () => {
