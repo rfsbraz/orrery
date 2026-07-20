@@ -86,7 +86,7 @@ export function OrderBuilder({ franchiseSlug, works }: { franchiseSlug: string; 
         </label>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* The order being built */}
         <section>
           <h2 className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500">

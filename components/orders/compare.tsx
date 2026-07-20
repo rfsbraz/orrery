@@ -90,7 +90,7 @@ export function OrderCompare({
             )}
           </p>
 
-          <div className="mt-3 grid grid-cols-2 gap-4 max-md:grid-cols-1">
+          <div className="mt-3 grid grid-cols-2 gap-4 max-lg:grid-cols-1">
             {[a, b].map((o, idx) => (
               <div key={o.id} className="rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-3">
                 <p className="text-xs font-medium text-[var(--ink)]/80">
