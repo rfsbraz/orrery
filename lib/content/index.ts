@@ -165,8 +165,15 @@ export function getFranchise(slug: string, locale?: string): FranchiseBundle | n
     .map((a) => {
       const ov = overlayFor(locale, path.join("authors", `${a.id}.yaml`));
       const merged = merge(a, ov);
-      // lifeEvents are nested prose: translate them by their own ids.
-      return { ...merged, lifeEvents: mergeList(merged.lifeEvents, ov[a.id]?.lifeEvents) };
+      // lifeEvents are nested prose, translated by their own ids. Accept BOTH
+      // overlay shapes: nested under the author entry, or as flat top-level
+      // entries keyed by the event id. Both validate, so neither may silently
+      // render nothing; nested wins when both are present.
+      const nested = ov[a.id]?.lifeEvents;
+      const lifeEvents = Array.isArray(nested)
+        ? mergeList(merged.lifeEvents, nested)
+        : (merged.lifeEvents ?? []).map((e) => merge(e, ov));
+      return { ...merged, lifeEvents };
     });
 
   // Timeline = author-life events + franchise events + global events, dated.
