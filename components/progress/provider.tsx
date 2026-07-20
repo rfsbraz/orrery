@@ -7,10 +7,32 @@ import type { ReadStatus } from "@/lib/progress/types";
 interface ProgressCtx {
   ready: boolean;
   authed: boolean;
+  /** True when tracking locally in this browser (signed out). */
+  guest: boolean;
   get: (workId: string) => ReadStatus | undefined;
   set: (workId: string, status: ReadStatus) => Promise<void>;
   /** Work IDs with status "read" - the spoiler engine's ReadSet. */
   readSet: Set<string>;
+}
+
+// Guest progress lives in the browser until there is an account to attach it
+// to - track first, sign up later. Same shape as the server statuses map.
+const GUEST_KEY = "orrery.guest-progress";
+
+function loadGuest(): Record<string, ReadStatus> {
+  try {
+    return JSON.parse(localStorage.getItem(GUEST_KEY) ?? "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveGuest(statuses: Record<string, ReadStatus>) {
+  try {
+    localStorage.setItem(GUEST_KEY, JSON.stringify(statuses));
+  } catch {
+    // storage full/blocked: guest progress is best-effort
+  }
 }
 
 const Ctx = createContext<ProgressCtx | null>(null);
@@ -27,19 +49,41 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    loadMyProgressAction().then(({ authed, progress }) => {
-      setAuthed(authed);
-      const m: Record<string, ReadStatus> = {};
-      for (const p of progress) m[p.workId] = p.status;
-      setStatuses(m);
-      setReady(true);
-    });
+    // The whole load (middleware + action) gets one budget; past it we start
+    // in guest mode and let a slow sign-in state resolve on the next visit.
+    const budget = new Promise<{ authed: false; progress: [] }>((r) =>
+      setTimeout(() => r({ authed: false, progress: [] }), 4000)
+    );
+    Promise.race([loadMyProgressAction(), budget])
+      .then(({ authed, progress }) => {
+        setAuthed(authed);
+        if (authed) {
+          const m: Record<string, ReadStatus> = {};
+          for (const p of progress) m[p.workId] = p.status;
+          setStatuses(m);
+        } else {
+          setStatuses(loadGuest());
+        }
+      })
+      .catch(() => {
+        // Action unreachable (offline, backend down): guest mode.
+        setAuthed(false);
+        setStatuses(loadGuest());
+      })
+      .finally(() => setReady(true));
   }, []);
 
   const set = useCallback(
     async (workId: string, status: ReadStatus) => {
       const prev = statuses[workId];
-      setStatuses((s) => ({ ...s, [workId]: status })); // optimistic
+      const apply = (s: Record<string, ReadStatus>) => {
+        const next = { ...s };
+        if (status === "unread") delete next[workId];
+        else next[workId] = status;
+        return next;
+      };
+      setStatuses(apply); // optimistic; guest persistence follows state (effect below)
+      if (!authed) return;
       const res = await setProgressAction(workId, status);
       if (!res.ok) {
         setStatuses((s) => {
@@ -50,8 +94,14 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
         });
       }
     },
-    [statuses]
+    [statuses, authed]
   );
+
+  // Guest persistence follows the state, so rapid updates never race a
+  // stale snapshot into storage.
+  useEffect(() => {
+    if (ready && !authed) saveGuest(statuses);
+  }, [ready, authed, statuses]);
 
   const readSet = useMemo(
     () =>
@@ -64,7 +114,9 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <Ctx.Provider value={{ ready, authed, get: (id) => statuses[id], set, readSet }}>
+    <Ctx.Provider
+      value={{ ready, authed, guest: ready && !authed, get: (id) => statuses[id], set, readSet }}
+    >
       {children}
     </Ctx.Provider>
   );

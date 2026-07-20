@@ -6,6 +6,7 @@ import { capabilities } from "@/lib/content/capabilities";
 import { coverFor, pickEdition } from "@/lib/content/editions";
 import { themeVars } from "@/lib/theme";
 import { ProgressProvider } from "@/components/progress/provider";
+import { ListProgress } from "@/components/progress/list-progress";
 import { BeamConcept } from "@/components/river-lab/beam";
 import { MarginConcept } from "@/components/river-lab/margin";
 import { StrataConcept } from "@/components/river-lab/strata";
@@ -120,7 +121,10 @@ export default async function RiverLabPage(props: {
         </header>
 
         <ProgressProvider>
-          <Concept {...labProps} />
+          <ListProgress workIds={b.works.map((w) => w.id)} />
+          <div className="pt-8">
+            <Concept {...labProps} />
+          </div>
         </ProgressProvider>
       </main>
     </div>

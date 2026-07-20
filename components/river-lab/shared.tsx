@@ -28,6 +28,29 @@ export interface YearGroup {
   decadeStart: boolean;
 }
 
+export interface SeriesEntry {
+  name: string;
+  n: number; // 1-based position within the subseries, by publication
+  total: number;
+}
+
+/** Per-work series membership: "The Dark Tower · #3 of 8". */
+export function subseriesEntries(works: Work[]): Map<string, SeriesEntry> {
+  const bySeries = new Map<string, Work[]>();
+  for (const w of works) {
+    if (!w.subseries) continue;
+    const list = bySeries.get(w.subseries) ?? [];
+    list.push(w);
+    bySeries.set(w.subseries, list);
+  }
+  const out = new Map<string, SeriesEntry>();
+  for (const [name, list] of bySeries) {
+    list.sort((a, b) => a.published - b.published || a.id.localeCompare(b.id));
+    list.forEach((w, i) => out.set(w.id, { name, n: i + 1, total: list.length }));
+  }
+  return out;
+}
+
 export function groupByYear(props: LabProps): YearGroup[] {
   const years = new Map<number, YearGroup>();
   const get = (year: number): YearGroup => {

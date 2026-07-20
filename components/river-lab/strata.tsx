@@ -1,7 +1,8 @@
 import { Prose } from "@/components/prose";
+import { ProgressControl } from "@/components/progress/control";
 import { SpoilerGate } from "@/components/spoilers/spoiler-gate";
 import { Cover } from "./cover";
-import { groupByYear, type LabProps } from "./shared";
+import { groupByYear, subseriesEntries, type LabProps } from "./shared";
 
 /**
  * CONCEPT 3 - THE STRATA
@@ -15,6 +16,7 @@ import { groupByYear, type LabProps } from "./shared";
  */
 export function StrataConcept(props: LabProps) {
   const groups = groupByYear(props);
+  const series = subseriesEntries(props.works);
 
   return (
     <div>
@@ -71,14 +73,25 @@ export function StrataConcept(props: LabProps) {
                         className="flex w-[calc(50%-0.375rem)] gap-3 rounded-md border border-[var(--ink)]/10 bg-[var(--surface)] p-3 max-md:w-full"
                       >
                         <Cover src={cover} title={w.title} year={w.published} className="h-[76px] w-[50px]" />
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <h3 className="display text-[15px] font-semibold leading-tight">{w.title}</h3>
                           <p className="mt-0.5 text-[10px] uppercase tracking-wide text-[var(--muted)]">
-                            {w.subseries ?? (w.publishedAs ? `as ${w.publishedAs}` : "")}
+                            {series.has(w.id) && (
+                              <span className="text-[var(--accent)]/90">
+                                {series.get(w.id)!.name} · #{series.get(w.id)!.n} of{" "}
+                                {series.get(w.id)!.total}
+                              </span>
+                            )}
+                            {w.publishedAs && (
+                              <span className={series.has(w.id) ? "ml-2 italic normal-case" : "italic normal-case"}>
+                                as {w.publishedAs}
+                              </span>
+                            )}
                           </p>
                           {w.synopsis && (
                             <Prose text={w.synopsis} className="prose-read mt-1 line-clamp-2 block text-xs text-[var(--ink)]/65" />
                           )}
+                          <ProgressControl workId={w.id} />
                         </div>
                       </article>
                     );
