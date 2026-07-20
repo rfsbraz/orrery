@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/i18n/provider";
+
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { loadApprovedOrdersAction, voteAction } from "@/app/actions/orders";
@@ -17,6 +19,7 @@ export function CommunityOrders({
   franchiseSlug: string;
   workTitles: Record<string, string>;
 }) {
+  const t = useT();
   const [orders, setOrders] = useState<CommunityOrder[]>([]);
   const [ready, setReady] = useState(false);
 
@@ -51,19 +54,19 @@ export function CommunityOrders({
     <div className="mt-8">
       <div className="mb-4 flex items-baseline justify-between gap-3">
         <h3 className="text-xs font-medium uppercase tracking-widest text-[var(--ink)]/50">
-          Community orders
+          {t("community.orders")}
         </h3>
         <Link
           href={`/f/${franchiseSlug}/orders/new`}
           className="shrink-0 text-xs text-[var(--accent)] hover:underline"
         >
-          Submit an order →
+          {t("community.submit")}
         </Link>
       </div>
 
       {ready && orders.length === 0 ? (
         <p className="text-sm text-[var(--ink)]/45">
-          No community orders yet. Be the first to propose one.
+          {t("community.empty")}
         </p>
       ) : (
         <div className="space-y-4">

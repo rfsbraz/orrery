@@ -1,6 +1,10 @@
 "use client";
 
+import { useLocale, useT } from "@/components/i18n/provider";
+import { localePath } from "@/lib/i18n/config";
+
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { joinGroupAction, leaveGroupAction } from "@/app/actions/groups";
 
@@ -18,15 +22,20 @@ export function Membership({
   isOwner: boolean;
   authed: boolean;
 }) {
+  const t = useT();
+  const locale = useLocale();
   const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   if (!authed) {
     return (
-      <a href="/login" className="rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white">
-        Sign in to join
-      </a>
+      <Link
+        href={localePath(locale, "/login")}
+        className="rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white"
+      >
+        {t("groups.signInToJoin")}
+      </Link>
     );
   }
   if (isOwner) return <span className="text-sm text-neutral-500">You own this club</span>;

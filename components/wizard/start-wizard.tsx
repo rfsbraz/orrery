@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/i18n/provider";
+
 import { useState } from "react";
 import { rankPaths, type WizardAnswers } from "@/lib/wizard/match";
 import { Prose } from "@/components/prose";
@@ -19,16 +21,16 @@ export interface ResolvedPath extends StartHerePath {
   orderHref?: string;
 }
 
-const Q1: { value: FitExperience; label: string }[] = [
-  { value: "new", label: "Completely new" },
-  { value: "returning", label: "Read a few, want direction" },
-  { value: "completionist", label: "I intend to read everything" },
-];
-const Q2: { value: FitCommitment; label: string }[] = [
-  { value: "taste", label: "A book or three - a taste" },
-  { value: "arc", label: "One great series or thread" },
-  { value: "complete", label: "The whole body of work" },
-];
+const Q1 = [
+  { value: "new", key: "wizard.q1.new" },
+  { value: "returning", key: "wizard.q1.returning" },
+  { value: "completionist", key: "wizard.q1.completionist" },
+] as const;
+const Q2 = [
+  { value: "taste", key: "wizard.q2.taste" },
+  { value: "arc", key: "wizard.q2.arc" },
+  { value: "complete", key: "wizard.q2.complete" },
+] as const;
 
 /**
  * The two-question onboarding. Answers score the franchise's curated paths
@@ -37,6 +39,7 @@ const Q2: { value: FitCommitment; label: string }[] = [
  * questions on one screen, instant result.
  */
 export function StartWizard({ paths }: { paths: ResolvedPath[] }) {
+  const t = useT();
   const [experience, setExperience] = useState<FitExperience | null>(null);
   const [commitment, setCommitment] = useState<FitCommitment | null>(null);
   const [showAll, setShowAll] = useState(false);
@@ -59,12 +62,12 @@ export function StartWizard({ paths }: { paths: ResolvedPath[] }) {
     <div>
       <fieldset className="mb-6">
         <legend className="mb-2.5 text-sm font-medium text-[var(--ink)]/80">
-          How well do you know this world?
+          {t("wizard.q1")}
         </legend>
         <div className="flex flex-wrap gap-2">
           {Q1.map((o) => (
             <button key={o.value} className={chip(experience === o.value)} onClick={() => setExperience(o.value)}>
-              {o.label}
+              {t(o.key)}
             </button>
           ))}
         </div>
@@ -72,12 +75,12 @@ export function StartWizard({ paths }: { paths: ResolvedPath[] }) {
 
       <fieldset className="mb-8">
         <legend className="mb-2.5 text-sm font-medium text-[var(--ink)]/80">
-          How much are you signing up for?
+          {t("wizard.q2")}
         </legend>
         <div className="flex flex-wrap gap-2">
           {Q2.map((o) => (
             <button key={o.value} className={chip(commitment === o.value)} onClick={() => setCommitment(o.value)}>
-              {o.label}
+              {t(o.key)}
             </button>
           ))}
         </div>
@@ -92,7 +95,7 @@ export function StartWizard({ paths }: { paths: ResolvedPath[] }) {
                 onClick={() => setShowAll((v) => !v)}
                 className="text-xs font-medium text-[var(--ink)]/55 underline decoration-[var(--accent)]/40 underline-offset-2 hover:text-[var(--ink)]"
               >
-                {showAll ? "Hide the other paths" : `Other ways in (${alternates.length})`}
+                {showAll ? t("wizard.hideOther") : t("wizard.otherWays", { n: alternates.length })}
               </button>
               {showAll && (
                 <div className="mt-3 space-y-3">
@@ -122,6 +125,7 @@ function PathCard({
   highlight?: boolean;
   reasons?: string[];
 }) {
+  const t = useT();
   return (
     <div
       className={`rounded-lg border p-5 ${
@@ -132,7 +136,8 @@ function PathCard({
     >
       {highlight && (
         <p className="mb-1 text-[10px] font-medium uppercase tracking-widest text-[var(--accent)]">
-          Start here{reasons.length > 0 && <> - because {reasons.join(", ")}</>}
+          {t("wizard.startHere")}
+          {reasons.length > 0 && <> - {t("wizard.because", { reasons: reasons.join(", ") })}</>}
         </p>
       )}
       <h3 className="display text-xl font-semibold">{resolved.title}</h3>
@@ -141,7 +146,7 @@ function PathCard({
       )}
       {resolved.orderName && resolved.orderHref && (
         <p className="mt-2 text-xs text-[var(--ink)]/60">
-          Follows the order{" "}
+          {t("wizard.followsOrder")}{" "}
           <a href={resolved.orderHref} className="underline decoration-[var(--accent)]/40 underline-offset-2">
             {resolved.orderName}
           </a>
