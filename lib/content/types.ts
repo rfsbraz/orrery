@@ -52,7 +52,42 @@ export interface Work {
   publishedAs?: string;
   withAuthorIds?: string[];
   synopsis?: string;
+  /** Work-to-work links beyond subseries (crossovers, sequels, shared cosmology).
+   * Declared on the later work pointing back; rendered both ways. */
+  connections?: string[];
   externalIds?: { openLibrary?: string; googleBooks?: string; wikidata?: string };
+}
+
+export interface CharacterAppearance {
+  workId: string;
+  note?: string;
+  /** When set, this appearance is a reveal: hidden until the reader has read
+   * the boundary work (and shielded for anonymous visitors). */
+  spoilerAfter?: string | null;
+}
+
+/** A recurring figure whose appearances thread works together (connective tissue). */
+export interface Character {
+  id: string;
+  name: string;
+  aka?: string[];
+  description?: string;
+  appearsIn: CharacterAppearance[];
+  sources?: string[];
+}
+
+/** A concrete published edition of a Work (covers, ISBNs, store links). */
+export interface Edition {
+  id: string;
+  workId: string;
+  isbn13?: string;
+  language?: string;
+  format?: "hardcover" | "paperback" | "ebook" | "audiobook";
+  publisher?: string;
+  year?: number;
+  coverUrl?: string | null;
+  note?: string;
+  sources?: string[];
 }
 
 export interface Era {
@@ -84,6 +119,39 @@ export interface Theme {
   notes?: string;
 }
 
+/** Per-franchise feature switch: auto-detect from data, or force on/off. */
+export type FeatureSetting = "auto" | "on" | "off" | boolean;
+
+/** Optional feature overrides in franchise.yaml; omitted keys mean auto. */
+export interface FranchiseFeatures {
+  river?: FeatureSetting;
+  orderDiff?: FeatureSetting;
+  wizard?: FeatureSetting;
+  connections?: FeatureSetting;
+  companion?: FeatureSetting;
+  hall?: FeatureSetting;
+  editions?: FeatureSetting;
+}
+
+export type FitExperience = "new" | "returning" | "completionist";
+export type FitCommitment = "taste" | "arc" | "complete";
+
+/** A curated entry recommendation for the where-to-start wizard. */
+export interface StartHerePath {
+  id: string;
+  title: string;
+  description?: string;
+  /** Exactly one of workIds / orderId ("default" = the derived order). */
+  workIds?: string[] | null;
+  orderId?: string | null;
+  fit?: { experience?: FitExperience[]; commitment?: FitCommitment[] };
+  note?: string;
+}
+
+export interface StartHere {
+  paths: StartHerePath[];
+}
+
 export interface Franchise {
   id: string;
   name: string;
@@ -91,6 +159,8 @@ export interface Franchise {
   description?: string;
   authorIds: string[];
   themePreset?: string;
+  features?: FranchiseFeatures;
+  startHere?: StartHere;
 }
 
 /** A franchise with everything needed to render its page. */
@@ -102,5 +172,7 @@ export interface FranchiseBundle {
   orders: ReadingOrder[]; // default (derived) first, then curated
   /** Author-life + franchise + relevant global events, merged for the timeline. */
   timeline: AuraEvent[];
+  characters: Character[];
+  editions: Edition[];
   theme?: Theme;
 }

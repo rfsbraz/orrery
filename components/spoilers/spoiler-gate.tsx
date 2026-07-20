@@ -1,0 +1,42 @@
+"use client";
+
+import { useState } from "react";
+import { useProgress } from "@/components/progress/provider";
+import { isRevealed, shieldCopy } from "@/lib/spoilers";
+
+/**
+ * Progressive spoiler disclosure (CONCEPT §9). Content behind a boundary is
+ * shown plainly once the reader has read the boundary work; everyone else gets
+ * a neutral shielded teaser with a deliberate reveal. Anonymous visitors are
+ * always shielded (no progress data), never hard-blocked.
+ */
+export function SpoilerGate({
+  spoilerAfter,
+  boundaryTitle,
+  children,
+}: {
+  spoilerAfter: string | null | undefined;
+  /** Display title of the boundary work, for honest teaser copy. */
+  boundaryTitle?: string;
+  children: React.ReactNode;
+}) {
+  const ctx = useProgress();
+  const [forced, setForced] = useState(false);
+
+  const readSet = ctx?.ready ? ctx.readSet : null;
+  if (!spoilerAfter || forced || isRevealed(spoilerAfter, readSet)) {
+    return <>{children}</>;
+  }
+
+  return (
+    <span className="inline-flex flex-wrap items-center gap-2 rounded border border-dashed border-[var(--ink)]/25 bg-[var(--surface)] px-2 py-1 align-baseline">
+      <span className="text-xs italic text-[var(--muted)]">{shieldCopy(boundaryTitle)}</span>
+      <button
+        onClick={() => setForced(true)}
+        className="rounded border border-[var(--ink)]/20 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--ink)]/60 transition-colors hover:border-[var(--accent)] hover:text-[var(--ink)]"
+      >
+        Reveal
+      </button>
+    </span>
+  );
+}

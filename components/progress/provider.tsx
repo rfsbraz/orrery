@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { loadMyProgressAction, setProgressAction } from "@/app/actions/progress";
 import type { ReadStatus } from "@/lib/progress/types";
 
@@ -9,6 +9,8 @@ interface ProgressCtx {
   authed: boolean;
   get: (workId: string) => ReadStatus | undefined;
   set: (workId: string, status: ReadStatus) => Promise<void>;
+  /** Work IDs with status "read" - the spoiler engine's ReadSet. */
+  readSet: Set<string>;
 }
 
 const Ctx = createContext<ProgressCtx | null>(null);
@@ -51,7 +53,19 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     [statuses]
   );
 
+  const readSet = useMemo(
+    () =>
+      new Set(
+        Object.entries(statuses)
+          .filter(([, s]) => s === "read")
+          .map(([id]) => id)
+      ),
+    [statuses]
+  );
+
   return (
-    <Ctx.Provider value={{ ready, authed, get: (id) => statuses[id], set }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ ready, authed, get: (id) => statuses[id], set, readSet }}>
+      {children}
+    </Ctx.Provider>
   );
 }

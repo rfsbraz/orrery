@@ -2,10 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getFranchise, listFranchiseSlugs } from "@/lib/content";
+import { capabilities } from "@/lib/content/capabilities";
 import { stripRefs } from "@/lib/content/refs";
 import { themeVars } from "@/lib/theme";
 import { Prose } from "@/components/prose";
 import { Timeline } from "@/components/timeline";
+import { FranchiseNav } from "@/components/franchise-nav";
 import { ProgressProvider } from "@/components/progress/provider";
 import { CommunityOrders } from "@/components/orders/community-orders";
 
@@ -30,6 +32,7 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
   const b = getFranchise(slug);
   if (!b) notFound();
 
+  const caps = capabilities(b);
   const workTitle = (id: string) => b.works.find((w) => w.id === id)?.title ?? id;
   const curated = b.orders.filter((o) => !o.derived);
   const authorNames = new Map(b.authors.map((a) => [a.id, a.name]));
@@ -65,6 +68,7 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
               </span>
             ))}
           </p>
+          <FranchiseNav slug={slug} caps={caps} />
         </header>
 
         {b.eras.length > 0 && (
