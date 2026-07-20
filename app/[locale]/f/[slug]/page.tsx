@@ -27,7 +27,7 @@ export async function generateMetadata(props: {
   const { locale: localeSeg, slug } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
   const t = translator(locale);
-  const b = getFranchise(slug);
+  const b = getFranchise(slug, locale);
   if (!b) return {};
   return {
     title: t("meta.franchise", { name: b.franchise.name }),
@@ -39,7 +39,7 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
   const { locale: localeSeg, slug } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
   const t = translator(locale);
-  const b = getFranchise(slug);
+  const b = getFranchise(slug, locale);
   if (!b) notFound();
 
   const caps = capabilities(b);

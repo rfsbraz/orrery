@@ -21,6 +21,60 @@ const FRANCHISES = path.join(CONTENT_ROOT, "franchises");
 const AUTHORS = path.join(CONTENT_ROOT, "authors");
 const GLOBAL_EVENTS = path.join(CONTENT_ROOT, "events", "global.yaml");
 const GLOBAL_ACHIEVEMENTS = path.join(CONTENT_ROOT, "achievements.yaml");
+const I18N = path.join(CONTENT_ROOT, "i18n");
+
+// Translation overlays (content/i18n/<locale>/...) carry only prose fields,
+// keyed by stable ID. Merging is field-by-field so a partially translated
+// franchise shows translated prose where it exists and the base language
+// everywhere else - never a blank, never a broken page.
+type Overlay = Record<string, Record<string, unknown>>;
+const _overlays = new Map<string, Overlay>();
+
+function overlayFor(locale: string | undefined, relPath: string): Overlay {
+  if (!locale || locale === "en") return {};
+  const key = `${locale}:${relPath}`;
+  const cached = _overlays.get(key);
+  if (cached) return cached;
+  const file = path.join(I18N, locale, relPath);
+  const raw = readYaml<unknown>(file);
+  const list = Array.isArray(raw) ? raw : raw ? [raw] : [];
+  const map: Overlay = {};
+  for (const entry of list as Record<string, unknown>[]) {
+    const id = entry?.id as string | undefined;
+    if (id) map[id] = entry;
+  }
+  _overlays.set(key, map);
+  return map;
+}
+
+/**
+ * Merge a nested list of id-bearing items (lifeEvents, startHere paths) by id,
+ * so a translation carries only prose and never restates structure like
+ * workIds, orderId or fit tags.
+ */
+function mergeList<T extends { id: string }>(
+  base: T[] | undefined,
+  translated: unknown
+): T[] | undefined {
+  if (!base || !Array.isArray(translated)) return base;
+  const byId: Overlay = {};
+  for (const t of translated as Record<string, unknown>[]) {
+    if (t?.id) byId[t.id as string] = t;
+  }
+  return base.map((item) => merge(item, byId));
+}
+
+/** Apply an overlay entry's prose fields over a base record. */
+function merge<T extends { id: string }>(base: T, overlay: Overlay): T {
+  const t = overlay[base.id];
+  if (!t) return base;
+  const out = { ...base } as Record<string, unknown>;
+  for (const [k, v] of Object.entries(t)) {
+    // `id` is the join key, never content; empty strings mean "not translated".
+    if (k !== "id" && v !== null && v !== "") out[k] = v;
+  }
+  return out as T;
+}
 
 function readYaml<T>(file: string): T | null {
   if (!fs.existsSync(file)) return null;
@@ -67,29 +121,61 @@ function deriveDefaultOrder(slug: string, works: Work[]): ReadingOrder {
   };
 }
 
-export function getFranchise(slug: string): FranchiseBundle | null {
+export function getFranchise(slug: string, locale?: string): FranchiseBundle | null {
   const dir = path.join(FRANCHISES, slug);
-  const franchise = readYaml<Franchise>(path.join(dir, "franchise.yaml"));
-  if (!franchise) return null;
+  const franchiseBase = readYaml<Franchise>(path.join(dir, "franchise.yaml"));
+  if (!franchiseBase) return null;
+  const franchiseOverlay = overlayFor(locale, path.join("franchises", slug, "franchise.yaml"));
+  const franchise = merge(
+    { ...franchiseBase, id: franchiseBase.id ?? slug },
+    franchiseOverlay
+  );
+  // startHere paths are nested prose (title/description/note) - merge by path
+  // id so the translation never restates workIds/orderId/fit.
+  const startHereOverlay = (
+    franchiseOverlay[franchise.id] as { startHere?: { paths?: unknown } } | undefined
+  )?.startHere?.paths;
+  if (franchise.startHere?.paths && startHereOverlay) {
+    franchise.startHere = {
+      ...franchise.startHere,
+      paths: mergeList(franchise.startHere.paths, startHereOverlay) ?? franchise.startHere.paths,
+    };
+  }
 
-  const works = readYaml<Work[]>(path.join(dir, "works.yaml")) ?? [];
-  const eras = readYaml<Era[]>(path.join(dir, "eras.yaml")) ?? [];
-  const curatedOrders = readYaml<ReadingOrder[]>(path.join(dir, "orders.yaml")) ?? [];
+  const rel_ = (f: string) => path.join("franchises", slug, f);
+  const works = (readYaml<Work[]>(path.join(dir, "works.yaml")) ?? []).map((w) =>
+    merge(w, overlayFor(locale, rel_("works.yaml")))
+  );
+  const eras = (readYaml<Era[]>(path.join(dir, "eras.yaml")) ?? []).map((e) =>
+    merge(e, overlayFor(locale, rel_("eras.yaml")))
+  );
+  const curatedOrders = (readYaml<ReadingOrder[]>(path.join(dir, "orders.yaml")) ?? []).map((o) =>
+    merge(o, overlayFor(locale, rel_("orders.yaml")))
+  );
   const theme = readYaml<Theme>(path.join(dir, "theme.yaml")) ?? undefined;
-  const franchiseEvents = readYaml<AuraEvent[]>(path.join(dir, "events.yaml")) ?? [];
+  const franchiseEvents = (readYaml<AuraEvent[]>(path.join(dir, "events.yaml")) ?? []).map((e) =>
+    merge(e, overlayFor(locale, rel_("events.yaml")))
+  );
   const characters = readYaml<Character[]>(path.join(dir, "characters.yaml")) ?? [];
   const editions = readYaml<Edition[]>(path.join(dir, "editions.yaml")) ?? [];
 
   const authors = franchise.authorIds
     .map((id) => authorMap().get(id))
-    .filter((a): a is Author => Boolean(a));
+    .filter((a): a is Author => Boolean(a))
+    .map((a) => {
+      const ov = overlayFor(locale, path.join("authors", `${a.id}.yaml`));
+      const merged = merge(a, ov);
+      // lifeEvents are nested prose: translate them by their own ids.
+      return { ...merged, lifeEvents: mergeList(merged.lifeEvents, ov[a.id]?.lifeEvents) };
+    });
 
   // Timeline = author-life events + franchise events + global events, dated.
   const lifeEvents = authors.flatMap((a) =>
     (a.lifeEvents ?? []).map((e) => ({ ...e, scope: e.scope ?? "author-life" }))
   );
-  const globalEvents =
-    readYaml<{ events: AuraEvent[] }>(GLOBAL_EVENTS)?.events ?? [];
+  const globalEvents = (readYaml<{ events: AuraEvent[] }>(GLOBAL_EVENTS)?.events ?? []).map(
+    (e) => merge(e, overlayFor(locale, path.join("events", "global.yaml")))
+  );
   const timeline = [...lifeEvents, ...franchiseEvents, ...globalEvents].sort(
     (a, b) => eventYear(a) - eventYear(b)
   );
@@ -135,4 +221,5 @@ export function listAchievements(): Achievement[] {
 /** Reset caches (tests). */
 export function _reset() {
   _authors = null;
+  _overlays.clear();
 }

@@ -26,7 +26,7 @@ export async function generateMetadata(props: {
   const { locale: localeSeg, slug } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
   const t = translator(locale);
-  const b = getFranchise(slug);
+  const b = getFranchise(slug, locale);
   if (!b) return {};
   return {
     title: t("meta.start", { name: b.franchise.name }),
@@ -41,7 +41,7 @@ export default async function StartPage(props: { params: Promise<{ locale: strin
   const { locale: localeSeg, slug } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
   const t = translator(locale);
-  const b = getFranchise(slug);
+  const b = getFranchise(slug, locale);
   if (!b || !capabilities(b).wizard) notFound();
 
   const title = (id: string) => b.works.find((w) => w.id === id)?.title ?? id;

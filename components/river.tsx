@@ -159,7 +159,7 @@ export function River({
                           <h3 className="display text-[15px] font-semibold leading-tight">
                             {localTitles?.[w.id] ?? w.title}
                           </h3>
-                          {localTitles?.[w.id] && (
+                          {localTitles?.[w.id] && localTitles[w.id] !== w.title && (
                             // The original title stays visible: a reader
                             // searching or discussing needs both.
                             <p className="mt-0.5 text-[11px] italic text-[var(--muted)]">
