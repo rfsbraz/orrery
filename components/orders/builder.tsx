@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/i18n/provider";
+
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createOrderAction } from "@/app/actions/orders";
@@ -16,6 +18,7 @@ interface WorkLite {
  * canon and arrange them. The picked list is the order (top = read first).
  */
 export function OrderBuilder({ franchiseSlug, works }: { franchiseSlug: string; works: WorkLite[] }) {
+  const t = useT();
   const router = useRouter();
   const byId = useMemo(() => new Map(works.map((w) => [w.id, w])), [works]);
   const [name, setName] = useState("");
@@ -63,7 +66,7 @@ export function OrderBuilder({ franchiseSlug, works }: { franchiseSlug: string; 
     <div className="mt-8 space-y-6">
       <div className="space-y-3">
         <label className="block">
-          <span className="text-sm text-neutral-400">Order name</span>
+          <span className="text-sm text-neutral-400">{t("orders.orderName")}</span>
           <input
             value={name}
             onChange={(e) => setName(e.target.value.slice(0, ORDER_NAME_MAX))}

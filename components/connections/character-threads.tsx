@@ -1,5 +1,7 @@
 import { Prose } from "@/components/prose";
 import { SpoilerGate } from "@/components/spoilers/spoiler-gate";
+import { translator } from "@/lib/i18n/messages";
+import type { Locale } from "@/lib/i18n/config";
 import type { CharacterThread } from "@/lib/content/connections";
 
 /**
@@ -11,10 +13,13 @@ import type { CharacterThread } from "@/lib/content/connections";
 export function CharacterThreads({
   threads,
   workTitles,
+  locale,
 }: {
   threads: CharacterThread[];
   workTitles: Map<string, string>;
+  locale: Locale;
 }) {
+  const t = translator(locale);
   if (threads.length === 0) return null;
   return (
     <div className="space-y-5">
@@ -32,7 +37,7 @@ export function CharacterThreads({
                 </span>
               )}
               <span className="font-mono text-[10px] text-[var(--muted)]">
-                {appearances.length} appearances
+                {t("connections.appearances", { n: appearances.length })}
               </span>
             </div>
             {character.description && (

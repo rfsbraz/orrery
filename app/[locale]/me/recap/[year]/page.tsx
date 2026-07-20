@@ -1,3 +1,4 @@
+import { translator } from "@/lib/i18n/messages";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -14,6 +15,7 @@ export const metadata: Metadata = { title: "Year in reading | Orrery" };
 export default async function RecapPage(props: { params: Promise<{ locale: string; year: string }> }) {
   const { locale: localeSeg, year: raw } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
+  const t = translator(locale);
   const year = Number(raw);
   if (!Number.isInteger(year) || year < 1900 || year > 2100) notFound();
 
@@ -21,14 +23,12 @@ export default async function RecapPage(props: { params: Promise<{ locale: strin
   if (!user) {
     return (
       <main className="mx-auto max-w-md px-6 py-24 text-center">
-        <h1 className="display text-2xl font-semibold text-neutral-100">Year in reading</h1>
+        <h1 className="display text-2xl font-semibold text-neutral-100">{t("recap.yearInReading")}</h1>
         <p className="mt-2 text-neutral-400">Sign in to see your year in context.</p>
         <Link
           href={localePath(locale, "/login")}
           className="mt-6 inline-block rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white"
-        >
-          Sign in
-        </Link>
+        >{t("shelf.signIn")}</Link>
       </main>
     );
   }
@@ -43,9 +43,7 @@ export default async function RecapPage(props: { params: Promise<{ locale: strin
 
       <header className="mt-4 mb-10">
         <p className="font-mono text-xs tracking-[0.3em] text-neutral-500">{year}</p>
-        <h1 className="display mt-1 text-4xl font-semibold text-neutral-100">
-          Your year in reading
-        </h1>
+        <h1 className="display mt-1 text-4xl font-semibold text-neutral-100">{t("recap.title")}</h1>
         <p className="mt-3 text-lg text-neutral-300">{recapHeadline(recap)}</p>
         <div className="mt-3 flex gap-3 text-xs">
           {[year - 1, year + 1].map((y) => (

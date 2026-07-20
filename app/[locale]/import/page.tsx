@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/i18n/provider";
+
 import { useLocale } from "@/components/i18n/provider";
 import { localePath } from "@/lib/i18n/config";
 import { useState } from "react";
@@ -11,6 +13,7 @@ import { importProgressAction } from "@/app/actions/progress";
 // Import a Goodreads or StoryGraph library export. The file is read in the
 // browser, matched to canon server-side, previewed, then committed on confirm.
 export default function ImportPage() {
+  const t = useT();
   const locale = useLocale();
   const router = useRouter();
   const [preview, setPreview] = useState<ImportPreview | null>(null);
@@ -61,7 +64,7 @@ export default function ImportPage() {
       <Link href={localePath(locale, "/me")} className="text-xs text-neutral-500 hover:text-neutral-300">
         ← Your shelf
       </Link>
-      <h1 className="display mt-4 text-3xl font-semibold text-neutral-100">Import your reading</h1>
+      <h1 className="display mt-4 text-3xl font-semibold text-neutral-100">{t("import.title")}</h1>
       <p className="mt-2 max-w-prose text-neutral-400">
         Bring your history from Goodreads or StoryGraph. Export your library as CSV, drop it here, and
         we&apos;ll match it to the canon before saving anything.

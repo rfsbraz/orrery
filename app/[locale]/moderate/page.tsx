@@ -1,3 +1,4 @@
+import { translator } from "@/lib/i18n/messages";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { localeFromSegment, localePath } from "@/lib/i18n/config";
@@ -12,6 +13,7 @@ export const metadata: Metadata = { title: "Moderation | Orrery" };
 export default async function ModeratePage(props: { params: Promise<{ locale: string }> }) {
   const { locale: localeSeg } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
+  const t = translator(locale);
   const user = await getCurrentUser();
   const mod = user ? await isModerator() : false;
 
@@ -36,7 +38,7 @@ export default async function ModeratePage(props: { params: Promise<{ locale: st
       <Link href={localePath(locale, "/")} className="text-xs text-neutral-500 hover:text-neutral-300">
         ← Orrery
       </Link>
-      <h1 className="display mt-4 text-3xl font-semibold text-neutral-100">Moderation queue</h1>
+      <h1 className="display mt-4 text-3xl font-semibold text-neutral-100">{t("moderate.queue")}</h1>
       <p className="mt-2 text-neutral-400">
         {pending.length === 0
           ? "Nothing waiting. The queue is clear."
