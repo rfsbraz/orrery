@@ -21,7 +21,7 @@ export async function generateMetadata({
 export default async function NewOrderPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   const { locale: localeSeg, slug } = await params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
-  const b = getFranchise(slug);
+  const b = getFranchise(slug, locale);
   if (!b) notFound();
 
   const user = await getCurrentUser();

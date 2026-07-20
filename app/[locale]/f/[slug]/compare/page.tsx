@@ -25,7 +25,7 @@ export async function generateMetadata(props: {
   const { locale: localeSeg, slug } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
   const t = translator(locale);
-  const b = getFranchise(slug);
+  const b = getFranchise(slug, locale);
   if (!b) return {};
   return {
     title: t("meta.compare", { name: b.franchise.name }),
@@ -37,7 +37,7 @@ export default async function ComparePage(props: { params: Promise<{ locale: str
   const { locale: localeSeg, slug } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
   const t = translator(locale);
-  const b = getFranchise(slug);
+  const b = getFranchise(slug, locale);
   if (!b || !capabilities(b).orderDiff) notFound();
 
   const workTitles = Object.fromEntries(b.works.map((w) => [w.id, w.title]));

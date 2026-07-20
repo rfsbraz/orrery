@@ -28,7 +28,7 @@ export async function generateMetadata(props: {
   const { locale: localeSeg, slug } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
   const t = translator(locale);
-  const b = getFranchise(slug);
+  const b = getFranchise(slug, locale);
   if (!b) return {};
   return {
     title: t("meta.connections", { name: b.franchise.name }),
@@ -40,7 +40,7 @@ export default async function ConnectionsPage(props: { params: Promise<{ locale:
   const { locale: localeSeg, slug } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
   const t = translator(locale);
-  const b = getFranchise(slug);
+  const b = getFranchise(slug, locale);
   if (!b || !capabilities(b).connections) notFound();
 
   const model = buildArcModel(b.works);
