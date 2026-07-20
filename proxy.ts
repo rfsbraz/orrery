@@ -1,6 +1,16 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { updateSession } from "@/lib/supabase/middleware";
-import { LOCALES, LOCALE_SEGMENT } from "@/lib/i18n/config";
+import {
+  DEFAULT_LOCALE,
+  LOCALES,
+  LOCALE_SEGMENT,
+  localePath,
+  preferredLocale,
+  isLocale,
+} from "@/lib/i18n/config";
+
+/** Remembers an explicit language choice so detection never overrides it. */
+export const LOCALE_COOKIE = "orrery.locale";
 
 const LOCALE_SEGMENTS = new Set(
   LOCALES.map((l) => LOCALE_SEGMENT[l]).filter(Boolean)
@@ -19,6 +29,24 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const first = pathname.split("/")[1] ?? "";
   if (LOCALE_SEGMENTS.has(first) || first === "en") return response;
+
+  // Unprefixed path: decide which language this reader should get. An explicit
+  // choice (the switcher's cookie) always wins; otherwise fall back to the
+  // browser's Accept-Language. A Portuguese reader should land on Portuguese
+  // without having to discover the switcher first.
+  const chosen = request.cookies.get(LOCALE_COOKIE)?.value;
+  const target =
+    chosen && isLocale(chosen)
+      ? chosen
+      : preferredLocale(request.headers.get("accept-language")) ?? DEFAULT_LOCALE;
+
+  if (target !== DEFAULT_LOCALE) {
+    const to = request.nextUrl.clone();
+    to.pathname = localePath(target, pathname);
+    const redirect = NextResponse.redirect(to, 307); // 307: not cacheable as permanent
+    response.cookies.getAll().forEach((c) => redirect.cookies.set(c));
+    return redirect;
+  }
 
   const url = request.nextUrl.clone();
   url.pathname = `/en${pathname === "/" ? "" : pathname}`;
