@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { getFranchise } from "./index";
+import { getAllBundles, getAuthor, getFranchise, listFranchises } from "./index";
+import { listAuthorEntries } from "./authors";
 
 // Translation overlays are the one place where a mistake passes CI and then
 // renders nothing, so these assert against the real merged content rather
@@ -38,6 +39,29 @@ describe("translation overlays (pt-PT)", () => {
       en.timeline.filter((e) => e.scope === "author-life").map((e) => e.title)
     );
     expect(life.some((e) => !enTitles.has(e.title))).toBe(true);
+  });
+
+  // Every entry point must honour the locale. The home page shipped English
+  // franchise descriptions on /pt because listFranchises ignored it, and that
+  // was the second time a surface silently bypassed translation.
+  it("every content entry point honours the locale", () => {
+    const enF = listFranchises().find((f) => f.id === "stephen-king");
+    const ptF = listFranchises("pt-PT").find((f) => f.id === "stephen-king");
+    expect(ptF?.description).toBeTruthy();
+    expect(ptF?.description).not.toBe(enF?.description);
+
+    const enA = getAuthor("stephen-king");
+    const ptA = getAuthor("stephen-king", "pt-PT");
+    expect(ptA?.bio).toBeTruthy();
+    expect(ptA?.bio).not.toBe(enA?.bio);
+
+    const enB = getAllBundles().find((b) => b.franchise.id === "stephen-king")!;
+    const ptB = getAllBundles("pt-PT").find((b) => b.franchise.id === "stephen-king")!;
+    expect(ptB.eras[0]?.title).not.toBe(enB.eras[0]?.title);
+
+    const ptEntries = listAuthorEntries("pt-PT");
+    const king = ptEntries.find((e) => e.author.id === "stephen-king")!;
+    expect(king.franchises[0]?.description).not.toBe(enF?.description);
   });
 
   it("leaves the base language untouched", () => {

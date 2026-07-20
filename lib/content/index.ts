@@ -95,8 +95,21 @@ function authorMap(): Map<string, Author> {
   return m;
 }
 
-export function getAuthor(id: string): Author | undefined {
-  return authorMap().get(id);
+export function getAuthor(id: string, locale?: string): Author | undefined {
+  const base = authorMap().get(id);
+  if (!base) return undefined;
+  return withAuthorTranslations(base, locale);
+}
+
+/** Apply an author's translation overlay, including either lifeEvents shape. */
+function withAuthorTranslations(a: Author, locale?: string): Author {
+  const ov = overlayFor(locale, path.join("authors", `${a.id}.yaml`));
+  const merged = merge(a, ov);
+  const nested = ov[a.id]?.lifeEvents;
+  const lifeEvents = Array.isArray(nested)
+    ? mergeList(merged.lifeEvents, nested)
+    : (merged.lifeEvents ?? []).map((e) => merge(e, ov));
+  return { ...merged, lifeEvents };
 }
 
 export function listFranchiseSlugs(): string[] {
@@ -162,19 +175,7 @@ export function getFranchise(slug: string, locale?: string): FranchiseBundle | n
   const authors = franchise.authorIds
     .map((id) => authorMap().get(id))
     .filter((a): a is Author => Boolean(a))
-    .map((a) => {
-      const ov = overlayFor(locale, path.join("authors", `${a.id}.yaml`));
-      const merged = merge(a, ov);
-      // lifeEvents are nested prose, translated by their own ids. Accept BOTH
-      // overlay shapes: nested under the author entry, or as flat top-level
-      // entries keyed by the event id. Both validate, so neither may silently
-      // render nothing; nested wins when both are present.
-      const nested = ov[a.id]?.lifeEvents;
-      const lifeEvents = Array.isArray(nested)
-        ? mergeList(merged.lifeEvents, nested)
-        : (merged.lifeEvents ?? []).map((e) => merge(e, ov));
-      return { ...merged, lifeEvents };
-    });
+    .map((a) => withAuthorTranslations(a, locale));
 
   // Timeline = author-life events + franchise events + global events, dated.
   const lifeEvents = authors.flatMap((a) =>
@@ -192,16 +193,23 @@ export function getFranchise(slug: string, locale?: string): FranchiseBundle | n
   return { franchise, authors, works, eras, orders, timeline, characters, editions, theme };
 }
 
-export function listFranchises(): Franchise[] {
+export function listFranchises(locale?: string): Franchise[] {
   return listFranchiseSlugs()
-    .map((slug) => readYaml<Franchise>(path.join(FRANCHISES, slug, "franchise.yaml")))
+    .map((slug) => {
+      const f = readYaml<Franchise>(path.join(FRANCHISES, slug, "franchise.yaml"));
+      if (!f) return null;
+      return merge(
+        { ...f, id: f.id ?? slug },
+        overlayFor(locale, path.join("franchises", slug, "franchise.yaml"))
+      );
+    })
     .filter((f): f is Franchise => Boolean(f));
 }
 
 /** Every franchise, fully loaded - for cross-franchise views (profile, achievements). */
-export function getAllBundles(): FranchiseBundle[] {
+export function getAllBundles(locale?: string): FranchiseBundle[] {
   return listFranchiseSlugs()
-    .map((slug) => getFranchise(slug))
+    .map((slug) => getFranchise(slug, locale))
     .filter((b): b is FranchiseBundle => Boolean(b));
 }
 

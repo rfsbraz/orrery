@@ -22,7 +22,7 @@ export default async function HallPage(props: { params: Promise<{ locale: string
   const { locale: localeSeg } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
   const t = translator(locale);
-  const hall = buildHall(getAllBundles());
+  const hall = buildHall(getAllBundles(locale));
 
   return (
     <main className="mx-auto max-w-4xl px-6 py-16">
