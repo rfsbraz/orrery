@@ -32,6 +32,13 @@ describe("storeLinks", () => {
     expect(storeLinks(carrie, "GB").some((l) => l.label === "Bookshop.org")).toBe(true);
   });
 
+  it("carries the Wook affiliate id on the Portuguese store link", () => {
+    const wook = storeLinks(carrie, "PT").find((l) => l.label === "Wook");
+    expect(wook?.url).toContain("a_aid=5d3ee4327c2fd");
+    // the affiliate id must not clobber the search query
+    expect(wook?.url).toContain("keyword=");
+  });
+
   it("gives only universal links for an unknown/blank country", () => {
     const links = storeLinks(carrie, "");
     expect(links.some((l) => l.label === "Amazon")).toBe(false);

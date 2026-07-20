@@ -23,10 +23,22 @@ export interface StoreLinkInput {
 
 // Per-retailer affiliate tags, filled as programs are approved. Keeping the
 // seam explicit means turning monetization on is config, not a refactor.
-const AFFILIATE_TAGS: { amazon?: Record<string, string>; bookshopOrg?: string } = {
+const AFFILIATE_TAGS: {
+  amazon?: Record<string, string>;
+  bookshopOrg?: string;
+  /** Wook affiliate id, carried as `a_aid` on any wook.pt URL. */
+  wook?: string;
+} = {
   // amazon: { es: "tag-es-21", co_uk: "tag-uk-21" },
   // bookshopOrg: "shop-id",
+  wook: "5d3ee4327c2fd",
 };
+
+/** Append a query param, minding whether the URL already has a query string. */
+function withParam(url: string, key: string, value?: string): string {
+  if (!value) return url;
+  return `${url}${url.includes("?") ? "&" : "?"}${key}=${encodeURIComponent(value)}`;
+}
 
 // Supported storefront countries (ISO-3166-1 alpha-2). "" / unknown -> universal.
 export type StoreCountry = "PT" | "ES" | "GB" | "US" | "FR" | "DE" | "BR" | "IT";
@@ -74,7 +86,11 @@ const EXTRA: Partial<
   PT: (input, query) => [
     {
       label: "Wook",
-      url: `https://www.wook.pt/pesquisa?keyword=${input.isbn13 ?? query}`,
+      url: withParam(
+        `https://www.wook.pt/pesquisa?keyword=${input.isbn13 ?? query}`,
+        "a_aid",
+        AFFILIATE_TAGS.wook
+      ),
       exact: Boolean(input.isbn13),
     },
     {
