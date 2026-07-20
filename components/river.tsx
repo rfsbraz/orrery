@@ -54,7 +54,7 @@ export function River({
         <div key={l.year}>
           {l.decadeStart && (
             <div className="relative mt-14 border-t-2 border-[var(--accent)]/70 first:mt-0">
-              <span className="sticky top-3 z-10 -ml-1 inline-block rounded bg-[var(--accent)] px-2 py-0.5 font-mono text-[11px] font-semibold text-[var(--bg)]">
+              <span className="sticky top-16 z-10 -ml-1 inline-block rounded bg-[var(--accent)] px-2 py-0.5 font-mono text-[11px] font-semibold text-[var(--bg)] md:top-3">
                 {Math.floor(l.year / 10) * 10}s
               </span>
             </div>

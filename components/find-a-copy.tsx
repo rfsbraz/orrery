@@ -47,7 +47,7 @@ export function FindACopy(props: StoreLinkInput) {
     <div className="mt-2 text-xs">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="text-neutral-500 hover:text-neutral-300"
+        className="text-neutral-500 hover:text-neutral-300 inline-block min-h-[40px] leading-[40px] md:min-h-0 md:leading-normal"
         aria-expanded={open}
       >
         {open ? t("copy.hide") : t("copy.find")}
@@ -70,7 +70,7 @@ export function FindACopy(props: StoreLinkInput) {
             value={country}
             onChange={(e) => pick(e.target.value)}
             aria-label={t("copy.country")}
-            className="ml-auto rounded border border-neutral-800 bg-neutral-900 px-1.5 py-0.5 text-neutral-400 outline-none focus:border-neutral-600"
+            className="ml-auto rounded border border-neutral-800 bg-neutral-900 text-neutral-400 outline-none focus:border-neutral-600 min-h-[40px] px-2 md:min-h-0 md:px-1.5 md:py-0.5"
           >
             {COUNTRIES.map(([code, name]) => (
               <option key={code} value={code}>

@@ -40,7 +40,7 @@ export function SpoilerGate({
       </span>
       <button
         onClick={() => setForced(true)}
-        className="rounded border border-[var(--ink)]/20 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[var(--ink)]/60 transition-colors hover:border-[var(--accent)] hover:text-[var(--ink)]"
+        className="rounded border border-[var(--ink)]/20 font-medium uppercase tracking-wide text-[var(--ink)]/60 transition-colors hover:border-[var(--accent)] hover:text-[var(--ink)] min-h-[40px] px-3 text-xs md:min-h-0 md:px-1.5 md:py-0.5 md:text-[10px]"
       >
         {t("spoiler.reveal")}
       </button>

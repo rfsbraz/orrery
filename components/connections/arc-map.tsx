@@ -15,6 +15,50 @@ const WIDTH = 640;
  * Deliberately quiet: thin strokes, the accent color only, no legend clutter.
  */
 export function ArcMap({ model }: { model: ArcModel }) {
+  return (
+    <>
+      {/* The arc diagram needs width: at phone size its 12px labels inside a
+          640-unit viewBox scale below legibility. Mobile gets the same edges
+          as a readable list instead; desktop is unchanged. */}
+      <div className="hidden md:block">
+        <ArcDiagram model={model} />
+      </div>
+      <ArcList model={model} />
+    </>
+  );
+}
+
+/** Mobile rendering: each work with what it leans back on. */
+function ArcList({ model }: { model: ArcModel }) {
+  const linked = new Map<number, number[]>();
+  for (const a of model.arcs) {
+    linked.set(a.j, [...(linked.get(a.j) ?? []), a.i]);
+    linked.set(a.i, [...(linked.get(a.i) ?? []), a.j]);
+  }
+  return (
+    <ol className="space-y-2.5 md:hidden">
+      {model.nodes.map((n, i) => (
+        <li key={n.id} className="border-l-2 border-[var(--accent)]/50 pl-3">
+          <p className="text-sm font-medium text-[var(--ink)]/90">
+            <span className="mr-2 font-mono text-[11px] text-[var(--muted)]">{n.year}</span>
+            {n.title}
+          </p>
+          {(linked.get(i) ?? []).length > 0 && (
+            <p className="mt-0.5 text-xs text-[var(--ink)]/55">
+              {(linked.get(i) ?? [])
+                .map((k) => model.nodes[k])
+                .filter(Boolean)
+                .map((t) => `${t.title} (${t.year})`)
+                .join(" · ")}
+            </p>
+          )}
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function ArcDiagram({ model }: { model: ArcModel }) {
   const height = PAD_TOP * 2 + model.nodes.length * ROW;
   const y = (i: number) => PAD_TOP + i * ROW + ROW / 2;
 

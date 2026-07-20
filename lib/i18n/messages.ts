@@ -165,6 +165,9 @@ export const messages = {
     "shelf.privateNote": "Your shelf is private until you make it public. A public shelf lives at",
     "meta.groups": "Book clubs | Orrery",
     "meta.recap": "Year in reading | Orrery",
+    "offline.label": "no connection",
+    "offline.title": "You are offline",
+    "offline.body": "Pages you have already visited are still here. Anything new will load again once you are back.",
     "locale.switch": "Language",
   },
 
@@ -327,6 +330,9 @@ export const messages = {
     "shelf.privateNote": "A sua estante fica privada até a tornar pública. Uma estante pública vive em",
     "meta.groups": "Clubes de leitura | Orrery",
     "meta.recap": "O ano em leituras | Orrery",
+    "offline.label": "sem ligação",
+    "offline.title": "Está offline",
+    "offline.body": "As páginas que já visitou continuam aqui. O resto volta a carregar assim que tiver ligação.",
     "locale.switch": "Idioma",
   },
 } as const;

@@ -5,8 +5,11 @@ import { useT } from "@/components/i18n/provider";
 import { useProgress } from "./provider";
 import type { ReadStatus } from "@/lib/progress/types";
 
+// Mobile gets a real touch target (44px is the accessibility floor); the
+// md: values restore the original desktop sizing exactly.
 const chip =
-  "rounded px-2 py-0.5 text-[11px] font-medium transition-colors border";
+  "rounded border font-medium transition-colors min-h-[44px] px-4 text-sm " +
+  "md:min-h-0 md:px-2 md:py-0.5 md:text-[11px]";
 
 /** Per-work Reading / Read toggles. Signed-out readers track locally (guest mode). */
 export function ProgressControl({ workId }: { workId: string }) {

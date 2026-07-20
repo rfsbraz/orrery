@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Orrery">
+  <!-- The Beam: a vertical line with works strung along it, the app's signature. -->
+  <rect width="512" height="512" rx="96" fill="#0f1115"/>
+  <line x1="256" y1="96" x2="256" y2="416" stroke="#b04a34" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="256" cy="150" r="26" fill="#ece3d4"/>
+  <circle cx="256" cy="256" r="34" fill="#b04a34"/>
+  <circle cx="256" cy="362" r="22" fill="#ece3d4"/>
+  <circle cx="256" cy="256" r="96" fill="none" stroke="#ece3d4" stroke-width="8" opacity="0.45"/>
+</svg>
