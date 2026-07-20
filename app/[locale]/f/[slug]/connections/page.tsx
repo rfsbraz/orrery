@@ -71,7 +71,7 @@ export default async function ConnectionsPage(props: { params: Promise<{ locale:
                 {t("connections.theMap")}
               </h2>
               <div className="rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-4">
-                <ArcMap model={model} />
+                <ArcMap model={model} locale={locale} />
               </div>
               <p className="mt-2 text-[11px] text-[var(--muted)]">
                 {t("connections.mapNote")}

@@ -1,3 +1,4 @@
+import { localePath, type Locale } from "@/lib/i18n/config";
 import type { ArcModel } from "@/lib/content/connections";
 
 // Layout constants (SVG user units). The diagram is a vertical beam: one row
@@ -14,14 +15,14 @@ const WIDTH = 640;
  * explicit connection is an arc whose reach shows how far back a book leans.
  * Deliberately quiet: thin strokes, the accent color only, no legend clutter.
  */
-export function ArcMap({ model }: { model: ArcModel }) {
+export function ArcMap({ model, locale }: { model: ArcModel; locale: Locale }) {
   return (
     <>
       {/* The arc diagram needs width: at phone size its 12px labels inside a
           640-unit viewBox scale below legibility. Mobile gets the same edges
           as a readable list instead; desktop is unchanged. */}
       <div className="hidden lg:block">
-        <ArcDiagram model={model} />
+        <ArcDiagram model={model} locale={locale} />
       </div>
       <ArcList model={model} />
     </>
@@ -58,7 +59,7 @@ function ArcList({ model }: { model: ArcModel }) {
   );
 }
 
-function ArcDiagram({ model }: { model: ArcModel }) {
+function ArcDiagram({ model, locale }: { model: ArcModel; locale: Locale }) {
   const height = PAD_TOP * 2 + model.nodes.length * ROW;
   const y = (i: number) => PAD_TOP + i * ROW + ROW / 2;
 
@@ -100,7 +101,7 @@ function ArcDiagram({ model }: { model: ArcModel }) {
       {model.nodes.map((n, i) => (
         <g key={n.id}>
           <circle cx={BEAM_X} cy={y(i)} r={3.2} fill="var(--accent)" />
-          <a href={`/f/${n.id.split("/")[0]}#w-${n.id.split("/")[1]}`}>
+          <a href={`${localePath(locale, `/f/${n.id.split("/")[0]}`)}#w-${n.id.split("/")[1]}`}>
             <text
               x={LABEL_X}
               y={y(i) + 3.5}

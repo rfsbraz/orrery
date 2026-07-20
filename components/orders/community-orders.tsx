@@ -1,5 +1,7 @@
 "use client";
 
+import { useLocale } from "@/components/i18n/provider";
+import { localePath } from "@/lib/i18n/config";
 import { useT } from "@/components/i18n/provider";
 
 import { useEffect, useState } from "react";
@@ -20,6 +22,7 @@ export function CommunityOrders({
   workTitles: Record<string, string>;
 }) {
   const t = useT();
+  const locale = useLocale();
   const [orders, setOrders] = useState<CommunityOrder[]>([]);
   const [ready, setReady] = useState(false);
 
@@ -57,7 +60,7 @@ export function CommunityOrders({
           {t("community.orders")}
         </h3>
         <Link
-          href={`/f/${franchiseSlug}/orders/new`}
+          href={localePath(locale, `/f/${franchiseSlug}/orders/new`)}
           className="shrink-0 text-xs text-[var(--accent)] hover:underline"
         >
           {t("community.submit")}
