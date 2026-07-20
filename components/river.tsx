@@ -54,7 +54,7 @@ export function River({
         <div key={l.year}>
           {l.decadeStart && (
             <div className="relative mt-14 border-t-2 border-[var(--accent)]/70 first:mt-0">
-              <span className="sticky top-16 z-10 -ml-1 inline-block rounded bg-[var(--accent)] px-2 py-0.5 font-mono text-[11px] font-semibold text-[var(--bg)] md:top-3">
+              <span className="sticky top-16 z-10 -ml-1 inline-block rounded bg-[var(--accent)] px-2 py-0.5 font-mono text-[11px] font-semibold text-[var(--bg)] lg:top-3">
                 {Math.floor(l.year / 10) * 10}s
               </span>
             </div>
@@ -139,7 +139,7 @@ export function River({
                       <article
                         key={w.id}
                         id={`w-${w.id.split("/").pop()}`}
-                        className="relative flex w-[calc(50%-0.375rem)] scroll-mt-20 gap-3 rounded-md border border-[var(--ink)]/10 bg-[var(--surface)] p-3 max-md:w-full"
+                        className="relative flex w-[calc(50%-0.375rem)] scroll-mt-20 gap-3 rounded-md border border-[var(--ink)]/10 bg-[var(--surface)] p-3 max-lg:w-full"
                       >
                         {orderPositions?.has(w.id) && (
                           <span
@@ -153,20 +153,20 @@ export function River({
                           src={covers[w.id]}
                           title={w.title}
                           year={w.published}
-                          className="h-[76px] w-[50px]"
+                          className="h-[76px] w-[50px] max-lg:h-[104px] max-lg:w-[68px]"
                         />
                         <div className="min-w-0 flex-1">
-                          <h3 className="display text-[15px] font-semibold leading-tight">
+                          <h3 className="display text-[15px] font-semibold leading-tight max-lg:text-[17px]">
                             {localTitles?.[w.id] ?? w.title}
                           </h3>
                           {localTitles?.[w.id] && localTitles[w.id] !== w.title && (
                             // The original title stays visible: a reader
                             // searching or discussing needs both.
-                            <p className="mt-0.5 text-[11px] italic text-[var(--muted)]">
+                            <p className="mt-0.5 text-[11px] italic text-[var(--muted)] max-lg:text-[13px]">
                               {w.title}
                             </p>
                           )}
-                          <p className="mt-0.5 text-[10px] uppercase tracking-wide text-[var(--muted)]">
+                          <p className="mt-0.5 text-[10px] uppercase tracking-wide text-[var(--muted)] max-lg:mt-1 max-lg:text-[12px]">
                             {entry && (
                               <span className="text-[var(--accent)]/90">
                                 {entry.name} · #{entry.n} of {entry.total}
@@ -184,7 +184,7 @@ export function River({
                           {w.synopsis && (
                             <Prose
                               text={w.synopsis}
-                              className="prose-read mt-1 line-clamp-2 block text-xs text-[var(--ink)]/65"
+                              className="prose-read mt-1 line-clamp-2 block text-xs text-[var(--ink)]/65 max-lg:line-clamp-3 max-lg:text-[14px] max-lg:leading-relaxed"
                             />
                           )}
                           <ProgressControl workId={w.id} />
@@ -207,7 +207,7 @@ export function River({
               {l.texture.length > 0 && (
                 <ul className="mt-3 space-y-1 border-l-2 border-[var(--ink)]/15 pl-3">
                   {l.texture.map((e) => (
-                    <li key={e.id} className="text-xs leading-relaxed text-[var(--ink)]/55">
+                    <li key={e.id} className="text-xs leading-relaxed text-[var(--ink)]/55 max-lg:text-[14px]">
                       <SpoilerGate
                         spoilerAfter={e.spoilerAfter}
                         boundaryTitle={workTitles[e.spoilerAfter ?? ""]}

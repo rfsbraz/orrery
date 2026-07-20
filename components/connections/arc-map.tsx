@@ -20,7 +20,7 @@ export function ArcMap({ model }: { model: ArcModel }) {
       {/* The arc diagram needs width: at phone size its 12px labels inside a
           640-unit viewBox scale below legibility. Mobile gets the same edges
           as a readable list instead; desktop is unchanged. */}
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <ArcDiagram model={model} />
       </div>
       <ArcList model={model} />
@@ -36,7 +36,7 @@ function ArcList({ model }: { model: ArcModel }) {
     linked.set(a.i, [...(linked.get(a.i) ?? []), a.j]);
   }
   return (
-    <ol className="space-y-2.5 md:hidden">
+    <ol className="space-y-2.5 lg:hidden">
       {model.nodes.map((n, i) => (
         <li key={n.id} className="border-l-2 border-[var(--accent)]/50 pl-3">
           <p className="text-sm font-medium text-[var(--ink)]/90">
