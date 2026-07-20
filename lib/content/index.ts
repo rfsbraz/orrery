@@ -169,7 +169,11 @@ export function getFranchise(slug: string, locale?: string): FranchiseBundle | n
   const franchiseEvents = (readYaml<AuraEvent[]>(path.join(dir, "events.yaml")) ?? []).map((e) =>
     merge(e, overlayFor(locale, rel_("events.yaml")))
   );
-  const characters = readYaml<Character[]>(path.join(dir, "characters.yaml")) ?? [];
+  const characters = (readYaml<Character[]>(path.join(dir, "characters.yaml")) ?? []).map((c) =>
+    merge(c, overlayFor(locale, rel_("characters.yaml")))
+  );
+  // Editions are deliberately NOT overlaid: an edition's `title` is the title
+  // as published, which is data, not prose to translate.
   const editions = readYaml<Edition[]>(path.join(dir, "editions.yaml")) ?? [];
 
   const authors = franchise.authorIds

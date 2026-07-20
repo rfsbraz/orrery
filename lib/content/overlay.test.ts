@@ -64,6 +64,44 @@ describe("translation overlays (pt-PT)", () => {
     expect(king.franchises[0]?.description).not.toBe(enF?.description);
   });
 
+  // Every prose-bearing collection on the bundle must be overlaid. This has
+  // now been missed three times, one collection at a time (works, then the
+  // home page's franchise list, then characters), so assert them together.
+  it("every prose collection on a bundle is translated", () => {
+    const en = getFranchise("stephen-king")!;
+    const pt = getFranchise("stephen-king", "pt-PT")!;
+
+    const differs = (a?: string, b?: string) => Boolean(a && b && a !== b);
+
+    expect(differs(en.franchise.description, pt.franchise.description)).toBe(true);
+    expect(differs(en.works[0]?.synopsis, pt.works[0]?.synopsis)).toBe(true);
+    expect(differs(en.eras[0]?.title, pt.eras[0]?.title)).toBe(true);
+    expect(differs(en.authors[0]?.bio, pt.authors[0]?.bio)).toBe(true);
+    expect(differs(en.characters[0]?.description, pt.characters[0]?.description)).toBe(true);
+
+    // orders: the derived default is generated in English by the engine, so
+    // check a curated one.
+    const enOrder = en.orders.find((o) => !o.derived);
+    const ptOrder = pt.orders.find((o) => !o.derived);
+    expect(differs(enOrder?.rationale, ptOrder?.rationale)).toBe(true);
+
+    // aura events, including the shared global layer
+    const enWar = en.timeline.find((e) => e.id === "world-war-ii-1939");
+    const ptWar = pt.timeline.find((e) => e.id === "world-war-ii-1939");
+    expect(differs(enWar?.title, ptWar?.title)).toBe(true);
+
+    // startHere paths (nested prose, reached through the wizard)
+    const enPath = en.franchise.startHere?.paths?.[0];
+    const ptPath = pt.franchise.startHere?.paths?.[0];
+    expect(differs(enPath?.title, ptPath?.title)).toBe(true);
+  });
+
+  it("editions are NOT overlaid (a published title is data, not prose)", () => {
+    const en = getFranchise("stephen-king")!;
+    const pt = getFranchise("stephen-king", "pt-PT")!;
+    expect(pt.editions.map((e) => e.title)).toEqual(en.editions.map((e) => e.title));
+  });
+
   it("leaves the base language untouched", () => {
     const en = getFranchise("stephen-king")!;
     expect(en.eras.find((e) => e.id === "the-golden-decade")?.title).toBe("The Golden Decade");
