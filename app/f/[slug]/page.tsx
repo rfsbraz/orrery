@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { getFranchise, listFranchiseSlugs } from "@/lib/content";
 import { capabilities } from "@/lib/content/capabilities";
 import { companionFor } from "@/lib/progress/companion";
+import { coverFor, pickEdition } from "@/lib/content/editions";
 import { stripRefs } from "@/lib/content/refs";
 import { themeVars } from "@/lib/theme";
 import { Prose } from "@/components/prose";
@@ -37,6 +38,16 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
   const companions = caps.companion
     ? Object.fromEntries(b.works.map((w) => [w.id, companionFor(w, b)]))
     : undefined;
+  // Covers resolve from curated editions or OpenLibrary IDs; buy-ISBNs only
+  // from curated editions (the editions capability). Text-first when neither.
+  const editionInfo = Object.fromEntries(
+    b.works.flatMap((w) => {
+      const edition = caps.editions ? pickEdition(w.id, b.editions) : null;
+      const cover = coverFor(w, edition);
+      if (!cover && !edition?.isbn13) return [];
+      return [[w.id, { cover, isbn13: edition?.isbn13 }]];
+    })
+  );
   const workTitle = (id: string) => b.works.find((w) => w.id === id)?.title ?? id;
   const curated = b.orders.filter((o) => !o.derived);
   const authorNames = new Map(b.authors.map((a) => [a.id, a.name]));
@@ -152,6 +163,7 @@ export default async function FranchisePage(props: { params: Promise<{ slug: str
               events={b.timeline}
               authorNames={authorNames}
               companions={companions}
+              editions={editionInfo}
             />
           </ProgressProvider>
         </section>
