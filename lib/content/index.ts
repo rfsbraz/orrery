@@ -64,14 +64,34 @@ function mergeList<T extends { id: string }>(
   return base.map((item) => merge(item, byId));
 }
 
-/** Apply an overlay entry's prose fields over a base record. */
+/**
+ * Apply an overlay entry's prose fields over a base record.
+ *
+ * Only SCALARS are copied. Overlays carry prose (see SCHEMA: "translations are
+ * prose only"), and a nested list or object in an overlay is a partial copy of
+ * a structure that lives in the base - taking it wholesale silently destroys
+ * whatever the translator did not restate.
+ *
+ * That is not hypothetical. Copying nested values clobbered two structures at
+ * once on every non-default locale:
+ *   - an author's `lifeEvents` lost their `date`, so every Portuguese life event
+ *     resolved to year 0 and `buildRiver` (which drops year-0 layers) removed
+ *     them from the timeline entirely
+ *   - `startHere.paths` lost `workIds`, `orderId` and `fit`, so the whole
+ *     where-to-start wizard recommended nothing in Portuguese
+ *
+ * Nested lists are merged by id explicitly (see mergeList) precisely so the
+ * base keeps its structure. Skipping non-scalars here is what makes that safe.
+ */
 function merge<T extends { id: string }>(base: T, overlay: Overlay): T {
   const t = overlay[base.id];
   if (!t) return base;
   const out = { ...base } as Record<string, unknown>;
   for (const [k, v] of Object.entries(t)) {
     // `id` is the join key, never content; empty strings mean "not translated".
-    if (k !== "id" && v !== null && v !== "") out[k] = v;
+    if (k === "id" || v === null || v === "") continue;
+    if (typeof v === "object") continue; // arrays and maps: handled by mergeList
+    out[k] = v;
   }
   return out as T;
 }
