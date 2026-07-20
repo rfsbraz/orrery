@@ -38,7 +38,7 @@ export function Membership({
       </Link>
     );
   }
-  if (isOwner) return <span className="text-sm text-neutral-500">You own this club</span>;
+  if (isOwner) return <span className="text-sm text-neutral-500">{t("groups.youOwn")}</span>;
 
   async function toggle() {
     setBusy(true);

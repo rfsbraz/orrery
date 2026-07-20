@@ -84,7 +84,7 @@ export default async function ConnectionsPage(props: { params: Promise<{ locale:
               <h2 className="mb-4 text-xs font-medium uppercase tracking-widest text-[var(--ink)]/50">
                 {t("connections.travellers")}
               </h2>
-              <CharacterThreads threads={threads} workTitles={workTitles} />
+              <CharacterThreads threads={threads} workTitles={workTitles} locale={locale} />
             </section>
           )}
         </ProgressProvider>

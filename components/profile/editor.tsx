@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/i18n/provider";
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { saveProfileAction } from "@/app/actions/profile";
@@ -21,6 +23,7 @@ const COUNTRIES = [
 
 /** Create/edit the signed-in user's public profile, inline on /me. */
 export function ProfileEditor({ initial }: { initial: Profile | null }) {
+  const t = useT();
   const router = useRouter();
   const [handle, setHandle] = useState(initial?.handle ?? "");
   const [displayName, setDisplayName] = useState(initial?.displayName ?? "");
@@ -56,7 +59,7 @@ export function ProfileEditor({ initial }: { initial: Profile | null }) {
 
   return (
     <section className="mt-14 rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
-      <h2 className="text-xs font-medium uppercase tracking-widest text-neutral-500">Public profile</h2>
+      <h2 className="text-xs font-medium uppercase tracking-widest text-neutral-500">{t("profile.public")}</h2>
       <p className="mt-2 text-sm text-neutral-400">
         Your shelf is private until you make it public. A public shelf lives at{" "}
         <span className="text-neutral-300">orrery/u/{handle || "handle"}</span>.
@@ -82,7 +85,7 @@ export function ProfileEditor({ initial }: { initial: Profile | null }) {
         </label>
 
         <label className="block">
-          <span className="text-sm text-neutral-400">Display name</span>
+          <span className="text-sm text-neutral-400">{t("profile.displayName")}</span>
           <input
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
@@ -124,7 +127,7 @@ export function ProfileEditor({ initial }: { initial: Profile | null }) {
             onChange={(e) => setIsPublic(e.target.checked)}
             className="h-4 w-4 accent-neutral-200"
           />
-          <span className="text-sm text-neutral-300">Make my shelf public</span>
+          <span className="text-sm text-neutral-300">{t("profile.makePublic")}</span>
         </label>
 
         {error && <p className="text-sm text-red-400">{error}</p>}

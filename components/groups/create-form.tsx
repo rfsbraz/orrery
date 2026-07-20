@@ -1,5 +1,7 @@
 "use client";
 
+import { useT } from "@/components/i18n/provider";
+
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createGroupAction } from "@/app/actions/groups";
@@ -13,6 +15,7 @@ interface FranchiseOption {
 
 /** Create a book club: name, handle, franchise + which order to read together. */
 export function CreateGroupForm({ franchises }: { franchises: FranchiseOption[] }) {
+  const t = useT();
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
@@ -63,15 +66,13 @@ export function CreateGroupForm({ franchises }: { franchises: FranchiseOption[] 
       <button
         onClick={() => setOpen(true)}
         className="rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white"
-      >
-        Start a book club
-      </button>
+      >{t("groups.startClub")}</button>
     );
   }
 
   return (
     <form onSubmit={submit} className="rounded-xl border border-neutral-800 bg-neutral-900/40 p-6">
-      <h2 className="text-xs font-medium uppercase tracking-widest text-neutral-500">New book club</h2>
+      <h2 className="text-xs font-medium uppercase tracking-widest text-neutral-500">{t("groups.newClub")}</h2>
       <div className="mt-4 space-y-4">
         <label className="block">
           <span className="text-sm text-neutral-400">Name</span>
@@ -117,7 +118,7 @@ export function CreateGroupForm({ franchises }: { franchises: FranchiseOption[] 
             </select>
           </label>
           <label className="block">
-            <span className="text-sm text-neutral-400">Reading order</span>
+            <span className="text-sm text-neutral-400">{t("groups.readingOrder")}</span>
             <select
               value={orderRef}
               onChange={(e) => setOrderRef(e.target.value)}
@@ -159,7 +160,7 @@ export function CreateGroupForm({ franchises }: { franchises: FranchiseOption[] 
             onChange={(e) => setIsPublic(e.target.checked)}
             className="h-4 w-4 accent-neutral-200"
           />
-          <span className="text-sm text-neutral-300">Anyone can find and join</span>
+          <span className="text-sm text-neutral-300">{t("groups.anyoneCanJoin")}</span>
         </label>
 
         {error && <p className="text-sm text-red-400">{error}</p>}

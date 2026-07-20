@@ -1,3 +1,4 @@
+import { translator } from "@/lib/i18n/messages";
 import { localeFromSegment, localePath } from "@/lib/i18n/config";
 import Link from "next/link";
 import type { Metadata } from "next";
@@ -28,6 +29,7 @@ export async function generateMetadata({
 export default async function GroupPage({ params }: { params: Promise<{ locale: string; handle: string }> }) {
   const { locale: localeSeg, handle } = await params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
+  const t = translator(locale);
   const group = await getGroupByHandle(handle);
   if (!group) notFound();
 
@@ -89,9 +91,7 @@ export default async function GroupPage({ params }: { params: Promise<{ locale: 
 
       {/* Shared progress board */}
       <section className="mt-10">
-        <h2 className="mb-4 text-xs font-medium uppercase tracking-widest text-neutral-500">
-          Progress board
-        </h2>
+        <h2 className="mb-4 text-xs font-medium uppercase tracking-widest text-neutral-500">{t("groups.progressBoard")}</h2>
         {!isMember ? (
           <p className="text-sm text-neutral-500">Join the club to see the shared progress board.</p>
         ) : (
@@ -121,9 +121,7 @@ export default async function GroupPage({ params }: { params: Promise<{ locale: 
 
       {/* The reading list */}
       <section className="mt-10">
-        <h2 className="mb-4 text-xs font-medium uppercase tracking-widest text-neutral-500">
-          The list
-        </h2>
+        <h2 className="mb-4 text-xs font-medium uppercase tracking-widest text-neutral-500">{t("groups.theList")}</h2>
         <ol className="list-decimal space-y-1 pl-6 text-sm text-neutral-300">
           {resolved.workIds.map((id) => (
             <li key={id}>

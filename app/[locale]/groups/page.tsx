@@ -1,3 +1,4 @@
+import { translator } from "@/lib/i18n/messages";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { localeFromSegment, localePath } from "@/lib/i18n/config";
@@ -13,6 +14,7 @@ export const metadata: Metadata = { title: "Book clubs | Orrery" };
 export default async function GroupsPage(props: { params: Promise<{ locale: string }> }) {
   const { locale: localeSeg } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
+  const t = translator(locale);
   const [user, groups] = await Promise.all([getCurrentUser(), getPublicGroups()]);
 
   // Build the franchise + order options for the create form from canon.
@@ -31,7 +33,7 @@ export default async function GroupsPage(props: { params: Promise<{ locale: stri
         ← Orrery
       </Link>
       <div className="mt-4 flex items-baseline justify-between gap-4">
-        <h1 className="display text-3xl font-semibold text-neutral-100">Book clubs</h1>
+        <h1 className="display text-3xl font-semibold text-neutral-100">{t("groups.title")}</h1>
       </div>
       <p className="mt-2 max-w-prose text-neutral-400">
         Read a franchise together. Pick an order, set a pace, and watch each other&apos;s progress on a
@@ -49,9 +51,7 @@ export default async function GroupsPage(props: { params: Promise<{ locale: stri
       </div>
 
       <section className="mt-12">
-        <h2 className="mb-4 text-xs font-medium uppercase tracking-widest text-neutral-500">
-          Public clubs
-        </h2>
+        <h2 className="mb-4 text-xs font-medium uppercase tracking-widest text-neutral-500">{t("groups.publicClubs")}</h2>
         {groups.length === 0 ? (
           <p className="text-neutral-500">No public clubs yet. Start the first one.</p>
         ) : (
