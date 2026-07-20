@@ -25,9 +25,17 @@ export default function Home() {
       </header>
 
       <section>
-        <h2 className="mb-5 text-xs font-medium uppercase tracking-widest text-neutral-500">
-          Franchises
-        </h2>
+        <div className="mb-5 flex items-baseline justify-between">
+          <h2 className="text-xs font-medium uppercase tracking-widest text-neutral-500">
+            Franchises
+          </h2>
+          <Link
+            href="/hall"
+            className="text-xs text-neutral-400 underline decoration-neutral-700 underline-offset-2 hover:text-neutral-100"
+          >
+            The Hall - every author, one timeline
+          </Link>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           {franchises.map((f) => (
             <Link
