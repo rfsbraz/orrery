@@ -10,7 +10,12 @@ import { buildYearRecap, recapHeadline } from "@/lib/progress/recap";
 import { overlayCaption } from "@/lib/progress/overlay";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Year in reading | Orrery" };
+export async function generateMetadata(props: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale: seg } = await props.params;
+  return { title: translator(localeFromSegment(seg === "en" ? undefined : seg))("meta.recap") };
+}
 
 export default async function RecapPage(props: { params: Promise<{ locale: string; year: string }> }) {
   const { locale: localeSeg, year: raw } = await props.params;
@@ -24,7 +29,7 @@ export default async function RecapPage(props: { params: Promise<{ locale: strin
     return (
       <main className="mx-auto max-w-md px-6 py-24 text-center">
         <h1 className="display text-2xl font-semibold text-neutral-100">{t("recap.yearInReading")}</h1>
-        <p className="mt-2 text-neutral-400">Sign in to see your year in context.</p>
+        <p className="mt-2 text-neutral-400">{t("recap.signInPrompt")}</p>
         <Link
           href={localePath(locale, "/login")}
           className="mt-6 inline-block rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-900 hover:bg-white"
@@ -38,7 +43,7 @@ export default async function RecapPage(props: { params: Promise<{ locale: strin
   return (
     <main className="mx-auto max-w-2xl px-6 py-14">
       <Link href={localePath(locale, "/me")} className="text-xs text-neutral-500 hover:text-neutral-300">
-        ← Your shelf
+        ← {t("shelf.backLink")}
       </Link>
 
       <header className="mt-4 mb-10">

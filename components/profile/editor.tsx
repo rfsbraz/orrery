@@ -61,7 +61,7 @@ export function ProfileEditor({ initial }: { initial: Profile | null }) {
     <section className="mt-14 rounded-xl border border-neutral-800 bg-neutral-900/30 p-6">
       <h2 className="text-xs font-medium uppercase tracking-widest text-neutral-500">{t("profile.public")}</h2>
       <p className="mt-2 text-sm text-neutral-400">
-        Your shelf is private until you make it public. A public shelf lives at{" "}
+        {t("shelf.privateNote")}{" "}
         <span className="text-neutral-300">orrery/u/{handle || "handle"}</span>.
       </p>
 
