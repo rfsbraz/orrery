@@ -1,137 +1,167 @@
 import { Prose } from "./prose";
+import { Cover } from "./cover";
 import { ProgressControl } from "./progress/control";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
-import type { RiverSection } from "@/lib/content/river";
-import type { Work } from "@/lib/content/types";
+import { signatureLine, type SignatureKind } from "@/lib/theme";
+import type { RiverLayer, SeriesEntry } from "@/lib/content/river";
 
 /**
  * The River: the atmospheric context browse (CONCEPT §5 - "the soul of the
- * product"). A museum walk, not a checklist: era bands set the light, works
- * drift along the signature beam alternating sides, high-impact events stand
- * full-width as anchors you pass through, low-impact events sit as marginalia.
- * Atmosphere through structure and typography - no decor, no motion demands
- * (pure document flow; respects reduced motion by having none to reduce).
+ * product"), rendered as strata. Time is sediment and you descend through it:
+ * every year is a layer with its ghosted numeral, decades cut heavy rules with
+ * a sticky marker, works sit as cover-led cards inside their layer, low-impact
+ * events are thin interbedded seams, and high-impact events are RUPTURES -
+ * full-bleed inverted bands that break the stratigraphy the way the event
+ * broke the life. Depth is the point: you feel how far down you have read.
+ *
+ * Pure document flow - no scroll-jacking, nothing for reduced-motion to undo.
  */
-export function River({ sections, workTitles }: { sections: RiverSection[]; workTitles: Map<string, string> }) {
+export function River({
+  layers,
+  series,
+  covers,
+  workTitles,
+  signature = "thread",
+}: {
+  layers: RiverLayer[];
+  series: Map<string, SeriesEntry>;
+  covers: Record<string, string>;
+  workTitles: Record<string, string>;
+  /** The franchise's signature element, from its theme.yaml. */
+  signature?: SignatureKind;
+}) {
   return (
-    <div className="relative">
-      {/* The beam runs the whole walk */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute left-1/2 top-0 bottom-0 w-px -translate-x-1/2 bg-gradient-to-b from-[var(--accent)]/70 via-[var(--ink)]/15 to-transparent max-md:left-2"
-      />
-      {sections.map((s, si) => (
-        <section key={s.era?.id ?? `s-${si}`} className="relative">
-          {s.era && (
-            <header className="relative z-10 my-16 text-center max-md:text-left max-md:pl-8 first:mt-4">
-              <p className="font-mono text-xs tracking-[0.3em] text-[var(--muted)]">
-                {s.era.period}
+    <div>
+      {layers.map((l) => (
+        <div key={l.year}>
+          {l.decadeStart && (
+            <div className="relative mt-14 border-t-2 border-[var(--accent)]/70 first:mt-0">
+              <span className="sticky top-3 z-10 -ml-1 inline-block rounded bg-[var(--accent)] px-2 py-0.5 font-mono text-[11px] font-semibold text-[var(--bg)]">
+                {Math.floor(l.year / 10) * 10}s
+              </span>
+            </div>
+          )}
+
+          {l.eraStart && l.era && (
+            <header className="mt-6 mb-2">
+              <p className="text-[10px] uppercase tracking-[0.3em] text-[var(--accent)]/90">
+                {l.era.title} <span className="text-[var(--muted)]">· {l.era.period}</span>
               </p>
-              <h2 className="display mt-2 text-3xl font-semibold tracking-tight">
-                {s.era.title}
-              </h2>
-              {s.era.themes && s.era.themes.length > 0 && (
-                <p className="mt-2 text-xs uppercase tracking-widest text-[var(--muted)]/80">
-                  {s.era.themes.join(" · ")}
-                </p>
-              )}
-              {s.era.description && (
+              {l.era.description && (
                 <Prose
-                  text={s.era.description}
-                  className="prose-read mx-auto mt-3 block max-w-xl text-sm text-[var(--ink)]/70 max-md:mx-0"
+                  text={l.era.description}
+                  className="prose-read mt-1.5 block max-w-2xl text-sm text-[var(--ink)]/65"
                 />
               )}
             </header>
           )}
 
-          <ol className="space-y-10">
-            {s.items.map((item, i) =>
-              item.kind === "anchor" && item.event ? (
-                <li key={`a-${item.event.id}-${i}`} className="relative z-10 mx-auto max-w-xl py-6 text-center max-md:pl-8 max-md:text-left">
-                  <SpoilerGate
-                    spoilerAfter={item.event.spoilerAfter}
-                    boundaryTitle={workTitles.get(item.event.spoilerAfter ?? "")}
-                  >
-                    <p className="font-mono text-xs text-[var(--accent)]">{item.year}</p>
-                    <p className="display mt-1 text-xl font-semibold leading-snug text-[var(--ink)]">
-                      {item.event.title}
-                    </p>
-                    {item.event.description && (
-                      <Prose
-                        text={item.event.description}
-                        className="prose-read mt-2 block text-sm text-[var(--ink)]/70"
-                      />
-                    )}
-                  </SpoilerGate>
-                </li>
-              ) : item.kind === "event" && item.event ? (
-                <li
-                  key={`e-${item.event.id}-${i}`}
-                  className={`relative flex max-md:pl-8 ${i % 2 === 0 ? "justify-start" : "justify-end"}`}
-                >
-                  <div
-                    className={`max-w-[44%] max-md:max-w-full ${
-                      item.event.impact === "med" ? "opacity-90" : "opacity-70"
-                    }`}
-                  >
-                    <SpoilerGate
-                      spoilerAfter={item.event.spoilerAfter}
-                      boundaryTitle={workTitles.get(item.event.spoilerAfter ?? "")}
-                    >
-                      <p className="text-xs leading-relaxed text-[var(--ink)]/60">
-                        <span className="font-mono text-[10px] text-[var(--muted)]">
-                          {item.year}
-                        </span>{" "}
-                        <span className="font-medium text-[var(--ink)]/80">
-                          {item.event.title}.
-                        </span>{" "}
-                        {item.event.description && (
-                          <Prose text={item.event.description} className="inline" />
-                        )}
-                      </p>
-                    </SpoilerGate>
-                  </div>
-                </li>
-              ) : item.work ? (
-                <RiverWork key={`w-${item.work.id}`} work={item.work} flip={i % 2 === 1} />
-              ) : null
-            )}
-          </ol>
-        </section>
+          {/* ruptures: full-bleed inverted bands */}
+          {l.ruptures.map((e) => (
+            <div key={e.id} className="-mx-6 my-8 bg-[var(--ink)] px-6 py-10 text-[var(--bg)]">
+              <SpoilerGate
+                spoilerAfter={e.spoilerAfter}
+                boundaryTitle={workTitles[e.spoilerAfter ?? ""]}
+              >
+                <p className="font-mono text-xs text-[var(--accent)]">{l.year}</p>
+                <p className="display mt-1.5 max-w-2xl text-2xl font-semibold leading-snug">
+                  {e.title}
+                </p>
+                {e.description && (
+                  <Prose
+                    text={e.description}
+                    className="prose-read mt-2 block max-w-xl text-sm opacity-75"
+                  />
+                )}
+              </SpoilerGate>
+            </div>
+          ))}
+
+          {(l.works.length > 0 || l.texture.length > 0) && (
+            <section className="relative overflow-hidden border-t border-[var(--ink)]/8 py-5 pl-4">
+              {/* the franchise signature threads the layers together */}
+              <span
+                aria-hidden
+                className={`pointer-events-none absolute left-0 top-0 bottom-0 ${signatureLine[signature]}`}
+              />
+              {/* ghosted year numeral behind the layer */}
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -right-2 -top-4 select-none font-mono text-[92px] font-bold leading-none text-[var(--ink)]/[0.05]"
+              >
+                {l.year}
+              </span>
+
+              <p className="mb-3 font-mono text-xs text-[var(--muted)]">{l.year}</p>
+
+              {l.works.length > 0 && (
+                <div className="flex flex-wrap gap-3">
+                  {l.works.map((w) => {
+                    const entry = series.get(w.id);
+                    return (
+                      <article
+                        key={w.id}
+                        id={`w-${w.id.split("/").pop()}`}
+                        className="flex w-[calc(50%-0.375rem)] scroll-mt-20 gap-3 rounded-md border border-[var(--ink)]/10 bg-[var(--surface)] p-3 max-md:w-full"
+                      >
+                        <Cover
+                          src={covers[w.id]}
+                          title={w.title}
+                          year={w.published}
+                          className="h-[76px] w-[50px]"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <h3 className="display text-[15px] font-semibold leading-tight">
+                            {w.title}
+                          </h3>
+                          <p className="mt-0.5 text-[10px] uppercase tracking-wide text-[var(--muted)]">
+                            {entry && (
+                              <span className="text-[var(--accent)]/90">
+                                {entry.name} · #{entry.n} of {entry.total}
+                              </span>
+                            )}
+                            {w.publishedAs && (
+                              <span className={entry ? "ml-2 italic normal-case" : "italic normal-case"}>
+                                as {w.publishedAs}
+                              </span>
+                            )}
+                            {w.canonTier !== "core" && (
+                              <span className="ml-2 text-[var(--muted)]/70">{w.canonTier}</span>
+                            )}
+                          </p>
+                          {w.synopsis && (
+                            <Prose
+                              text={w.synopsis}
+                              className="prose-read mt-1 line-clamp-2 block text-xs text-[var(--ink)]/65"
+                            />
+                          )}
+                          <ProgressControl workId={w.id} />
+                        </div>
+                      </article>
+                    );
+                  })}
+                </div>
+              )}
+
+              {l.texture.length > 0 && (
+                <ul className="mt-3 space-y-1 border-l-2 border-[var(--ink)]/15 pl-3">
+                  {l.texture.map((e) => (
+                    <li key={e.id} className="text-xs leading-relaxed text-[var(--ink)]/55">
+                      <SpoilerGate
+                        spoilerAfter={e.spoilerAfter}
+                        boundaryTitle={workTitles[e.spoilerAfter ?? ""]}
+                      >
+                        <span className="font-medium text-[var(--ink)]/70">{e.title}.</span>{" "}
+                        {e.description && <Prose text={e.description} className="inline" />}
+                      </SpoilerGate>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </section>
+          )}
+        </div>
       ))}
     </div>
-  );
-}
-
-function RiverWork({ work, flip }: { work: Work; flip: boolean }) {
-  return (
-    <li
-      id={`w-${work.id.split("/").pop()}`}
-      className={`relative flex max-md:pl-8 ${flip ? "justify-end" : "justify-start"}`}
-    >
-      {/* node on the beam */}
-      <span
-        aria-hidden
-        className="absolute left-1/2 top-3 h-2.5 w-2.5 -translate-x-1/2 rounded-full border border-[var(--bg)] bg-[var(--accent)] max-md:left-2"
-      />
-      <div className="w-[46%] rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-4 max-md:w-full">
-        <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-          <span className="font-mono text-xs text-[var(--muted)]">{work.published}</span>
-          <h3 className="display text-lg font-semibold">{work.title}</h3>
-        </div>
-        <div className="mt-0.5 flex flex-wrap gap-x-2 text-[10px] uppercase tracking-wide text-[var(--muted)]/80">
-          {work.subseries && <span>{work.subseries}</span>}
-          {work.publishedAs && <span className="italic normal-case">as {work.publishedAs}</span>}
-          {work.canonTier !== "core" && <span>{work.canonTier}</span>}
-        </div>
-        {work.synopsis && (
-          <Prose
-            text={work.synopsis}
-            className="prose-read mt-2 block text-sm text-[var(--ink)]/75"
-          />
-        )}
-        <ProgressControl workId={work.id} />
-      </div>
-    </li>
   );
 }

@@ -6,10 +6,10 @@ import type { ReadStatus } from "@/lib/progress/types";
 const chip =
   "rounded px-2 py-0.5 text-[11px] font-medium transition-colors border";
 
-/** Per-work Reading / Read toggles. Only shows for signed-in users. */
+/** Per-work Reading / Read toggles. Signed-out readers track locally (guest mode). */
 export function ProgressControl({ workId }: { workId: string }) {
   const ctx = useProgress();
-  if (!ctx || !ctx.ready || !ctx.authed) return null;
+  if (!ctx || !ctx.ready) return null;
   const status = ctx.get(workId);
 
   const toggle = (target: ReadStatus) =>

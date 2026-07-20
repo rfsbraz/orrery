@@ -1,9 +1,10 @@
 import { Prose } from "./prose";
 import { ProgressControl } from "./progress/control";
 import { FindACopy } from "./find-a-copy";
+import { Cover } from "./cover";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { CompanionPanel } from "./companion/panel";
-import { impactStyles } from "@/lib/theme";
+import { impactStyles, signatureLine, type SignatureKind } from "@/lib/theme";
 import type { AuraEvent, Work } from "@/lib/content/types";
 import type { CompanionData } from "@/lib/progress/companion";
 
@@ -18,8 +19,8 @@ type Item =
 
 /**
  * The aura: works and the events around them, interwoven chronologically and
- * strung along the "Beam" - the signature vertical line (echoing the Dark Tower
- * connecting the whole body of work). Atmosphere through structure, not decor.
+ * strung along the franchise's signature line (its theme.yaml picks which -
+ * a beam, a quiet thread, a rule). Atmosphere through structure, not decor.
  */
 export function Timeline({
   works,
@@ -27,6 +28,7 @@ export function Timeline({
   authorNames,
   companions,
   editions,
+  signature = "thread",
 }: {
   works: Work[];
   events: AuraEvent[];
@@ -35,6 +37,8 @@ export function Timeline({
   companions?: Record<string, CompanionData>;
   /** Per-work cover URL + buy ISBN (editions layer; absent entries fall back). */
   editions?: Record<string, { cover: string | null; isbn13?: string }>;
+  /** The franchise's signature element, from its theme.yaml. */
+  signature?: SignatureKind;
 }) {
   const items: Item[] = [
     ...works.map((w) => ({ kind: "work" as const, year: w.published, work: w })),
@@ -46,10 +50,10 @@ export function Timeline({
 
   return (
     <div className="relative">
-      {/* The Beam */}
+      {/* The franchise's signature line (beam / thread / rule / none) */}
       <div
         aria-hidden
-        className="pointer-events-none absolute left-0 top-1.5 bottom-1.5 w-px bg-gradient-to-b from-[var(--accent)]/80 via-[var(--ink)]/20 to-transparent"
+        className={`pointer-events-none absolute left-0 top-1.5 bottom-1.5 ${signatureLine[signature]}`}
       />
       <ol className="space-y-6 pl-6">
         {items.map((item, i) =>
@@ -60,15 +64,12 @@ export function Timeline({
                 className="absolute -ml-[1.72rem] mt-2 h-2.5 w-2.5 rounded-full border border-[var(--bg)] bg-[var(--accent)]"
               />
               <div className="flex gap-4 rounded-lg border border-[var(--ink)]/10 bg-[var(--surface)] p-4">
-                {editions?.[item.work.id]?.cover && (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={editions[item.work.id].cover!}
-                    alt=""
-                    loading="lazy"
-                    className="h-24 w-16 shrink-0 rounded object-cover shadow-sm max-sm:hidden"
-                  />
-                )}
+                <Cover
+                  src={editions?.[item.work.id]?.cover ?? undefined}
+                  title={item.work.title}
+                  year={item.work.published}
+                  className="h-24 w-16 max-sm:hidden"
+                />
                 <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                   <span className="font-mono text-xs text-[var(--muted)]">{item.year}</span>

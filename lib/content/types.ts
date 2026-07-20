@@ -114,6 +114,10 @@ export interface ReadingOrder {
 export interface Theme {
   preset: string;
   palette?: Record<string, string>;
+  /** Key into the app's curated display faces (lib/theme.ts DISPLAY_FACES). */
+  displayFace?: string;
+  /** The franchise's signature element: beam | thread | rule | none. */
+  signature?: string;
   typePairing?: Record<string, string>;
   motif?: string;
   notes?: string;

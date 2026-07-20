@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getAllBundles } from "@/lib/content";
+import { getAllBundles, listAchievements } from "@/lib/content";
 import { getProfileByHandle } from "@/lib/supabase/profiles";
 import { getPublicProgress } from "@/lib/supabase/progress";
 import { countApprovedOrdersBy } from "@/lib/supabase/orders";
@@ -50,7 +50,7 @@ export default async function PublicProfilePage({
       {profile.bio && <p className="mt-3 max-w-prose text-neutral-300">{profile.bio}</p>}
       <CuratorCredit isModerator={profile.isModerator} approvedOrders={approvedOrders} />
 
-      <Shelf progress={progress} bundles={bundles} owner={false} />
+      <Shelf progress={progress} bundles={bundles} achievements={listAchievements()} owner={false} />
     </main>
   );
 }
