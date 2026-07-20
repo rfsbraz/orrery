@@ -37,6 +37,20 @@ describe("coverFor", () => {
     externalIds: olid ? { openLibrary: olid } : undefined,
   });
 
+  it("prefers the curated work cover over an unverified ISBN guess", () => {
+    // work.images.cover was fetched and looked at by the visual-metadata pass.
+    // The ISBN URL is a guess, and OpenLibrary holds no cover for most pt-PT
+    // ISBNs - preferring it left verified covers unused and images dead.
+    const w: Work = { ...work("OL1W"), images: { cover: "https://curated/verified.jpg" } };
+    expect(coverFor(w, ed("e", "f/w", { isbn13: "9789724613437" }))).toBe(
+      "https://curated/verified.jpg"
+    );
+    // An edition-specific curated cover is more precise still, so it wins.
+    expect(coverFor(w, ed("e", "f/w", { coverUrl: "https://curated/edition.jpg" }))).toBe(
+      "https://curated/edition.jpg"
+    );
+  });
+
   it("curated cover beats ISBN beats work OLID beats null", () => {
     expect(coverFor(work("OL1W"), ed("e", "f/w", { coverUrl: "https://x/c.jpg" }))).toBe(
       "https://x/c.jpg"

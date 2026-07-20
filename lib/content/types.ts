@@ -56,6 +56,14 @@ export interface Work {
    * Declared on the later work pointing back; rendered both ways. */
   connections?: string[];
   externalIds?: { openLibrary?: string; googleBooks?: string; wikidata?: string };
+  /** Curated imagery from the visual-metadata pass. Every URL here has been
+   * fetched and looked at by a curator, which an ISBN-derived OpenLibrary URL
+   * has not - see `coverFor` for why that ordering matters. */
+  images?: {
+    cover?: string;
+    coverCredit?: string;
+    coverSource?: string;
+  };
 }
 
 export interface CharacterAppearance {
