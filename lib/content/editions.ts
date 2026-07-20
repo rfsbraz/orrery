@@ -49,12 +49,23 @@ export function pickEdition(
 }
 
 /**
- * Cover URL for a work: curated edition cover first, then the edition ISBN via
- * OpenLibrary's covers API, then the work-level OpenLibrary ID. Null when
- * nothing resolves - the museum renders text-first, never a broken image.
+ * Cover URL for a work, most-verified first: a cover curated for this exact
+ * edition, then the work's curated cover, then guesses derived from the
+ * edition ISBN and the work's OpenLibrary id. Null when nothing resolves - the
+ * museum renders text-first, never a broken image.
+ *
+ * The curated work cover outranks the ISBN guess deliberately. `work.images`
+ * is written by the visual-metadata pass, where a curator fetched the URL and
+ * looked at the image; `/b/isbn/<isbn>` is a URL nobody has ever loaded, and
+ * OpenLibrary holds no cover for most non-anglophone ISBNs. Preferring the
+ * guess meant a Portuguese reader got a dead image where a verified cover was
+ * sitting unused in the content - and it stayed dead, because the fallback
+ * tile is wired to the img's onError, which never fires for an image that
+ * already failed before hydration on a statically rendered page.
  */
 export function coverFor(work: Work, edition?: Edition | null): string | null {
   if (edition?.coverUrl) return edition.coverUrl;
+  if (work.images?.cover) return work.images.cover;
   if (edition?.isbn13) return `https://covers.openlibrary.org/b/isbn/${edition.isbn13}-M.jpg`;
   const olid = work.externalIds?.openLibrary;
   if (olid) return `https://covers.openlibrary.org/b/olid/${olid}-M.jpg`;
