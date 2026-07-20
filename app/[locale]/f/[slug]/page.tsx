@@ -62,6 +62,14 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
     if (edition?.title && edition.language === locale) localTitles[w.id] = edition.title;
   }
   const authorNames = new Map(b.authors.map((a) => [a.id, a.name]));
+
+  // Authors whose bio is worth showing here: the ones this franchise is
+  // actually about, and only where the bio says something the franchise
+  // description does not already say. Co-authors and collaborators reached
+  // through withAuthorIds keep their own page and stay off this header.
+  const bios = b.authors
+    .filter((a) => a.bio && a.bio.trim() !== (b.franchise.description ?? "").trim())
+    .map((a) => ({ id: a.id, name: a.name, bio: a.bio as string, born: a.born, died: a.died }));
   const workTitles = Object.fromEntries(b.works.map((w) => [w.id, w.title]));
 
   return (
@@ -94,6 +102,36 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
               </span>
             ))}
           </p>
+
+          {/* The biography belongs on the page a reader actually lands on. The
+              home page lists authors, so this IS the author page; making
+              someone click through to /author/<id> to find out who they are
+              buries the one thing that frames everything below it.
+              Suppressed when the franchise description already carries the
+              same prose, which happens on single-author wings. */}
+          {bios.length > 0 && (
+            <div className="mt-6 max-w-2xl border-l-2 border-[var(--accent)]/25 pl-4">
+              {bios.map(({ id, name, bio, born, died }) => (
+                <div key={id} className="mt-3 first:mt-0">
+                  {bios.length > 1 && (
+                    <p className="font-mono text-[11px] uppercase tracking-wider text-[var(--accent)]/80">
+                      {name}
+                    </p>
+                  )}
+                  {(born || died) && (
+                    <p className="font-mono text-xs text-[var(--muted)]">
+                      {String(born ?? "").slice(0, 4)}
+                      {died ? ` - ${String(died).slice(0, 4)}` : born ? " -" : ""}
+                    </p>
+                  )}
+                  <Prose
+                    text={bio}
+                    className="prose-read mt-1 block text-[15px] leading-relaxed text-[var(--ink)]/75"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
           <FranchiseNav slug={slug} caps={caps} locale={locale} />
         </header>
 
