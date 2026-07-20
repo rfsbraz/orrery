@@ -39,6 +39,7 @@ export function LocaleSwitcher() {
           key={l}
           href={pathFor(l)}
           hrefLang={l}
+          onClick={() => remember(l)}
           aria-current={l === current ? "true" : undefined}
           className={
             l === current
@@ -51,6 +52,14 @@ export function LocaleSwitcher() {
       ))}
     </nav>
   );
+}
+
+/**
+ * Persist an explicit choice for a year, so browser-language detection never
+ * overrides someone who deliberately picked a language.
+ */
+function remember(locale: Locale) {
+  document.cookie = `orrery.locale=${locale}; path=/; max-age=31536000; samesite=lax`;
 }
 
 /** Map a URL segment back to its locale string ("pt" -> "pt-PT"). */
