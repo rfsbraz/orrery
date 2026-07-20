@@ -48,6 +48,7 @@ export function RiverView({
   isbns,
   signature,
   allWorkIds,
+  enteringLabel,
 }: {
   layers: RiverLayer[];
   orders: ReadingOrder[];
@@ -60,6 +61,8 @@ export function RiverView({
   isbns?: Record<string, string | undefined>;
   signature?: SignatureKind;
   allWorkIds: string[];
+  /** Localised label above an era plate title ("entering" / "a entrar em"). */
+  enteringLabel?: string;
 }) {
   const [selection, setSelection] = useState<{ id: string; workIds: string[] } | null>(null);
 
@@ -90,6 +93,7 @@ export function RiverView({
           isbns={isbns}
           signature={signature}
           orderPositions={positions}
+          enteringLabel={enteringLabel}
         />
       </div>
     </>
