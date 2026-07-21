@@ -58,7 +58,14 @@ export function Sketch({
           WebkitMask: mask,
           mask,
         }}
-      />
+      >
+        {/* The masked span paints a colour, so it has no intrinsic size and
+            collapsed to zero height - a tinted sketch rendered as nothing at
+            all. This hidden copy of the image gives the box the artwork's own
+            aspect ratio; the accent is what actually shows, through the mask. */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={src} alt="" aria-hidden className="w-full opacity-0" />
+      </span>
     );
   }
 
