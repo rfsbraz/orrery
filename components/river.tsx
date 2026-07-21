@@ -94,6 +94,7 @@ export function River({
                   than a picture with a border. */}
               <Sketch
                 images={l.era.images}
+                variant="plate"
                 className="absolute inset-0 h-full w-full opacity-[0.55]"
               />
               <div className="relative flex items-center gap-3">
@@ -261,33 +262,76 @@ export function River({
               )}
 
               {l.texture.length > 0 && (
-                <ul className="mt-3 space-y-1 border-l-2 border-[var(--ink)]/15 pl-3">
-                  {l.texture.map((e) => (
+                <ul className="mt-3 space-y-3 overflow-visible border-l-2 border-[var(--ink)]/15 pl-3">
+                  {l.texture.map((e) => {
+                    // An illustrated event earns a card: the drawn paper needs
+                    // room and its own air, and it carries the year and title
+                    // as a heading rather than as a run-in. Events without art
+                    // stay compact seams, so a wing with no sketches yet is
+                    // unchanged rather than full of empty boxes.
+                    const illustrated = Boolean(e.images?.sketch);
+                    return (
                     <li
                       key={e.id}
                       id={eventAnchorId(e.id)}
-                      className="group scroll-mt-24 text-xs leading-relaxed text-[var(--ink)]/55 max-lg:text-[14px]"
+                      className={
+                        illustrated
+                          ? "group -ml-3 scroll-mt-24 rounded-xl border border-[var(--ink)]/10 bg-[var(--surface)]/50 p-5 max-lg:p-4"
+                          : "group scroll-mt-24 text-xs leading-relaxed text-[var(--ink)]/55 max-lg:text-[14px]"
+                      }
                     >
                       <SpoilerGate
                         spoilerAfter={e.spoilerAfter}
                         boundaryTitle={workTitles[e.spoilerAfter ?? ""]}
                       >
-                        <Sketch
-                          images={e.images}
-                          tint={e.reach === "global"}
-                          className="float-right ml-4 mb-1 h-24 w-24 max-lg:h-20 max-lg:w-20"
-                        />
-                        <span className="font-medium text-[var(--ink)]/70">{e.title}.</span>{" "}
-                        {e.description && <Prose text={e.description} className="inline" />}
-                        {ageFor(e) && (
-                          <span className="ml-1 font-mono text-[0.9em] text-[var(--muted)]">
-                            ({agedTemplate.replace("{age}", ageFor(e)!)})
-                          </span>
+                        {illustrated ? (
+                          <div className="flex items-start gap-5 max-lg:flex-col max-lg:gap-3">
+                            <div className="min-w-0 flex-1">
+                              <p className="font-mono text-xs text-[var(--accent)]">
+                                {l.year}
+                                {ageFor(e) && (
+                                  <span className="text-[var(--muted)]">
+                                    {" "}
+                                    · {agedTemplate.replace("{age}", ageFor(e)!)}
+                                  </span>
+                                )}
+                                <EventAnchor eventId={e.id} label={permalinkLabel} />
+                              </p>
+                              <p className="display mt-1 text-xl font-semibold leading-snug text-[var(--ink)]">
+                                {e.title}
+                              </p>
+                              {e.description && (
+                                <Prose
+                                  text={e.description}
+                                  className="prose-read mt-2 block text-sm leading-relaxed text-[var(--ink)]/60"
+                                />
+                              )}
+                            </div>
+                            {/* -mb-8 lets the objects drawn breaking the paper's
+                                lower edge spill past the card, which is what
+                                makes it sit ON the page instead of inside it. */}
+                            <Sketch
+                              images={e.images}
+                              tint={e.reach === "global"}
+                              className="-mb-8 w-[46%] shrink-0 max-lg:w-full"
+                            />
+                          </div>
+                        ) : (
+                          <>
+                            <span className="font-medium text-[var(--ink)]/70">{e.title}.</span>{" "}
+                            {e.description && <Prose text={e.description} className="inline" />}
+                            {ageFor(e) && (
+                              <span className="ml-1 font-mono text-[0.9em] text-[var(--muted)]">
+                                ({agedTemplate.replace("{age}", ageFor(e)!)})
+                              </span>
+                            )}
+                            <EventAnchor eventId={e.id} label={permalinkLabel} />
+                          </>
                         )}
-                        <EventAnchor eventId={e.id} label={permalinkLabel} />
                       </SpoilerGate>
                     </li>
-                  ))}
+                    );
+                  })}
                 </ul>
               )}
             </section>
