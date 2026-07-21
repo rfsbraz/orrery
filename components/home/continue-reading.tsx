@@ -33,11 +33,11 @@ export function ContinueReading({ works }: { works: Record<string, WorkRef> }) {
   if (current.length === 0) return null;
 
   return (
-    <section className="mb-10 lg:hidden">
+    <section className="mb-10">
       <h2 className="mb-3 text-xs font-medium uppercase tracking-widest text-neutral-500">
         {t("home.continueReading")}
       </h2>
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-2.5 lg:grid lg:grid-cols-3 lg:gap-4">
         {current.map(({ id, ref }) => (
           <Link
             key={id}

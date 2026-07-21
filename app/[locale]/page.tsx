@@ -70,14 +70,22 @@ export default async function Home(props: { params: Promise<{ locale: string }> 
           </div>
         </div>
 
-        <div className="max-lg:hidden">
-          <p className="mb-3 text-sm uppercase tracking-[0.2em] text-neutral-500">Orrery</p>
-          <h1 className="display text-5xl font-semibold tracking-tight text-neutral-100 sm:text-6xl">
-            {t("home.tagline")}
-          </h1>
-          <p className="prose-read mt-5 max-w-2xl text-lg text-neutral-400">
-            {t("home.lede")}
-          </p>
+        <div className="relative max-lg:hidden">
+          {/* The instrument sits quietly in the header's empty right side -
+              the same signature the phone leads with, at desktop restraint. */}
+          <OrbitalField
+            seed="orrery"
+            className="absolute -right-10 -top-10 h-[130%] w-1/2 opacity-60"
+          />
+          <div className="relative">
+            <p className="mb-3 text-sm uppercase tracking-[0.2em] text-neutral-500">Orrery</p>
+            <h1 className="display text-5xl font-semibold tracking-tight text-neutral-100 sm:text-6xl">
+              {t("home.tagline")}
+            </h1>
+            <p className="prose-read mt-5 max-w-2xl text-lg text-neutral-400">
+              {t("home.lede")}
+            </p>
+          </div>
         </div>
       </header>
 
@@ -138,25 +146,35 @@ export default async function Home(props: { params: Promise<{ locale: string }> 
             <Link
               key={entry.author.id}
               href={localePath(locale, entry.href)}
-              className="group rounded-lg border border-neutral-800 bg-neutral-900/40 p-5 transition-colors hover:border-neutral-600"
+              className="group flex gap-4 rounded-lg border border-neutral-800 bg-neutral-900/40 p-5 transition-colors hover:border-neutral-600"
             >
-              <h3 className="display text-xl font-semibold text-neutral-100 group-hover:text-white">
-                {entry.author.name}
-              </h3>
-              {/* The universe is context under the name, not the headline -
-                  and only when it says something the name does not. */}
-              {entry.franchises.some((f) => f.name !== entry.author.name) && (
-                <p className="mt-0.5 text-xs uppercase tracking-wide text-neutral-500">
-                  {entry.franchises
-                    .filter((f) => f.name !== entry.author.name)
-                    .map((f) => f.name)
-                    .join(" · ")}
-                </p>
-              )}
-              {entry.franchises[0]?.description && (
-                <p className="mt-1.5 line-clamp-2 text-sm text-neutral-400">
-                  {stripRefs(entry.franchises[0].description)}
-                </p>
+              <div className="min-w-0 flex-1">
+                <h3 className="display text-xl font-semibold text-neutral-100 group-hover:text-white">
+                  {entry.author.name}
+                </h3>
+                {/* The universe is context under the name, not the headline -
+                    and only when it says something the name does not. */}
+                {entry.franchises.some((f) => f.name !== entry.author.name) && (
+                  <p className="mt-0.5 text-xs uppercase tracking-wide text-neutral-500">
+                    {entry.franchises
+                      .filter((f) => f.name !== entry.author.name)
+                      .map((f) => f.name)
+                      .join(" · ")}
+                  </p>
+                )}
+                {entry.franchises[0]?.description && (
+                  <p className="mt-1.5 line-clamp-2 text-sm text-neutral-400">
+                    {stripRefs(entry.franchises[0].description)}
+                  </p>
+                )}
+              </div>
+              {entry.author.images?.portrait && (
+                <Portrait
+                  author={entry.author}
+                  showCredit={false}
+                  className="w-14 shrink-0 self-start"
+                  plateClassName="aspect-[3/4] rounded-lg"
+                />
               )}
             </Link>
           ))}

@@ -85,7 +85,23 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
           ← Orrery
         </Link>
 
-        <header className="mt-4 mb-10 max-lg:mt-2">
+        <header className="relative mt-4 mb-10 max-lg:mt-2">
+          {/* Desktop inherits the phone's instrument, at header scale: the
+              field behind the title's empty right side, the plate upon it.
+              Both absolute, so the existing type never reflows. */}
+          <div className="pointer-events-none absolute -right-6 -top-8 hidden h-[120%] w-1/2 overflow-hidden lg:block">
+            <OrbitalField seed={slug} className="h-full w-full opacity-50" />
+          </div>
+          {(() => {
+            const heroAuthor = b.authors.find((a) => a.images?.portrait);
+            return heroAuthor ? (
+              <Portrait
+                author={heroAuthor}
+                className="absolute right-0 top-0 hidden w-40 lg:block"
+                plateClassName="aspect-[4/5] rounded-2xl border border-[var(--accent)]/20"
+              />
+            ) : null;
+          })()}
           {/* Mobile hero: the author as an engraved plate over their own
               orbital field, with the numbers a reader orients by and the two
               doors they actually use. Desktop keeps the typographic header. */}
