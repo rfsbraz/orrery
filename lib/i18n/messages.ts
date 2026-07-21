@@ -26,6 +26,9 @@ export const messages = {
       "Below is the chronological walk: every work in publication order, in the weather it was written in.",
     "franchise.curatedAlternatives": "Curated alternatives:",
     "franchise.entering": "entering",
+    "order.defaultName": "Complete, in publication order",
+    "order.defaultRationale":
+      "Every published work in the order it appeared - the default way to read the whole body of work.",
 
     "nav.whereToStart": "Where to start",
     "nav.compareOrders": "Compare orders",
@@ -191,6 +194,9 @@ export const messages = {
       "Abaixo fica o percurso cronológico: todas as obras por ordem de publicação, no clima em que foram escritas.",
     "franchise.curatedAlternatives": "Alternativas seleccionadas:",
     "franchise.entering": "a entrar em",
+    "order.defaultName": "Completa, por ordem de publicação",
+    "order.defaultRationale":
+      "Todas as obras publicadas, pela ordem em que surgiram - a forma predefinida de ler a obra completa.",
 
     "nav.whereToStart": "Por onde começar",
     "nav.compareOrders": "Comparar ordens",

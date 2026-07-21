@@ -30,6 +30,7 @@ export function River({
   isbns,
   localTitles,
   orderPositions,
+  enteringLabel = "entering",
 }: {
   layers: RiverLayer[];
   series: Map<string, SeriesEntry>;
@@ -47,6 +48,8 @@ export function River({
   orderPositions?: Map<string, number>;
   /** The franchise's signature element, from its theme.yaml. */
   signature?: SignatureKind;
+  /** Localised label above an era plate title ("entering" / "a entrar em"). */
+  enteringLabel?: string;
 }) {
   return (
     <div>
@@ -69,7 +72,7 @@ export function River({
               <div className="flex items-center gap-3">
                 <span aria-hidden className="h-px flex-1 bg-[var(--accent)]/30" />
                 <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--accent)]">
-                  entering
+                  {enteringLabel}
                 </p>
                 <span aria-hidden className="h-px flex-1 bg-[var(--accent)]/30" />
               </div>
