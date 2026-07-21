@@ -85,6 +85,18 @@ function mergeList<T extends { id: string }>(
  * Nested lists are merged by id explicitly (see mergeList) precisely so the
  * base keeps its structure. Skipping non-scalars here is what makes that safe.
  */
+/**
+ * Lists of plain strings that are PROSE a reader reads, not structure.
+ *
+ * Deliberately an allowlist rather than "any array of strings": `orderedWorkIds`
+ * and `workIds` are also arrays of strings, and letting a translation overwrite
+ * those would re-point a reading order at whatever a translator happened to
+ * type. Skipping every array instead was the other extreme, and it shipped
+ * Portuguese era plates with English themes underneath on four wings while the
+ * coverage script reported complete.
+ */
+const PROSE_LISTS = new Set(["themes", "debated"]);
+
 function merge<T extends { id: string }>(base: T, overlay: Overlay): T {
   const t = overlay[base.id];
   if (!t) return base;
@@ -92,7 +104,15 @@ function merge<T extends { id: string }>(base: T, overlay: Overlay): T {
   for (const [k, v] of Object.entries(t)) {
     // `id` is the join key, never content; empty strings mean "not translated".
     if (k === "id" || v === null || v === "") continue;
-    if (typeof v === "object") continue; // arrays and maps: handled by mergeList
+    if (Array.isArray(v)) {
+      // A prose list translates wholesale; any other array is structure and is
+      // handled by mergeList, never copied from an overlay.
+      if (PROSE_LISTS.has(k) && v.length > 0 && v.every((x) => typeof x === "string")) {
+        out[k] = v;
+      }
+      continue;
+    }
+    if (typeof v === "object") continue; // maps: handled by mergeList
     out[k] = v;
   }
   return out as T;

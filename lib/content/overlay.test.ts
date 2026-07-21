@@ -30,6 +30,33 @@ describe("translation overlays (pt-PT)", () => {
     expect(ptTitle).not.toBe(enTitle);
   });
 
+  it("translates era themes, the prose under the era plate title", () => {
+    // Themes are a LIST of prose, and the overlay merge used to skip every
+    // non-scalar - so four wings rendered Portuguese era plates with English
+    // themes under them while i18n_coverage reported complete. Asserted
+    // structurally: the themes must differ from the base, whatever they say.
+    const en = getFranchise("stephen-king")!;
+    const pt = getFranchise("stephen-king", "pt-PT")!;
+    const id = "the-golden-decade";
+    const enThemes = en.eras.find((e) => e.id === id)?.themes ?? [];
+    const ptThemes = pt.eras.find((e) => e.id === id)?.themes ?? [];
+    expect(enThemes.length).toBeGreaterThan(0);
+    expect(ptThemes.length).toBe(enThemes.length);
+    expect(ptThemes.join("|")).not.toBe(enThemes.join("|"));
+  });
+
+  it("an overlay can never re-point a reading order's works", () => {
+    // The counterpart to the rule above: `orderedWorkIds` is also a list of
+    // strings, and prose lists are allowlisted precisely so a translation
+    // cannot reach structure.
+    const en = getFranchise("stephen-king")!;
+    const pt = getFranchise("stephen-king", "pt-PT")!;
+    for (const order of en.orders) {
+      const ptOrder = pt.orders.find((o) => o.id === order.id);
+      expect(ptOrder?.orderedWorkIds).toEqual(order.orderedWorkIds);
+    }
+  });
+
   it("translates author life events written as FLAT overlay entries", () => {
     // The shape that validated green but rendered nothing until fixed.
     const pt = getFranchise("stephen-king", "pt-PT")!;
