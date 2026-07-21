@@ -18,6 +18,7 @@ import { ProgressProvider } from "@/components/progress/provider";
 import { CommunityOrders } from "@/components/orders/community-orders";
 import { OrbitalField } from "@/components/orbital-field";
 import { Portrait } from "@/components/portrait";
+import { AboutTheAuthor } from "@/components/about-the-author";
 
 export function generateStaticParams() {
   return listFranchiseSlugs().map((slug) => ({ slug }));
@@ -71,7 +72,14 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
   // through withAuthorIds keep their own page and stay off this header.
   const bios = b.authors
     .filter((a) => a.bio && a.bio.trim() !== (b.franchise.description ?? "").trim())
-    .map((a) => ({ id: a.id, name: a.name, bio: a.bio as string, born: a.born, died: a.died }));
+    .map((a) => ({
+      id: a.id,
+      name: a.name,
+      bio: a.bio as string,
+      born: a.born,
+      died: a.died,
+      pseudonyms: a.pseudonyms,
+    }));
   const workTitles = Object.fromEntries(b.works.map((w) => [w.id, w.title]));
 
   return (
@@ -175,45 +183,15 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
               it still says something new: several authors to link. */}
           <p className={`mt-4 text-sm text-[var(--muted)]${b.authors.length === 1 ? " max-lg:hidden" : ""}`}>
             {b.works.length} {t("franchise.works")} ·{" "}
-            {b.authors.map((a, i) => (
-              <span key={a.id}>
-                {i > 0 && ", "}
-                <Link href={localePath(locale, `/author/${a.id}`)} className="underline decoration-[var(--accent)]/40 underline-offset-2">
-                  {a.name}
-                </Link>
-              </span>
-            ))}
+            {b.authors.map((a) => a.name).join(", ")}
           </p>
 
-          {/* The biography belongs on the page a reader actually lands on. The
-              home page lists authors, so this IS the author page; making
-              someone click through to /author/<id> to find out who they are
-              buries the one thing that frames everything below it.
-              Suppressed when the franchise description already carries the
-              same prose, which happens on single-author wings. */}
-          {bios.length > 0 && (
-            <div className="mt-6 max-w-2xl border-l-2 border-[var(--accent)]/25 pl-4">
-              {bios.map(({ id, name, bio, born, died }) => (
-                <div key={id} className="mt-3 first:mt-0">
-                  {bios.length > 1 && (
-                    <p className="font-mono text-[11px] uppercase tracking-wider text-[var(--accent)]/80">
-                      {name}
-                    </p>
-                  )}
-                  {(born || died) && (
-                    <p className="font-mono text-xs text-[var(--muted)]">
-                      {String(born ?? "").slice(0, 4)}
-                      {died ? ` - ${String(died).slice(0, 4)}` : born ? " -" : ""}
-                    </p>
-                  )}
-                  <Prose
-                    text={bio}
-                    className="prose-read mt-1 block text-[15px] leading-relaxed text-[var(--ink)]/75"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+          <AboutTheAuthor
+            bios={bios}
+            label={t("author.about")}
+            alsoWroteAs={(name) => t("author.alsoWroteAs", { name })}
+          />
+
           <FranchiseNav slug={slug} caps={caps} locale={locale} />
         </header>
 
