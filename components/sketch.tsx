@@ -3,21 +3,17 @@ import type { SketchImage } from "@/lib/content/types";
 /**
  * A generated sketch for an era or an event.
  *
- * Two variants, because two different jobs:
+ * Every sketch is drawn on a TRANSPARENT background, whatever presentation the
+ * artwork itself uses (a torn sheet, a panel dissolving at its edges, objects
+ * on an implied surface - see orrery-content docs/VISUAL.md). That is what lets
+ * one asset read correctly on a dark event card AND on a rupture band, which is
+ * the wing's ink colour inverted out of the page. Nothing here paints a
+ * background behind the art, deliberately.
  *
- * - `plate` - a backdrop behind an era title. It fills its box and is masked to
- *   dissolve at the edges, because a full-bleed backdrop must not read as a
- *   picture with a border.
- * - `object` (the default) - a piece of drawn paper laid ON the page: torn
- *   edges, a shadow, and objects that break out of its lower edge. That edge is
- *   part of the artwork and could not be faked in CSS, so these are generated
- *   on a TRANSPARENT background and nothing is masked here. Transparency is
- *   what keeps them wing-agnostic: the page shows through the tear, whatever
- *   colour that page happens to be.
- *
- * The earlier version masked everything with a radial fade. On a near-black
- * wing that still read as a pale square floating on the page, because a fade
- * cannot disguise a rectangle of cream paper - only a drawn edge can.
+ * Two variants:
+ * - `object` (default) - the art sits on whatever is behind it, untouched.
+ * - `plate` - an era backdrop: fills its box and is masked to dissolve at the
+ *   edges, so a half-page illustration does not read as a picture with a border.
  */
 export function Sketch({
   images,
@@ -30,8 +26,7 @@ export function Sketch({
   /** Empty by default: these are atmosphere, and the adjacent prose says it. */
   alt?: string;
   className?: string;
-  /** World events are drawn once in neutral house style on transparency and
-   * coloured per wing, so the accent reaches them through this. */
+  /** World events are drawn once in neutral house style and coloured per wing. */
   tint?: boolean;
   variant?: "object" | "plate";
 }) {
@@ -46,6 +41,27 @@ export function Sketch({
   const fade =
     "radial-gradient(ellipse 78% 78% at 50% 50%, #000 42%, rgba(0,0,0,0.72) 62%, transparent 88%)";
 
+  // A shared world-event sketch is recoloured to the wing's accent. That means
+  // painting the accent THROUGH the drawing's alpha - the image becomes a mask
+  // over a coloured box and is never rendered as pixels. An earlier version set
+  // backgroundColor on the <img>, which puts the colour behind the artwork and
+  // leaves its own ink on top: the opposite of a tint. It shipped untested
+  // because no world-event sketch existed yet to show it failing.
+  if (tint) {
+    const mask = `url("${src}") center / contain no-repeat`;
+    return (
+      <span
+        aria-hidden={!alt}
+        className={`pointer-events-none block ${className ?? ""}`}
+        style={{
+          backgroundColor: "var(--accent)",
+          WebkitMask: mask,
+          mask,
+        }}
+      />
+    );
+  }
+
   return (
     <span aria-hidden={!alt} className={`pointer-events-none block ${className ?? ""}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -54,18 +70,7 @@ export function Sketch({
         alt={alt}
         loading="lazy"
         className={`h-full w-full ${plate ? "object-cover" : "object-contain"}`}
-        style={{
-          ...(plate ? { WebkitMaskImage: fade, maskImage: fade } : {}),
-          ...(tint
-            ? {
-                // The sketch is a transparent line drawing; painting the accent
-                // through it keeps one shared asset looking native to each wing.
-                backgroundColor: "var(--accent)",
-                WebkitMaskComposite: "source-in",
-                maskComposite: "intersect",
-              }
-            : {}),
-        }}
+        style={plate ? { WebkitMaskImage: fade, maskImage: fade } : undefined}
       />
     </span>
   );
