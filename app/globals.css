@@ -51,3 +51,45 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* --- The orbital field's satellite ---------------------------------------
+   Rides the actual ellipse via a CSS motion path; where offset-path basic
+   shapes are unsupported (or motion is reduced) it simply sits still on the
+   orbit, which is a complete, honest fallback. */
+@supports (offset-path: ellipse(40px 20px at 0px 0px)) {
+  @media (prefers-reduced-motion: no-preference) {
+    .orbital-sat {
+      offset-path: ellipse(var(--orx) var(--ory) at 0px 0px);
+      offset-rotate: 0deg;
+      animation: orbital-drift 90s linear infinite;
+    }
+  }
+}
+@keyframes orbital-drift {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
+/* --- Etched portrait treatment -------------------------------------------
+   Turns a licensed photograph into the museum's engraved-plate look: high
+   contrast grayscale under an accent duotone. Non-destructive; a curated
+   etched illustration dropped into /portraits/<author-id>.webp replaces the
+   photo and skips the filter. */
+.etched > img {
+  filter: grayscale(1) contrast(1.18) brightness(0.92);
+}
+.etched::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 20%, transparent 55%, var(--bg, #0f1115) 100%),
+    linear-gradient(var(--accent, #8a8f98), var(--accent, #8a8f98));
+  mix-blend-mode: color;
+  opacity: 0.55;
+  pointer-events: none;
+}

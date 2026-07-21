@@ -13,6 +13,8 @@ interface ProgressCtx {
   set: (workId: string, status: ReadStatus) => Promise<void>;
   /** Work IDs with status "read" - the spoiler engine's ReadSet. */
   readSet: Set<string>;
+  /** Work IDs currently marked "reading" (drives continue-reading surfaces). */
+  reading: string[];
 }
 
 // Guest progress lives in the browser until there is an account to attach it
@@ -113,9 +115,17 @@ export function ProgressProvider({ children }: { children: React.ReactNode }) {
     [statuses]
   );
 
+  const reading = useMemo(
+    () =>
+      Object.entries(statuses)
+        .filter(([, s]) => s === "reading")
+        .map(([id]) => id),
+    [statuses]
+  );
+
   return (
     <Ctx.Provider
-      value={{ ready, authed, guest: ready && !authed, get: (id) => statuses[id], set, readSet }}
+      value={{ ready, authed, guest: ready && !authed, get: (id) => statuses[id], set, readSet, reading }}
     >
       {children}
     </Ctx.Provider>

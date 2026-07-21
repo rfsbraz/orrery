@@ -39,6 +39,15 @@ export interface Author {
   bio?: string;
   pseudonyms?: Pseudonym[];
   lifeEvents?: AuraEvent[];
+  /** Curated imagery from the visual-metadata pass (licensed, credited). */
+  images?: {
+    portrait?: string;
+    portraitCredit?: string;
+    portraitSource?: string;
+    header?: string;
+    headerCredit?: string;
+    headerSource?: string;
+  };
   sources?: string[];
 }
 
