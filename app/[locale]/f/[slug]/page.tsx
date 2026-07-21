@@ -190,6 +190,8 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
             bios={bios}
             label={t("author.about")}
             alsoWroteAs={(name) => t("author.alsoWroteAs", { name })}
+            agedAtDeath={(age) => t("author.aged", { age })}
+            agedTemplate={t("author.aged", { age: "{age}" })}
           />
 
           <FranchiseNav slug={slug} caps={caps} locale={locale} />
@@ -211,6 +213,8 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
               allWorkIds={b.works.map((w) => w.id)}
               enteringLabel={t("franchise.entering")}
               permalinkLabel={t("event.permalink")}
+              authorBorn={new Map(b.authors.filter((a) => a.born).map((a) => [a.id, a.born!]))}
+              agedTemplate={t("event.aged", { age: "{age}" })}
             />
           </ProgressProvider>
           <CommunityOrders franchiseSlug={slug} workTitles={workTitles} />

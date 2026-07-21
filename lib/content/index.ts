@@ -280,8 +280,16 @@ export function getFranchise(slug: string, locale?: string): FranchiseBundle | n
     .map((a) => withAuthorTranslations(a, locale));
 
   // Timeline = author-life events + franchise events + global events, dated.
+  // `authorId` is a DERIVED annotation, never written in content: it records
+  // whose life a merged event belongs to, so the UI can show their age at it.
+  // A wing with two authors (Jordan and Sanderson) would otherwise have no way
+  // to tell which lifespan an "author-life" event should be measured against.
   const lifeEvents = authors.flatMap((a) =>
-    (a.lifeEvents ?? []).map((e) => ({ ...e, scope: e.scope ?? "author-life" }))
+    (a.lifeEvents ?? []).map((e) => ({
+      ...e,
+      scope: e.scope ?? "author-life",
+      authorId: a.id,
+    }))
   );
   const allGlobal = (readYaml<{ events: AuraEvent[] }>(GLOBAL_EVENTS)?.events ?? []).map((e) =>
     merge(e, overlayFor(locale, path.join("events", "global.yaml")))

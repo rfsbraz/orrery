@@ -18,6 +18,9 @@ export interface AuraEvent {
   dateRange?: string;
   title: string;
   scope?: EventScope;
+  /** Derived by the loader on merged life events, never present in content:
+   * which author's life this belongs to, so their age at it can be shown. */
+  authorId?: string;
   reach?: string;
   impact: Impact;
   description: string;
