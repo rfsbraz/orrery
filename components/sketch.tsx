@@ -1,26 +1,30 @@
 import type { SketchImage } from "@/lib/content/types";
 
 /**
- * A generated sketch for an era or an event, dissolving into the page.
+ * A generated sketch for an era or an event.
  *
- * The fade lives HERE and not in the prompt, deliberately. A fade baked into
- * the pixels can only fade to one colour, and these images are drawn on warm
- * paper while a wing's page may be near-black umber or pale - so a baked edge
- * reads as a card floating on the page instead of part of it. An alpha mask
- * fades to whatever is actually behind it, identically on every wing, and can
- * be retuned without regenerating seventeen images.
+ * Two variants, because two different jobs:
  *
- * It also keeps the asset neutral raw material: the same file survives a
- * layout change. Asking the model for an edge treatment would give us a
- * slightly different vignette every generation, which is exactly the
- * "looks like a different illustration system" failure the visual system
- * exists to prevent.
+ * - `plate` - a backdrop behind an era title. It fills its box and is masked to
+ *   dissolve at the edges, because a full-bleed backdrop must not read as a
+ *   picture with a border.
+ * - `object` (the default) - a piece of drawn paper laid ON the page: torn
+ *   edges, a shadow, and objects that break out of its lower edge. That edge is
+ *   part of the artwork and could not be faked in CSS, so these are generated
+ *   on a TRANSPARENT background and nothing is masked here. Transparency is
+ *   what keeps them wing-agnostic: the page shows through the tear, whatever
+ *   colour that page happens to be.
+ *
+ * The earlier version masked everything with a radial fade. On a near-black
+ * wing that still read as a pale square floating on the page, because a fade
+ * cannot disguise a rectangle of cream paper - only a drawn edge can.
  */
 export function Sketch({
   images,
   alt = "",
   className,
   tint = false,
+  variant = "object",
 }: {
   images?: SketchImage;
   /** Empty by default: these are atmosphere, and the adjacent prose says it. */
@@ -29,6 +33,7 @@ export function Sketch({
   /** World events are drawn once in neutral house style on transparency and
    * coloured per wing, so the accent reaches them through this. */
   tint?: boolean;
+  variant?: "object" | "plate";
 }) {
   const raw = images?.sketch;
   if (!raw) return null;
@@ -37,6 +42,7 @@ export function Sketch({
   // Absolute URLs are still honoured in case a sketch is ever hosted elsewhere.
   const src = /^https?:\/\//.test(raw) ? raw : `/${raw.replace(/^\/+/, "")}`;
 
+  const plate = variant === "plate";
   const fade =
     "radial-gradient(ellipse 78% 78% at 50% 50%, #000 42%, rgba(0,0,0,0.72) 62%, transparent 88%)";
 
@@ -47,10 +53,9 @@ export function Sketch({
         src={src}
         alt={alt}
         loading="lazy"
-        className="h-full w-full object-cover"
+        className={`h-full w-full ${plate ? "object-cover" : "object-contain"}`}
         style={{
-          WebkitMaskImage: fade,
-          maskImage: fade,
+          ...(plate ? { WebkitMaskImage: fade, maskImage: fade } : {}),
           ...(tint
             ? {
                 // The sketch is a transparent line drawing; painting the accent
