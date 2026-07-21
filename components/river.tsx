@@ -142,13 +142,21 @@ export function River({
                       <article
                         key={w.id}
                         id={`w-${w.id.split("/").pop()}`}
-                        className="relative flex w-[calc(50%-0.375rem)] scroll-mt-20 gap-3 rounded-md border border-[var(--ink)]/10 bg-[var(--surface)] p-3 max-lg:w-full"
+                        className="relative flex w-[calc(50%-0.375rem)] scroll-mt-20 gap-3 rounded-md border border-[var(--ink)]/10 bg-[var(--surface)] p-3 max-lg:w-full max-lg:rounded-2xl"
                       >
                         {orderPositions?.has(w.id) && (
                           <span
                             aria-hidden
-                            className="absolute -left-3 -top-2 rounded-full bg-[var(--accent)] px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[var(--bg)]"
+                            className="absolute -left-3 -top-2 rounded-full bg-[var(--accent)] px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[var(--bg)] max-lg:hidden"
                           >
+                            {orderPositions.get(w.id)}
+                          </span>
+                        )}
+                        {orderPositions?.has(w.id) && (
+                          // Mobile: the order reads as a numbered checklist -
+                          // the position is a real sequence, so it earns a
+                          // real marker.
+                          <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center self-start rounded-full border border-[var(--accent)]/50 font-mono text-xs font-semibold text-[var(--accent)] lg:hidden">
                             {orderPositions.get(w.id)}
                           </span>
                         )}

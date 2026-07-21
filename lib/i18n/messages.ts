@@ -26,6 +26,10 @@ export const messages = {
       "Below is the chronological walk: every work in publication order, in the weather it was written in.",
     "franchise.curatedAlternatives": "Curated alternatives:",
     "franchise.entering": "entering",
+    "franchise.seriesCount": "series",
+    "home.continueReading": "Continue reading",
+    "home.series": "Popular series",
+    "home.seriesBooks": "books",
     "order.defaultName": "Complete, in publication order",
     "order.defaultRationale":
       "Every published work in the order it appeared - the default way to read the whole body of work.",
@@ -180,6 +184,10 @@ export const messages = {
       "Abaixo fica o percurso cronológico: todas as obras por ordem de publicação, no clima em que foram escritas.",
     "franchise.curatedAlternatives": "Alternativas seleccionadas:",
     "franchise.entering": "a entrar em",
+    "franchise.seriesCount": "séries",
+    "home.continueReading": "Continuar a ler",
+    "home.series": "Séries populares",
+    "home.seriesBooks": "livros",
     "order.defaultName": "Completa, por ordem de publicação",
     "order.defaultRationale":
       "Todas as obras publicadas, pela ordem em que surgiram - a forma predefinida de ler a obra completa.",

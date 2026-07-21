@@ -7,6 +7,7 @@ import path from "node:path";
 import { getAuthor } from "@/lib/content";
 import { Prose } from "@/components/prose";
 import { Timeline } from "@/components/timeline";
+import { Portrait } from "@/components/portrait";
 
 function authorIds(): string[] {
   const dir = path.join(process.cwd(), "orrery-content", "content", "authors");
@@ -38,6 +39,11 @@ export default async function AuthorPage(props: { params: Promise<{ locale: stri
         ← Orrery
       </Link>
       <header className="mt-4 mb-8">
+        <Portrait
+          author={a}
+          className="mb-4 w-40 lg:hidden"
+          plateClassName="aspect-[4/5] rounded-2xl border border-neutral-800"
+        />
         <h1 className="text-3xl font-bold tracking-tight text-neutral-100">{a.name}</h1>
         {(a.born || a.died) && (
           <p className="mt-1 font-mono text-sm text-neutral-500">

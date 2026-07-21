@@ -16,6 +16,8 @@ import { Contribute } from "@/components/contribute";
 import { FranchiseNav } from "@/components/franchise-nav";
 import { ProgressProvider } from "@/components/progress/provider";
 import { CommunityOrders } from "@/components/orders/community-orders";
+import { OrbitalField } from "@/components/orbital-field";
+import { Portrait } from "@/components/portrait";
 
 export function generateStaticParams() {
   return listFranchiseSlugs().map((slug) => ({ slug }));
@@ -83,15 +85,79 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
           ← Orrery
         </Link>
 
-        <header className="mt-4 mb-10">
-          <h1 className="display text-5xl font-semibold tracking-tight">{b.franchise.name}</h1>
+        <header className="mt-4 mb-10 max-lg:mt-2">
+          {/* Mobile hero: the author as an engraved plate over their own
+              orbital field, with the numbers a reader orients by and the two
+              doors they actually use. Desktop keeps the typographic header. */}
+          <div className="relative -mx-6 mb-5 overflow-hidden lg:hidden">
+            <OrbitalField
+              seed={slug}
+              className="absolute inset-0 h-full w-full opacity-80"
+            />
+            <div className="relative px-6 pt-4">
+              {(() => {
+                const heroAuthor =
+                  b.authors.find((a) => a.images?.portrait) ?? b.authors[0];
+                return heroAuthor ? (
+                  <Portrait
+                    author={heroAuthor}
+                    className="mx-auto w-56"
+                    plateClassName="aspect-[4/5] rounded-2xl border border-[var(--accent)]/20"
+                  />
+                ) : null;
+              })()}
+              <h1 className="display mt-4 text-4xl font-semibold leading-[1.05] tracking-tight">
+                {b.franchise.name}
+              </h1>
+              <p className="mt-2 font-mono text-xs text-[var(--muted)]">
+                {new Set(b.works.map((w) => w.subseries).filter(Boolean)).size > 0 && (
+                  <>
+                    {new Set(b.works.map((w) => w.subseries).filter(Boolean)).size}{" "}
+                    {t("franchise.seriesCount")} ·{" "}
+                  </>
+                )}
+                {b.works.length} {t("franchise.works")}
+              </p>
+              <div className="mt-4 flex gap-2.5">
+                {caps.wizard && (
+                  <Link
+                    href={localePath(locale, `/f/${slug}/start`)}
+                    className="flex-1 rounded-xl bg-[var(--accent)] px-4 py-3 text-center text-sm font-semibold text-[var(--bg)]"
+                  >
+                    {t("nav.whereToStart")}
+                  </Link>
+                )}
+                <a
+                  href="#walk"
+                  className="flex-1 rounded-xl border border-[var(--ink)]/20 px-4 py-3 text-center text-sm font-medium text-[var(--ink)]"
+                >
+                  {t("franchise.readingOrders")}
+                </a>
+              </div>
+              {b.authors.length === 1 && (
+                <p className="mt-3">
+                  <Link
+                    href={localePath(locale, `/author/${b.authors[0].id}`)}
+                    className="text-xs text-[var(--muted)] underline decoration-[var(--accent)]/40 underline-offset-2"
+                  >
+                    {b.authors[0].name} →
+                  </Link>
+                </p>
+              )}
+            </div>
+          </div>
+
+          <h1 className="display text-5xl font-semibold tracking-tight max-lg:hidden">{b.franchise.name}</h1>
           {b.franchise.description && (
             <Prose
               text={b.franchise.description}
               className="prose-read mt-3 block max-w-2xl text-lg text-[var(--ink)]/80"
             />
           )}
-          <p className="mt-4 text-sm text-[var(--muted)]">
+          {/* On mobile the hero already carries the counts and (for a single
+              author) the author link, so this line only survives there when
+              it still says something new: several authors to link. */}
+          <p className={`mt-4 text-sm text-[var(--muted)]${b.authors.length === 1 ? " max-lg:hidden" : ""}`}>
             {b.works.length} {t("franchise.works")} ·{" "}
             {b.authors.map((a, i) => (
               <span key={a.id}>
@@ -135,7 +201,7 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
           <FranchiseNav slug={slug} caps={caps} locale={locale} />
         </header>
 
-        <section>
+        <section id="walk">
           <ProgressProvider>
             <RiverView
               layers={layers}
