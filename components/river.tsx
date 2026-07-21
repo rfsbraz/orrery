@@ -106,18 +106,6 @@ export function River({
             // the era reads as a spread rather than a banner. Without art it
             // stays the centred plate, which is what most wings still have.
             <header className="relative -mx-6 mt-16 mb-4 overflow-hidden border-y border-[var(--accent)]/35 bg-[var(--accent)]/[0.06] first:mt-0">
-              {l.era.images?.sketch && (
-                <Sketch
-                  images={l.era.images}
-                  variant="plate"
-                  // On a phone the plate is one column, so the illustration
-                  // rides above the title as a banner. Only on desktop does it
-                  // take the right half and bleed off the edge. It was
-                  // desktop-only before, which meant most readers saw no era
-                  // art at all.
-                  className="relative h-44 w-full lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[52%]"
-                />
-              )}
               <div
                 className={`relative px-6 py-9 ${
                   l.era.images?.sketch ? "lg:w-[52%] lg:py-14 lg:pr-10" : ""
@@ -150,6 +138,18 @@ export function River({
                   />
                 )}
               </div>
+              {l.era.images?.sketch && (
+                <Sketch
+                  images={l.era.images}
+                  variant="plate"
+                  // Below the prose on a phone, matching how a rupture and an
+                  // illustrated card already stack there: read the era, then
+                  // see it. Above the title it read as a stray banner. On
+                  // desktop it is absolutely positioned, so this DOM order
+                  // costs the spread nothing.
+                  className="relative -mt-2 h-52 w-full lg:absolute lg:inset-y-0 lg:right-0 lg:mt-0 lg:h-full lg:w-[52%]"
+                />
+              )}
             </header>
           )}
 
