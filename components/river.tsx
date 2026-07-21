@@ -71,6 +71,22 @@ export function River({
     return born ? formatAge(ageAt(born, e.date)) : null;
   };
 
+  // Illustrated events alternate sides down the page. The counter has to run
+  // across layers, not within one: most years carry a single event, so a
+  // per-layer index would leave every card on the same side and the sequence
+  // would read as a column of identical rows - the monotony this is here to
+  // break.
+  const sideOf = new Map<string, "left" | "right">();
+  let illustratedSoFar = 0;
+  for (const l of layers) {
+    for (const e of l.texture) {
+      if (e.images?.sketch) {
+        sideOf.set(e.id, illustratedSoFar % 2 === 0 ? "right" : "left");
+        illustratedSoFar += 1;
+      }
+    }
+  }
+
   return (
     <div>
       {layers.map((l) => (
@@ -85,42 +101,50 @@ export function River({
 
           {l.eraStart && l.era && (
             // The era plate: an unmistakable "you are entering a new era"
-            // threshold. Full-bleed, generous air, double rule - structural
-            // rather than loud, so it reads as a chapter break in the strata
-            // without competing with the ruptures (which are inverted).
-            <header className="relative -mx-6 mt-16 mb-4 overflow-hidden border-y border-[var(--accent)]/35 bg-[var(--accent)]/[0.06] px-6 py-9 first:mt-0">
-              {/* The era's own sketch, behind the plate. Masked to dissolve at
-                  every edge so it reads as the paper the title sits on rather
-                  than a picture with a border. */}
-              <Sketch
-                images={l.era.images}
-                variant="plate"
-                className="absolute inset-0 h-full w-full opacity-[0.55]"
-              />
-              <div className="relative flex items-center gap-3">
-                <span aria-hidden className="h-px flex-1 bg-[var(--accent)]/30" />
-                <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--accent)]">
-                  {enteringLabel}
-                </p>
-                <span aria-hidden className="h-px flex-1 bg-[var(--accent)]/30" />
-              </div>
-              <h2 className="relative display mt-3 text-center text-3xl font-semibold tracking-tight">
-                {l.era.title}
-              </h2>
-              <p className="relative mt-1 text-center font-mono text-xs text-[var(--muted)]">
-                {l.era.period}
-              </p>
-              {l.era.themes && l.era.themes.length > 0 && (
-                <p className="relative mt-2.5 text-center text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
-                  {l.era.themes.join(" · ")}
-                </p>
-              )}
-              {l.era.description && (
-                <Prose
-                  text={l.era.description}
-                  className="prose-read relative mx-auto mt-3 block max-w-xl text-center text-sm text-[var(--ink)]/70"
+            // threshold. With art it splits - the text holds the left, the
+            // illustration takes the right half and bleeds off the edge, so
+            // the era reads as a spread rather than a banner. Without art it
+            // stays the centred plate, which is what most wings still have.
+            <header className="relative -mx-6 mt-16 mb-4 overflow-hidden border-y border-[var(--accent)]/35 bg-[var(--accent)]/[0.06] first:mt-0">
+              {l.era.images?.sketch && (
+                <Sketch
+                  images={l.era.images}
+                  variant="plate"
+                  className="absolute inset-y-0 right-0 hidden h-full w-[52%] lg:block"
                 />
               )}
+              <div
+                className={`relative px-6 py-9 ${
+                  l.era.images?.sketch ? "lg:w-[52%] lg:py-14 lg:pr-10" : ""
+                }`}
+              >
+                <div className={`flex items-center gap-3 ${l.era.images?.sketch ? "lg:justify-start" : ""}`}>
+                  <span aria-hidden className={`h-px bg-[var(--accent)]/30 ${l.era.images?.sketch ? "w-8 lg:w-12" : "flex-1"}`} />
+                  <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--accent)]">
+                    {enteringLabel}
+                  </p>
+                  <span aria-hidden className={`h-px bg-[var(--accent)]/30 ${l.era.images?.sketch ? "w-8 lg:w-12" : "flex-1"}`} />
+                </div>
+                <h2 className={`display mt-3 text-3xl font-semibold tracking-tight ${l.era.images?.sketch ? "lg:text-left lg:text-5xl lg:leading-[1.05]" : "text-center"}`}>
+                  {l.era.title}
+                </h2>
+                <p className={`mt-1 font-mono text-xs text-[var(--muted)] ${l.era.images?.sketch ? "lg:text-left lg:text-base lg:text-[var(--accent)]" : "text-center"}`}>
+                  {l.era.period}
+                </p>
+                {l.era.themes && l.era.themes.length > 0 && (
+                  <p className={`mt-2.5 text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] ${l.era.images?.sketch ? "lg:text-left" : "text-center"}`}>
+                    {l.era.themes.join(" · ")}
+                  </p>
+                )}
+                {l.era.description && (
+                  <Prose
+                    text={l.era.description}
+                    className={`prose-read mt-3 block max-w-xl text-sm text-[var(--ink)]/70 ${
+                      l.era.images?.sketch ? "lg:mx-0 lg:text-left" : "mx-auto text-center"
+                    }`}
+                  />
+                )}
+              </div>
             </header>
           )}
 
@@ -285,7 +309,11 @@ export function River({
                         boundaryTitle={workTitles[e.spoilerAfter ?? ""]}
                       >
                         {illustrated ? (
-                          <div className="flex items-start gap-5 max-lg:flex-col max-lg:gap-3">
+                          <div
+                            className={`flex items-start gap-5 max-lg:flex-col max-lg:gap-3 ${
+                              sideOf.get(e.id) === "left" ? "lg:flex-row-reverse" : ""
+                            }`}
+                          >
                             <div className="min-w-0 flex-1">
                               <p className="font-mono text-xs text-[var(--accent)]">
                                 {l.year}
