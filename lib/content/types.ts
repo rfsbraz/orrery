@@ -12,6 +12,16 @@ export type OrderType =
   | "community"
   | "user";
 
+/** The generated-art block carried by eras, events and life events.
+ * `sketchCredit` must say the image was generated - the content validator
+ * enforces it, so a reader can always tell our illustration from a licensed
+ * photograph. See orrery-content docs/VISUAL.md. */
+export interface SketchImage {
+  sketch?: string;
+  sketchCredit?: string;
+  sketchSource?: string;
+}
+
 export interface AuraEvent {
   id: string;
   date: string | number;
@@ -25,6 +35,7 @@ export interface AuraEvent {
   impact: Impact;
   description: string;
   spoilerAfter?: string | null;
+  images?: SketchImage;
   sources?: string[];
 }
 
@@ -120,6 +131,7 @@ export interface Era {
   period: string;
   themes?: string[];
   description?: string;
+  images?: SketchImage;
 }
 
 export interface ReadingOrder {
