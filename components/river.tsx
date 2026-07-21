@@ -6,6 +6,7 @@ import { CompanionPanel } from "./companion/panel";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { signatureLine, type SignatureKind } from "@/lib/theme";
 import { EventAnchor, eventAnchorId } from "./event-anchor";
+import { Sketch } from "./sketch";
 import { ageAt, formatAge } from "@/lib/age";
 import type { RiverLayer, SeriesEntry } from "@/lib/content/river";
 import type { CompanionData } from "@/lib/progress/companion";
@@ -87,29 +88,36 @@ export function River({
             // threshold. Full-bleed, generous air, double rule - structural
             // rather than loud, so it reads as a chapter break in the strata
             // without competing with the ruptures (which are inverted).
-            <header className="-mx-6 mt-16 mb-4 border-y border-[var(--accent)]/35 bg-[var(--accent)]/[0.06] px-6 py-9 first:mt-0">
-              <div className="flex items-center gap-3">
+            <header className="relative -mx-6 mt-16 mb-4 overflow-hidden border-y border-[var(--accent)]/35 bg-[var(--accent)]/[0.06] px-6 py-9 first:mt-0">
+              {/* The era's own sketch, behind the plate. Masked to dissolve at
+                  every edge so it reads as the paper the title sits on rather
+                  than a picture with a border. */}
+              <Sketch
+                images={l.era.images}
+                className="absolute inset-0 h-full w-full opacity-[0.55]"
+              />
+              <div className="relative flex items-center gap-3">
                 <span aria-hidden className="h-px flex-1 bg-[var(--accent)]/30" />
                 <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--accent)]">
                   {enteringLabel}
                 </p>
                 <span aria-hidden className="h-px flex-1 bg-[var(--accent)]/30" />
               </div>
-              <h2 className="display mt-3 text-center text-3xl font-semibold tracking-tight">
+              <h2 className="relative display mt-3 text-center text-3xl font-semibold tracking-tight">
                 {l.era.title}
               </h2>
-              <p className="mt-1 text-center font-mono text-xs text-[var(--muted)]">
+              <p className="relative mt-1 text-center font-mono text-xs text-[var(--muted)]">
                 {l.era.period}
               </p>
               {l.era.themes && l.era.themes.length > 0 && (
-                <p className="mt-2.5 text-center text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
+                <p className="relative mt-2.5 text-center text-[10px] uppercase tracking-[0.2em] text-[var(--muted)]">
                   {l.era.themes.join(" · ")}
                 </p>
               )}
               {l.era.description && (
                 <Prose
                   text={l.era.description}
-                  className="prose-read mx-auto mt-3 block max-w-xl text-center text-sm text-[var(--ink)]/70"
+                  className="prose-read relative mx-auto mt-3 block max-w-xl text-center text-sm text-[var(--ink)]/70"
                 />
               )}
             </header>
@@ -142,6 +150,11 @@ export function River({
                     className="prose-read mt-2 block max-w-xl text-sm opacity-75"
                   />
                 )}
+                <Sketch
+                  images={e.images}
+                  tint={e.reach === "global"}
+                  className="mt-5 h-40 w-full max-w-2xl max-lg:h-32"
+                />
               </SpoilerGate>
             </div>
           ))}
@@ -259,6 +272,11 @@ export function River({
                         spoilerAfter={e.spoilerAfter}
                         boundaryTitle={workTitles[e.spoilerAfter ?? ""]}
                       >
+                        <Sketch
+                          images={e.images}
+                          tint={e.reach === "global"}
+                          className="float-right ml-4 mb-1 h-24 w-24 max-lg:h-20 max-lg:w-20"
+                        />
                         <span className="font-medium text-[var(--ink)]/70">{e.title}.</span>{" "}
                         {e.description && <Prose text={e.description} className="inline" />}
                         {ageFor(e) && (
