@@ -1,4 +1,6 @@
 import { Prose } from "./prose";
+import { CurrentAge } from "./current-age";
+import { ageAtDeath, formatAge } from "@/lib/age";
 import type { Author } from "@/lib/content/types";
 
 /**
@@ -24,7 +26,7 @@ export interface AuthorBio {
   pseudonyms?: Author["pseudonyms"];
 }
 
-function lifespan(born?: string | number, died?: string | number) {
+function lifespanYears(born?: string | number, died?: string | number) {
   if (!born && !died) return null;
   const b = String(born ?? "").slice(0, 4);
   const d = died ? String(died).slice(0, 4) : null;
@@ -34,15 +36,22 @@ function lifespan(born?: string | number, died?: string | number) {
 export function AboutTheAuthorBody({
   bios,
   alsoWroteAs,
+  agedAtDeath,
+  agedTemplate,
 }: {
   bios: AuthorBio[];
   /** Localised "Also wrote as {name}." template. */
   alsoWroteAs: (name: string) => string;
+  /** Localised "(aged 85)" for a closed lifespan. */
+  agedAtDeath: (age: string) => string;
+  /** Localised "(aged {age})" template, filled in on the client for the living. */
+  agedTemplate: string;
 }) {
   return (
     <>
       {bios.map(({ id, name, bio, born, died, pseudonyms }) => {
-        const span = lifespan(born, died);
+        const span = lifespanYears(born, died);
+        const atDeath = formatAge(ageAtDeath(born, died));
         return (
           <div key={id} className="mt-3 first:mt-0">
             {bios.length > 1 && (
@@ -50,7 +59,16 @@ export function AboutTheAuthorBody({
                 {name}
               </p>
             )}
-            {span && <p className="font-mono text-xs text-[var(--muted)]">{span}</p>}
+            {span && (
+              <p className="font-mono text-xs text-[var(--muted)]">
+                {span}
+                {atDeath ? (
+                  <span> {agedAtDeath(atDeath)}</span>
+                ) : born ? (
+                  <> <CurrentAge born={born} template={agedTemplate} /></>
+                ) : null}
+              </p>
+            )}
             <Prose
               text={bio}
               className="prose-read mt-1 block text-[15px] leading-relaxed text-[var(--ink)]/75"
@@ -78,18 +96,22 @@ export function AboutTheAuthor({
   bios,
   label,
   alsoWroteAs,
+  agedAtDeath,
+  agedTemplate,
 }: {
   bios: AuthorBio[];
   /** Localised "About the author" / "Sobre o autor". */
   label: string;
   alsoWroteAs: (name: string) => string;
+  agedAtDeath: (age: string) => string;
+  agedTemplate: string;
 }) {
   if (bios.length === 0) return null;
   return (
     <>
       {/* Desktop: inline, because there is room and it frames the walk. */}
       <div className="mt-6 max-w-2xl border-l-2 border-[var(--accent)]/25 pl-4 max-lg:hidden">
-        <AboutTheAuthorBody bios={bios} alsoWroteAs={alsoWroteAs} />
+        <AboutTheAuthorBody bios={bios} alsoWroteAs={alsoWroteAs} agedAtDeath={agedAtDeath} agedTemplate={agedTemplate} />
       </div>
 
       {/* Mobile: a disclosure, so the shelf stays within reach. Plain
@@ -107,7 +129,7 @@ export function AboutTheAuthor({
           </span>
         </summary>
         <div className="pb-4">
-          <AboutTheAuthorBody bios={bios} alsoWroteAs={alsoWroteAs} />
+          <AboutTheAuthorBody bios={bios} alsoWroteAs={alsoWroteAs} agedAtDeath={agedAtDeath} agedTemplate={agedTemplate} />
         </div>
       </details>
     </>

@@ -50,6 +50,8 @@ export function RiverView({
   allWorkIds,
   enteringLabel,
   permalinkLabel,
+  authorBorn,
+  agedTemplate,
 }: {
   layers: RiverLayer[];
   orders: ReadingOrder[];
@@ -66,6 +68,10 @@ export function RiverView({
   enteringLabel?: string;
   /** Localised accessible name for an event's permalink. */
   permalinkLabel?: string;
+  /** Birth date per author id, for a life event's age. */
+  authorBorn?: Map<string, string | number>;
+  /** Localised "aged {age}" template. */
+  agedTemplate?: string;
 }) {
   const [selection, setSelection] = useState<{ id: string; workIds: string[] } | null>(null);
 
@@ -98,6 +104,8 @@ export function RiverView({
           orderPositions={positions}
           enteringLabel={enteringLabel}
           permalinkLabel={permalinkLabel}
+          authorBorn={authorBorn}
+          agedTemplate={agedTemplate}
         />
       </div>
     </>

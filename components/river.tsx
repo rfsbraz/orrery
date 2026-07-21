@@ -6,6 +6,7 @@ import { CompanionPanel } from "./companion/panel";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { signatureLine, type SignatureKind } from "@/lib/theme";
 import { EventAnchor, eventAnchorId } from "./event-anchor";
+import { ageAt, formatAge } from "@/lib/age";
 import type { RiverLayer, SeriesEntry } from "@/lib/content/river";
 import type { CompanionData } from "@/lib/progress/companion";
 
@@ -33,6 +34,8 @@ export function River({
   orderPositions,
   enteringLabel = "entering",
   permalinkLabel = "Link to this event",
+  authorBorn,
+  agedTemplate = "aged {age}",
 }: {
   layers: RiverLayer[];
   series: Map<string, SeriesEntry>;
@@ -54,7 +57,19 @@ export function River({
   enteringLabel?: string;
   /** Localised accessible name for an event's permalink. */
   permalinkLabel?: string;
+  /** Birth date per author id, for showing their age at a life event. */
+  authorBorn?: Map<string, string | number>;
+  /** Localised "aged {age}" template. */
+  agedTemplate?: string;
 }) {
+  // A life event carries the age its author was at the time; nothing else does.
+  // Franchise and global events belong to the world, not to a lifespan.
+  const ageFor = (e: { scope?: string; authorId?: string; date?: string | number }) => {
+    if (e.scope !== "author-life" || !e.authorId) return null;
+    const born = authorBorn?.get(e.authorId);
+    return born ? formatAge(ageAt(born, e.date)) : null;
+  };
+
   return (
     <div>
       {layers.map((l) => (
@@ -113,6 +128,9 @@ export function River({
               >
                 <p className="font-mono text-xs text-[var(--accent)]">
                   {l.year}
+                  {ageFor(e) && (
+                    <span className="opacity-70"> · {agedTemplate.replace("{age}", ageFor(e)!)}</span>
+                  )}
                   <EventAnchor eventId={e.id} label={permalinkLabel} className="text-[var(--accent)]" />
                 </p>
                 <p className="display mt-1.5 max-w-2xl text-2xl font-semibold leading-snug">
@@ -243,6 +261,11 @@ export function River({
                       >
                         <span className="font-medium text-[var(--ink)]/70">{e.title}.</span>{" "}
                         {e.description && <Prose text={e.description} className="inline" />}
+                        {ageFor(e) && (
+                          <span className="ml-1 font-mono text-[0.9em] text-[var(--muted)]">
+                            ({agedTemplate.replace("{age}", ageFor(e)!)})
+                          </span>
+                        )}
                         <EventAnchor eventId={e.id} label={permalinkLabel} />
                       </SpoilerGate>
                     </li>
