@@ -320,14 +320,13 @@ export function River({
                             }`}
                           >
                             <div className="min-w-0 flex-1">
+                              {/* No year here: the layer prints it immediately
+                                  above this card, and the ghosted numeral sits
+                                  behind it. A rupture DOES carry its own year,
+                                  because it renders outside the layer section
+                                  and has nothing above it. */}
                               <p className="font-mono text-xs text-[var(--accent)]">
-                                {l.year}
-                                {ageFor(e) && (
-                                  <span className="text-[var(--muted)]">
-                                    {" "}
-                                    · {agedTemplate.replace("{age}", ageFor(e)!)}
-                                  </span>
-                                )}
+                                {ageFor(e) && agedTemplate.replace("{age}", ageFor(e)!)}
                                 <EventAnchor eventId={e.id} label={permalinkLabel} />
                               </p>
                               <p className="display mt-1 text-xl font-semibold leading-snug text-[var(--ink)]">
