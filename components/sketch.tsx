@@ -30,8 +30,12 @@ export function Sketch({
    * coloured per wing, so the accent reaches them through this. */
   tint?: boolean;
 }) {
-  const src = images?.sketch;
-  if (!src) return null;
+  const raw = images?.sketch;
+  if (!raw) return null;
+  // Content stores a repo-relative path ("assets/<wing>/<id>.webp"); the build
+  // copies orrery-content/assets into public/, so the served URL is rooted.
+  // Absolute URLs are still honoured in case a sketch is ever hosted elsewhere.
+  const src = /^https?:\/\//.test(raw) ? raw : `/${raw.replace(/^\/+/, "")}`;
 
   const fade =
     "radial-gradient(ellipse 78% 78% at 50% 50%, #000 42%, rgba(0,0,0,0.72) 62%, transparent 88%)";

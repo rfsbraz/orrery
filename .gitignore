@@ -42,3 +42,6 @@ next-env.d.ts
 .playwright-mcp/
 king-franchise.png
 !.env.example
+
+# copied from orrery-content/assets by scripts/sync-assets.mjs
+public/assets/
