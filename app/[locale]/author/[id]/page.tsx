@@ -41,7 +41,7 @@ export default async function AuthorPage(props: { params: Promise<{ locale: stri
       <header className="mt-4 mb-8">
         <Portrait
           author={a}
-          className="mb-4 w-40 lg:hidden"
+          className="mb-4 w-40 lg:float-right lg:mb-2 lg:ml-6"
           plateClassName="aspect-[4/5] rounded-2xl border border-neutral-800"
         />
         <h1 className="text-3xl font-bold tracking-tight text-neutral-100">{a.name}</h1>

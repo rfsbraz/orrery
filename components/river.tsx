@@ -145,9 +145,12 @@ export function River({
                         className="relative flex w-[calc(50%-0.375rem)] scroll-mt-20 gap-3 rounded-md border border-[var(--ink)]/10 bg-[var(--surface)] p-3 max-lg:w-full max-lg:rounded-2xl"
                       >
                         {orderPositions?.has(w.id) && (
+                          // Desktop: same checklist language as the phone,
+                          // in the same corner the old pill occupied - no
+                          // layout shift, just the circle.
                           <span
                             aria-hidden
-                            className="absolute -left-3 -top-2 rounded-full bg-[var(--accent)] px-1.5 py-0.5 font-mono text-[10px] font-semibold text-[var(--bg)] max-lg:hidden"
+                            className="absolute -left-3 -top-3 flex h-6 w-6 items-center justify-center rounded-full border border-[var(--accent)]/60 bg-[var(--bg)] font-mono text-[11px] font-semibold text-[var(--accent)] max-lg:hidden"
                           >
                             {orderPositions.get(w.id)}
                           </span>
