@@ -110,7 +110,12 @@ export function River({
                 <Sketch
                   images={l.era.images}
                   variant="plate"
-                  className="absolute inset-y-0 right-0 hidden h-full w-[52%] lg:block"
+                  // On a phone the plate is one column, so the illustration
+                  // rides above the title as a banner. Only on desktop does it
+                  // take the right half and bleed off the edge. It was
+                  // desktop-only before, which meant most readers saw no era
+                  // art at all.
+                  className="relative h-44 w-full lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[52%]"
                 />
               )}
               <div
