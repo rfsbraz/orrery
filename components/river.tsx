@@ -175,10 +175,15 @@ export function River({
                     className="prose-read mt-2 block max-w-xl text-sm opacity-75"
                   />
                 )}
+                {/* A rupture band is the wing's paper tone inverted out of the
+                    page, so a transparent sketch lands directly on it with no
+                    edge at all - the drawing simply sits on the paper. Wide
+                    and centred: this is the one event the reader is meant to
+                    stop at. */}
                 <Sketch
                   images={e.images}
                   tint={e.reach === "global"}
-                  className="mt-5 h-40 w-full max-w-2xl max-lg:h-32"
+                  className="mx-auto mt-7 h-72 w-full max-w-3xl max-lg:h-56"
                 />
               </SpoilerGate>
             </div>
