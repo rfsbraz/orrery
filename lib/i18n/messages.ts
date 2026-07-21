@@ -31,7 +31,6 @@ export const messages = {
       "Every published work in the order it appeared - the default way to read the whole body of work.",
 
     "nav.whereToStart": "Where to start",
-    "nav.compareOrders": "Compare orders",
     "nav.connections": "Connections",
 
     "progress.reading": "Reading",
@@ -62,19 +61,6 @@ export const messages = {
     "wizard.hideOther": "Hide the other paths",
     "wizard.followsOrder": "Follows the order",
 
-    "compare.title": "Compare orders",
-    "compare.lede":
-      "Pick two orders. The spine they agree on runs down the middle; every divergence forks into what each order does there, with the rationale behind it.",
-    "compare.orderA": "Order A",
-    "compare.orderB": "Order B",
-    "compare.agree": "These two orders agree completely on the works they share.",
-    "compare.sharedSpine": "{n} works on the shared spine",
-    "compare.divergence": "divergence",
-    "compare.divergences": "divergences",
-    "compare.onlyInA": "{n} only in A",
-    "compare.onlyInB": "{n} only in B",
-    "compare.continues": "{side} continues below",
-    "compare.theDebate": "The debate",
 
     "connections.title": "Connections",
     "connections.lede":
@@ -199,7 +185,6 @@ export const messages = {
       "Todas as obras publicadas, pela ordem em que surgiram - a forma predefinida de ler a obra completa.",
 
     "nav.whereToStart": "Por onde começar",
-    "nav.compareOrders": "Comparar ordens",
     "nav.connections": "Ligações",
 
     "progress.reading": "A ler",
@@ -230,19 +215,6 @@ export const messages = {
     "wizard.hideOther": "Esconder os outros percursos",
     "wizard.followsOrder": "Segue a ordem",
 
-    "compare.title": "Comparar ordens",
-    "compare.lede":
-      "Escolha duas ordens. A espinha em que concordam corre ao centro; cada divergência abre no que cada ordem faz ali, com a justificação por trás.",
-    "compare.orderA": "Ordem A",
-    "compare.orderB": "Ordem B",
-    "compare.agree": "Estas duas ordens concordam por completo nas obras que partilham.",
-    "compare.sharedSpine": "{n} obras na espinha comum",
-    "compare.divergence": "divergência",
-    "compare.divergences": "divergências",
-    "compare.onlyInA": "{n} só em A",
-    "compare.onlyInB": "{n} só em B",
-    "compare.continues": "{side} continua abaixo",
-    "compare.theDebate": "O debate",
 
     "connections.title": "Ligações",
     "connections.lede":

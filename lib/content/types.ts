@@ -141,7 +141,6 @@ export type FeatureSetting = "auto" | "on" | "off" | boolean;
 /** Optional feature overrides in franchise.yaml; omitted keys mean auto. */
 export interface FranchiseFeatures {
   river?: FeatureSetting;
-  orderDiff?: FeatureSetting;
   wizard?: FeatureSetting;
   connections?: FeatureSetting;
   companion?: FeatureSetting;

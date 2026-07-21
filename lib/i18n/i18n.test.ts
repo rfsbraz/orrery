@@ -66,7 +66,7 @@ describe("messages", () => {
     const en = messages.en as Record<string, string>;
     const pt = messages["pt-PT"] as Record<string, string>;
     // Legitimately identical in both languages (a brand, a loanword, a letter).
-    const SAME_BY_DESIGN = ["nav.back", "compare.orderA", "compare.orderB", "auth.email"];
+    const SAME_BY_DESIGN = ["nav.back", "auth.email"];
     const untranslated = Object.keys(en).filter(
       (k) => en[k] === pt[k] && !SAME_BY_DESIGN.includes(k)
     );
