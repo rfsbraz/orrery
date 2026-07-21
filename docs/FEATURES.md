@@ -21,7 +21,6 @@ Resolution lives in `lib/content/capabilities.ts`:
 | Capability    | Auto-activates when the franchise has...     | Feature |
 |---------------|----------------------------------------------|---------|
 | `river`       | aura events                                  | The River view |
-| `orderDiff`   | 2+ reading orders (derived default counts)   | Compare orders |
 | `wizard`      | `startHere` paths in franchise.yaml          | Where to start |
 | `connections` | work `connections` or a `characters.yaml`    | Connections map |
 | `companion`   | aura events                                  | Reading companion |
@@ -85,13 +84,6 @@ Model: `lib/content/river.ts` (`buildRiver` layers, era-span parsing, era and
 decade boundaries, `subseriesEntries`). View: `components/river.tsx`, which
 also carries the per-work progress control, companion panel, and find-a-copy
 links.
-
-### Compare orders - `/f/<slug>/compare`
-Two orders side by side: the spine they agree on renders once down the
-middle; each divergence forks into two columns, with both orders' rationales
-and `debated:` notes attached. LCS-based diff in `lib/orders/diff.ts`
-(common/fork segments, only-in-A/B, fork count). The selected pair syncs to
-the URL hash, so a comparison is shareable while the page stays static.
 
 ### Where to start - `/f/<slug>/start`
 Two questions (experience, commitment), instant recommendation. Paths are

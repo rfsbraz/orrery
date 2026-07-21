@@ -8,7 +8,6 @@ import type { FeatureSetting, FranchiseBundle } from "./types";
 
 export type CapabilityKey =
   | "river"
-  | "orderDiff"
   | "wizard"
   | "connections"
   | "companion"
@@ -22,8 +21,6 @@ function autoDetect(b: FranchiseBundle): Capabilities {
   return {
     // The River is the aura browse; it needs events to breathe.
     river: b.timeline.length > 0,
-    // Comparing orders needs at least two (the derived default counts).
-    orderDiff: b.orders.length >= 2,
     // The wizard is entirely content-driven.
     wizard: (b.franchise.startHere?.paths?.length ?? 0) > 0,
     // Connections need edges: work links or a character roster.
@@ -50,7 +47,6 @@ export function capabilities(b: FranchiseBundle): Capabilities {
   const f = b.franchise.features ?? {};
   return {
     river: resolve(f.river, auto.river),
-    orderDiff: resolve(f.orderDiff, auto.orderDiff),
     wizard: resolve(f.wizard, auto.wizard),
     connections: resolve(f.connections, auto.connections),
     companion: resolve(f.companion, auto.companion),

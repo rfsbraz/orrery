@@ -10,7 +10,6 @@ import type { Capabilities, CapabilityKey } from "@/lib/content/capabilities";
 const ITEMS: { key: CapabilityKey; href: (slug: string) => string; label: MessageKey }[] = [
   // Feature pages register here as they land.
   { key: "wizard", href: (s) => `/f/${s}/start`, label: "nav.whereToStart" },
-  { key: "orderDiff", href: (s) => `/f/${s}/compare`, label: "nav.compareOrders" },
   { key: "connections", href: (s) => `/f/${s}/connections`, label: "nav.connections" },
 ];
 

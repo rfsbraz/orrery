@@ -39,7 +39,6 @@ describe("capabilities", () => {
     const caps = capabilities(bundle());
     expect(caps).toEqual({
       river: false,
-      orderDiff: false,
       wizard: false,
       connections: false,
       companion: false,
@@ -56,11 +55,6 @@ describe("capabilities", () => {
     );
     expect(caps.river).toBe(true);
     expect(caps.companion).toBe(true);
-  });
-
-  it("two orders activate orderDiff", () => {
-    const caps = capabilities(bundle({ orders: [order("x/default"), order("x/alt")] }));
-    expect(caps.orderDiff).toBe(true);
   });
 
   it("startHere paths activate the wizard", () => {
