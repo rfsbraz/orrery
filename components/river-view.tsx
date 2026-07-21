@@ -49,6 +49,7 @@ export function RiverView({
   signature,
   allWorkIds,
   enteringLabel,
+  permalinkLabel,
 }: {
   layers: RiverLayer[];
   orders: ReadingOrder[];
@@ -63,6 +64,8 @@ export function RiverView({
   allWorkIds: string[];
   /** Localised label above an era plate title ("entering" / "a entrar em"). */
   enteringLabel?: string;
+  /** Localised accessible name for an event's permalink. */
+  permalinkLabel?: string;
 }) {
   const [selection, setSelection] = useState<{ id: string; workIds: string[] } | null>(null);
 
@@ -94,6 +97,7 @@ export function RiverView({
           signature={signature}
           orderPositions={positions}
           enteringLabel={enteringLabel}
+          permalinkLabel={permalinkLabel}
         />
       </div>
     </>

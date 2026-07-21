@@ -232,6 +232,7 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
               signature={signatureOf(b.theme)}
               allWorkIds={b.works.map((w) => w.id)}
               enteringLabel={t("franchise.entering")}
+              permalinkLabel={t("event.permalink")}
             />
           </ProgressProvider>
           <CommunityOrders franchiseSlug={slug} workTitles={workTitles} />

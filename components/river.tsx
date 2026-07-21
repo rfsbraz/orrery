@@ -5,6 +5,7 @@ import { ProgressControl } from "./progress/control";
 import { CompanionPanel } from "./companion/panel";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { signatureLine, type SignatureKind } from "@/lib/theme";
+import { EventAnchor, eventAnchorId } from "./event-anchor";
 import type { RiverLayer, SeriesEntry } from "@/lib/content/river";
 import type { CompanionData } from "@/lib/progress/companion";
 
@@ -31,6 +32,7 @@ export function River({
   localTitles,
   orderPositions,
   enteringLabel = "entering",
+  permalinkLabel = "Link to this event",
 }: {
   layers: RiverLayer[];
   series: Map<string, SeriesEntry>;
@@ -50,6 +52,8 @@ export function River({
   signature?: SignatureKind;
   /** Localised label above an era plate title ("entering" / "a entrar em"). */
   enteringLabel?: string;
+  /** Localised accessible name for an event's permalink. */
+  permalinkLabel?: string;
 }) {
   return (
     <div>
@@ -98,12 +102,19 @@ export function River({
 
           {/* ruptures: full-bleed inverted bands */}
           {l.ruptures.map((e) => (
-            <div key={e.id} className="-mx-6 my-8 bg-[var(--ink)] px-6 py-10 text-[var(--bg)]">
+            <div
+              key={e.id}
+              id={eventAnchorId(e.id)}
+              className="group -mx-6 my-8 scroll-mt-24 bg-[var(--ink)] px-6 py-10 text-[var(--bg)]"
+            >
               <SpoilerGate
                 spoilerAfter={e.spoilerAfter}
                 boundaryTitle={workTitles[e.spoilerAfter ?? ""]}
               >
-                <p className="font-mono text-xs text-[var(--accent)]">{l.year}</p>
+                <p className="font-mono text-xs text-[var(--accent)]">
+                  {l.year}
+                  <EventAnchor eventId={e.id} label={permalinkLabel} className="text-[var(--accent)]" />
+                </p>
                 <p className="display mt-1.5 max-w-2xl text-2xl font-semibold leading-snug">
                   {e.title}
                 </p>
@@ -221,13 +232,18 @@ export function River({
               {l.texture.length > 0 && (
                 <ul className="mt-3 space-y-1 border-l-2 border-[var(--ink)]/15 pl-3">
                   {l.texture.map((e) => (
-                    <li key={e.id} className="text-xs leading-relaxed text-[var(--ink)]/55 max-lg:text-[14px]">
+                    <li
+                      key={e.id}
+                      id={eventAnchorId(e.id)}
+                      className="group scroll-mt-24 text-xs leading-relaxed text-[var(--ink)]/55 max-lg:text-[14px]"
+                    >
                       <SpoilerGate
                         spoilerAfter={e.spoilerAfter}
                         boundaryTitle={workTitles[e.spoilerAfter ?? ""]}
                       >
                         <span className="font-medium text-[var(--ink)]/70">{e.title}.</span>{" "}
                         {e.description && <Prose text={e.description} className="inline" />}
+                        <EventAnchor eventId={e.id} label={permalinkLabel} />
                       </SpoilerGate>
                     </li>
                   ))}

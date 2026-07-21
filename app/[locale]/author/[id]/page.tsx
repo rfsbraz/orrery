@@ -5,6 +5,7 @@ import { localeFromSegment, localePath } from "@/lib/i18n/config";
 import fs from "node:fs";
 import path from "node:path";
 import { getAuthor } from "@/lib/content";
+import { translator } from "@/lib/i18n/messages";
 import { Prose } from "@/components/prose";
 import { Timeline } from "@/components/timeline";
 import { Portrait } from "@/components/portrait";
@@ -30,6 +31,7 @@ export async function generateMetadata(props: {
 export default async function AuthorPage(props: { params: Promise<{ locale: string; id: string }> }) {
   const { locale: localeSeg, id } = await props.params;
   const locale = localeFromSegment(localeSeg === "en" ? undefined : localeSeg);
+  const t = translator(locale);
   const a = getAuthor(id, locale);
   if (!a) notFound();
 
@@ -69,7 +71,7 @@ export default async function AuthorPage(props: { params: Promise<{ locale: stri
           style={{ ["--ink" as string]: "#e5e5e5", ["--accent" as string]: "#8a8f98", ["--surface" as string]: "#171717" }}
         >
           <h2 className="mb-5 text-xs font-medium uppercase tracking-widest text-neutral-500">Life</h2>
-          <Timeline works={[]} events={a.lifeEvents} />
+          <Timeline works={[]} events={a.lifeEvents} permalinkLabel={t("event.permalink")} />
         </section>
       )}
     </main>

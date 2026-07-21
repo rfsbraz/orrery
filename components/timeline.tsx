@@ -3,6 +3,7 @@ import { ProgressControl } from "./progress/control";
 import { FindACopy } from "./find-a-copy";
 import { Cover } from "./cover";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
+import { EventAnchor, eventAnchorId } from "./event-anchor";
 import { CompanionPanel } from "./companion/panel";
 import { impactStyles, signatureLine, type SignatureKind } from "@/lib/theme";
 import type { AuraEvent, Work } from "@/lib/content/types";
@@ -29,6 +30,7 @@ export function Timeline({
   companions,
   editions,
   signature = "thread",
+  permalinkLabel = "Link to this event",
 }: {
   works: Work[];
   events: AuraEvent[];
@@ -37,6 +39,8 @@ export function Timeline({
   companions?: Record<string, CompanionData>;
   /** Per-work cover URL + buy ISBN (editions layer; absent entries fall back). */
   editions?: Record<string, { cover: string | null; isbn13?: string }>;
+  /** Localised accessible name for an event's permalink. */
+  permalinkLabel?: string;
   /** The franchise's signature element, from its theme.yaml. */
   signature?: SignatureKind;
 }) {
@@ -115,7 +119,7 @@ export function Timeline({
               </div>
             </li>
           ) : (
-            <li key={`e-${item.event.id}-${i}`}>
+            <li key={`e-${item.event.id}-${i}`} id={eventAnchorId(item.event.id)} className="group scroll-mt-24">
               <span
                 aria-hidden
                 className={`absolute -ml-[1.6rem] mt-[0.42rem] h-1.5 w-1.5 rounded-full ${
@@ -128,7 +132,10 @@ export function Timeline({
                   boundaryTitle={titleOf(item.event.spoilerAfter ?? "")}
                 >
                   <div className="flex flex-wrap items-baseline gap-x-2">
-                    <span className="font-mono text-[11px] text-[var(--muted)]/80">{item.year}</span>
+                    <span className="font-mono text-[11px] text-[var(--muted)]/80">
+                      {item.year}
+                      <EventAnchor eventId={item.event.id} label={permalinkLabel} />
+                    </span>
                     <span className="text-sm font-medium text-[var(--ink)]/90">
                       {item.event.title}
                     </span>
