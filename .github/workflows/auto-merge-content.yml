@@ -1,0 +1,92 @@
+name: Auto-merge content bumps
+
+# The last manual step in the canon pipeline.
+#
+# Content merges in orrery-content already dispatch here, and `content-sync`
+# already opens a bump PR. That PR then sat waiting for a human to click merge,
+# which is how a bump for a wing rename sat open for a day while the site served
+# the old canon. A submodule bump is mechanical: the content was validated in
+# its own repo, and CI here builds every page against it. If both are green
+# there is nothing for a person to decide.
+#
+# So: when a check finishes on the bot branch, if EVERY check for that commit
+# has passed, merge it.
+on:
+  workflow_run:
+    workflows: [CI, Docker]
+    types: [completed]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: auto-merge-content
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    # Only the bot's own branch, and only when the run that just finished
+    # actually succeeded. Both workflows trigger this, so it fires twice per
+    # bump; the all-checks-green test below is what makes the second one a
+    # no-op rather than a race.
+    if: >
+      github.event.workflow_run.head_branch == 'bot/content-sync' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Merge if the whole commit is green and only the submodule moved
+        env:
+          # NOT GITHUB_TOKEN. A merge performed with GITHUB_TOKEN produces a
+          # push that GitHub deliberately does not treat as a trigger, so the
+          # Docker workflow would never run on main, no image would be built,
+          # and the deploy would silently never happen. The PR would look
+          # merged and the site would stay on old canon - the exact failure
+          # this pipeline is meant to remove.
+          GH_TOKEN: ${{ secrets.CONTENT_SYNC_TOKEN }}
+          SHA: ${{ github.event.workflow_run.head_sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          if [ -z "${GH_TOKEN}" ]; then
+            echo "::warning title=Not auto-merging::CONTENT_SYNC_TOKEN is not set. Merging with GITHUB_TOKEN would not trigger the image build, so the bump is left for a human."
+            exit 0
+          fi
+
+          pr=$(gh pr list --repo "$REPO" --head bot/content-sync --state open \
+                 --json number --jq '.[0].number // empty')
+          if [ -z "$pr" ]; then
+            echo "No open bump PR; nothing to do."
+            exit 0
+          fi
+
+          # A bump PR touches exactly one path. Anything else on this branch is
+          # not a content bump and a human should look at it.
+          files=$(gh pr view "$pr" --repo "$REPO" --json files \
+                    --jq '[.files[].path] | join(",")')
+          if [ "$files" != "orrery-content" ]; then
+            echo "::warning title=Bump PR touches more than the submodule::Files: ${files}. Leaving #${pr} for review."
+            exit 0
+          fi
+
+          # Every check for this commit, not just the one that woke us. Merging
+          # on a single green workflow would ship a commit whose sibling check
+          # was still running or already red.
+          states=$(gh api "repos/${REPO}/commits/${SHA}/check-runs" \
+                     --jq '[.check_runs[] | select(.name | test("auto-merge"; "i") | not)
+                            | {s: .status, c: .conclusion}]')
+          pending=$(echo "$states" | jq '[.[] | select(.s != "completed")] | length')
+          bad=$(echo "$states" | jq '[.[] | select(.c != null and .c != "success" and .c != "skipped" and .c != "neutral")] | length')
+
+          if [ "$pending" -gt 0 ]; then
+            echo "Still ${pending} check(s) running for ${SHA:0:8}; the later run will merge."
+            exit 0
+          fi
+          if [ "$bad" -gt 0 ]; then
+            echo "::warning title=Bump not merged::${bad} check(s) failed on ${SHA:0:8}. Leaving #${pr} open."
+            exit 1
+          fi
+
+          gh pr merge "$pr" --repo "$REPO" --squash --delete-branch
+          echo "Merged #${pr} (${SHA:0:8}); the push to main now builds and publishes the image." >> "$GITHUB_STEP_SUMMARY"
