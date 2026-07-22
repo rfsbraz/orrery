@@ -1,6 +1,6 @@
 # Orrery - Concept
 
-Codename **Orrery**. A contextual reading-order platform for completionists. This document captures the concept, data model, feature set, and phased roadmap so implementation can start from a shared plan.
+**Orrery**. A contextual reading-order platform for completionists. This document captures the concept, data model, feature set, and phased roadmap so implementation can start from a shared plan.
 
 > Status: pre-implementation. A prior King-only prototype exists (Vite + React + shadcn/ui + Tailwind + TypeScript, Lovable-originated) with a real data model - `eras` (decades with life events, writing style, themes, trivia) and 41 King books - plus three timeline renderers (Classic / River / Vertical). Orrery generalizes that from one author into a platform.
 
@@ -214,7 +214,7 @@ Building auth before the read-only experience is delightful yields a tracker wit
 - **Community moderation model** - *resolved (Phase 3, basic):* a `profiles.is_moderator` flag gates the `/moderate` approve/reject queue; community orders are hidden until approved. A richer model (per-franchise curator scoping, reports/flags, appeals) can grow when volume warrants.
 
 **Homework / curation**
-- **Name** - "Orrery" is a codename; real brand should signal "reading journeys in context," not "book tracker."
+- **Name** - Orrery is the name. An orrery is a clockwork model of the planets moving through time, which is exactly what the product does with an author's works: it signals "reading journeys in context" rather than "book tracker."
 - **João Tordo bibliography** - genuine curation via `franchise-research`; do not assume series/order structure.
 - **Portugal affiliate programs** - confirm Bertrand / FNAC / Wook affiliate availability.
 - **Phase 1 "definition of done"** - how many orders per franchise and how deep the aura before it's shippable (scope discipline).

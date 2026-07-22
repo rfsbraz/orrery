@@ -1,0 +1,44 @@
+name: Bug report
+description: Something in the app is broken
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For a wrong date, a missing book or a reading order, please open an issue on
+        [orrery-content](https://github.com/rfsbraz/orrery-content/issues) instead.
+        That is where the canon lives.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you saw, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to reproduce
+      placeholder: |
+        1. Go to /f/agatha-christie
+        2. Open the reading order picker
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Page URL
+      placeholder: https://orrery.homeberry.me/f/...
+  - type: dropdown
+    id: env
+    attributes:
+      label: Where
+      options: ["The hosted site", "Running it locally", "Both"]
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      placeholder: Firefox 141 on Android 15
