@@ -20,7 +20,7 @@ env:
   IMAGE: ghcr.io/${{ github.repository }}
 
 jobs:
-  build:
+  image:
     runs-on: ubuntu-latest
     permissions:
       contents: read
