@@ -32,3 +32,30 @@ jobs:
         run: npm test
       - name: Build
         run: npm run build
+
+      - name: Render check
+        # Boots the built app and asks every page whether it actually renders:
+        # status, our own committed assets resolving, and the right lang on the
+        # right locale. This was run by hand, which meant it was run when
+        # someone remembered, and it is how a wing shipped with 5 of 32 images
+        # and every Portuguese page declaring itself English.
+        #
+        # Third-party covers (openlibrary, wikimedia) are reported but never
+        # fatal: their servers must not be able to block our merges.
+        run: |
+          cp -r .next/static .next/standalone/.next/
+          cp -r public .next/standalone/
+          PORT=3311 node .next/standalone/server.js &
+          for _ in $(seq 1 30); do
+            curl -sf http://localhost:3311/ > /dev/null && break
+            sleep 2
+          done
+          node scripts/render-check.mjs --base http://localhost:3311 | tee /tmp/render.txt
+          rc=${PIPESTATUS[0]}
+          {
+            echo "### Render check"
+            echo '```'
+            tail -25 /tmp/render.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"

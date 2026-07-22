@@ -61,6 +61,8 @@ const paths = arg("paths", "")
   : ["/", ...wings()];
 
 const failures = [];
+// Third-party image rot: always reported, only fatal with --strict-images.
+const external = [];
 const note = (page, msg) => failures.push(`${page}: ${msg}`);
 
 // One result per URL for the whole run: the same cover appears on every locale
@@ -140,8 +142,21 @@ async function checkPage(prefix, p) {
   const unique = [...new Set(srcs)];
   const results = await pooled(unique, headOk);
   const bad = unique.filter((_, i) => !results[i]);
-  if (bad.length) {
-    note(page, `${bad.length}/${unique.length} images do not resolve: ${bad.slice(0, 3).join(" ")}`);
+
+  // Split ours from theirs. An asset we committed that does not resolve is our
+  // bug and should stop a merge. A cover on openlibrary.org that 404s today is
+  // somebody else's server, and letting that gate CI hands a third party the
+  // power to block our releases. Both are worth knowing; only one is worth
+  // failing on.
+  const mine = bad.filter((u) => u.startsWith(BASE));
+  const theirs = bad.filter((u) => !u.startsWith(BASE));
+  if (mine.length) {
+    note(page, `${mine.length} of OUR images do not resolve: ${mine.slice(0, 3).join(" ")}`);
+  }
+  if (theirs.length) {
+    external.push(
+      `${page}: ${theirs.length}/${unique.length} third-party images: ${theirs.slice(0, 2).join(" ")}`
+    );
   }
 
   // Locale leakage, both directions.
@@ -167,9 +182,19 @@ for (const locale of LOCALES) {
   for (const p of paths) await checkPage(prefix, p);
 }
 
+if (external.length) {
+  console.log(`\n${external.length} page(s) with third-party image rot (not fatal):`);
+  for (const f of external) console.log(`  ~ ${f}`);
+}
+
 if (failures.length) {
   console.log(`\n${failures.length} problem(s):`);
   for (const f of failures) console.log(`  - ${f}`);
   process.exit(1);
 }
-console.log("\nAll pages resolve, images load, locales apply.");
+
+if (external.length && process.argv.includes("--strict-images")) {
+  console.log("\n--strict-images: failing on third-party image rot.");
+  process.exit(1);
+}
+console.log("\nAll pages resolve, our images load, locales apply.");
