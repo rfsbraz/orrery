@@ -346,11 +346,18 @@ export function River({
                             </div>
                             {/* -mb-8 lets the objects drawn breaking the paper's
                                 lower edge spill past the card, which is what
-                                makes it sit ON the page instead of inside it. */}
+                                makes it sit ON the page instead of inside it.
+
+                                Deliberately smaller than a rupture's band. A
+                                texture event is a seam, not a stop: at 46% it
+                                read as another headline illustration and the
+                                impact hierarchy flattened, worst of all on
+                                phones, where it ran the full column width and
+                                a low-impact event filled the screen. */}
                             <Sketch
                               images={e.images}
                               tint={e.reach === "global"}
-                              className="-mb-8 w-[46%] shrink-0 max-lg:w-full"
+                              className="-mb-8 w-[32%] shrink-0 max-lg:w-3/5 max-lg:self-center"
                             />
                           </div>
                         ) : (
