@@ -38,6 +38,7 @@ jobs:
           git submodule update --remote orrery-content
           echo "content_sha=$(git -C orrery-content rev-parse --short HEAD)" >> "$GITHUB_ENV"
       - name: Open bump PR if content changed
+        id: cpr
         uses: peter-evans/create-pull-request@v8
         with:
           # A PR opened with the default GITHUB_TOKEN does NOT trigger
@@ -63,6 +64,27 @@ jobs:
 
             CI builds the SSG pages against the new content. Merge once green.
           labels: "content,automated"
+      - name: Turn on auto-merge for the bump
+        # A submodule bump is mechanical: the content was validated in its own
+        # repo and CI here builds every page against it. Branch protection
+        # holds the merge until the required checks pass, so this is "merge it
+        # when it is green" rather than "merge it now".
+        #
+        # It must use the PAT. A merge performed with GITHUB_TOKEN produces a
+        # push that GitHub deliberately does not treat as a trigger, so the
+        # image would never be built and the site would sit on old canon while
+        # the PR looked merged.
+        env:
+          GH_TOKEN: ${{ secrets.CONTENT_SYNC_TOKEN }}
+          PR: ${{ steps.cpr.outputs.pull-request-number }}
+        run: |
+          if [ -z "${GH_TOKEN}" ] || [ -z "${PR}" ]; then
+            echo "::warning title=Auto-merge not enabled::No CONTENT_SYNC_TOKEN or no PR was opened, so the bump needs a manual merge."
+            exit 0
+          fi
+          gh pr merge "$PR" --repo "${{ github.repository }}" --squash --auto
+          echo "Auto-merge armed on #${PR}; it lands when the required checks pass." >> "$GITHUB_STEP_SUMMARY"
+
       - name: Warn if the bump PR is unvalidated
         env:
           # The secrets context is not usable in a step-level `if`, so test it
