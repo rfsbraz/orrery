@@ -33,6 +33,19 @@ CC0. The app lives here. See [CONTRIBUTING.md](CONTRIBUTING.md) for both, and
 This project is openly AI-assisted, with a human reading every change. The
 content repo documents how, and where the tooling fails.
 
+## Licence
+
+The app is **[AGPL-3.0](LICENSE)**. Read it, fork it, self-host it, contribute to
+it. If you run a modified version as a public service, publish your changes.
+
+The canon content in [orrery-content](https://github.com/rfsbraz/orrery-content)
+is **CC0**, deliberately: facts about books are not ours to own, and the point of
+assembling them in the open is that the work only has to be done once. Take the
+data with no conditions at all.
+
+Author portraits and cover images are third-party works with their own licences
+and credits, and are covered by neither.
+
 ## ☕ Support
 
 If you find this useful and want to support development, you can [buy me a coffee](https://buymeacoffee.com/rfsbraz) - no pressure at all, just a nice way to say thanks.
