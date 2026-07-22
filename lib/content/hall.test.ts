@@ -41,7 +41,7 @@ describe("buildHall", () => {
   it("merges franchises year by year with global events, decade-grouped", () => {
     const hall = buildHall([
       bundle("King", [work("king/misery", 1987), work("king/it", 1986)], [globalEvent("chernobyl", 1986)]),
-      bundle("Pratchett", [work("discworld/mort", 1987)]),
+      bundle("Pratchett", [work("terry-pratchett/mort", 1987)]),
     ]);
     expect(hall.decades).toHaveLength(1);
     expect(hall.decades[0].label).toBe("1980s");

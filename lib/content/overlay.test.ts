@@ -161,7 +161,7 @@ describe("translation overlays (pt-PT)", () => {
 
   it("an untranslated franchise still renders in the base language", () => {
     // Partial coverage must degrade per field, never blank out.
-    for (const slug of ["stephen-king", "discworld", "cosmere"]) {
+    for (const slug of ["stephen-king", "terry-pratchett", "brandon-sanderson"]) {
       const pt = getFranchise(slug, "pt-PT")!;
       expect(pt.works.every((w) => Boolean(w.title))).toBe(true);
       expect(pt.franchise.description).toBeTruthy();

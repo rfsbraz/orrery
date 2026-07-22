@@ -52,8 +52,18 @@ describe("global event relevance", () => {
   });
 
   it("only renders a pre-birth event where the franchise explicitly claimed it", () => {
-    for (const slug of ["joao-tordo", "stephen-king", "discworld", "cosmere", "wheel-of-time"]) {
+    for (const slug of [
+      "joao-tordo",
+      "stephen-king",
+      "terry-pratchett",
+      "brandon-sanderson",
+      "robert-jordan",
+    ]) {
+      // Assert rather than skip. These slugs were renamed once already, and the
+      // old `if (!b) continue` turned that into a silent no-op: three of the
+      // five wings stopped being tested and the suite stayed green.
       const b = getFranchise(slug);
+      expect(b, `no wing '${slug}' - was it renamed?`).toBeTruthy();
       if (!b) continue;
       const births = b.authors.map((a) => yearOf(a.born)).filter((n): n is number => n !== null);
       if (births.length === 0) continue;

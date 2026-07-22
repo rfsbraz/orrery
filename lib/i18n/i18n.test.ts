@@ -10,8 +10,8 @@ import { messages, translate } from "./messages";
 
 describe("locale routing", () => {
   it("the default locale is unprefixed; others are prefixed", () => {
-    expect(localePath("en", "/f/discworld")).toBe("/f/discworld");
-    expect(localePath("pt-PT", "/f/discworld")).toBe("/pt/f/discworld");
+    expect(localePath("en", "/f/terry-pratchett")).toBe("/f/terry-pratchett");
+    expect(localePath("pt-PT", "/f/terry-pratchett")).toBe("/pt/f/terry-pratchett");
     expect(localePath("pt-PT", "/")).toBe("/pt");
   });
 
