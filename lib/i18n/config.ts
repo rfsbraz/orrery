@@ -2,8 +2,8 @@
 // for books (pt-PT and pt-BR are different translations, different titles,
 // different ISBNs - see orrery-content docs/SCHEMA.md).
 //
-// URL shape: the default locale is unprefixed (/f/discworld) so existing links
-// and SEO equity survive; other locales are prefixed (/pt/f/discworld). The
+// URL shape: the default locale is unprefixed (/f/terry-pratchett) so existing links
+// and SEO equity survive; other locales are prefixed (/pt/f/terry-pratchett). The
 // proxy rewrites unprefixed paths onto the default locale internally.
 
 export const LOCALES = ["en", "pt-PT"] as const;
