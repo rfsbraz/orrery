@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: recursive # orrery-content is needed for SSG
-      - uses: actions/setup-node@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
