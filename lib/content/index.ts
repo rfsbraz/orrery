@@ -176,13 +176,6 @@ function deriveDefaultOrder(slug: string, works: Work[], locale?: string): Readi
   };
 }
 
-/** First four-digit year in a `born`/`died` value ("1975", "12 Aug 1975"). */
-function yearOf(v: string | number | undefined): number | null {
-  if (v === undefined || v === null) return null;
-  const m = String(v).match(/\d{4}/);
-  return m ? Number(m[0]) : null;
-}
-
 /**
  * Decide which global events belong on THIS franchise's timeline.
  *
@@ -192,44 +185,32 @@ function yearOf(v: string | number | undefined): number | null {
  * novel in 2004. The events were correctly curated; they were just being shown
  * to an author they could not possibly have touched.
  *
- * The default test is the author's lifetime: an event is the weather a writer
- * wrote in, and a writer cannot have written in weather that predates them.
- * That is arithmetic, not judgement, so it costs no curation and never needs
- * re-running when a franchise is added.
+ * A global event renders on a wing if and only if that wing names it in
+ * `globalEvents.include`. There is no arithmetic default and no implicit
+ * membership: silence means absent.
  *
- * Judgement is opt-in on top. A franchise may name global events it claims
- * regardless of the span (`globalEvents.include`, for an inheritance a later
- * author genuinely writes out of) or ones it refuses despite overlapping
- * (`globalEvents.exclude`, for an event that happened around an author without
- * reaching the page). Both are explicit, both live with the franchise that
- * knows, and `global.yaml` stays franchise-agnostic.
+ * It used to work the other way - an event showed on every wing whose author
+ * lifespan covered it, unless the wing excluded it. That default was cheap for
+ * new WINGS and quietly wrong for new EVENTS, because adding one retroactively
+ * opted in every wing already curated. It shipped: `portugal-bailout-2011` was
+ * added a day after the Palahniuk wing was ruled, and rendered on his timeline
+ * and on four other foreign wings until someone noticed. Nobody re-runs
+ * resonance across the catalogue when a global event lands, so the failure was
+ * silent, live and wrong - and wrong content costs more than absent content.
+ *
+ * The cost of this direction is that a genuinely relevant event stays invisible
+ * until a wing claims it. That is the trade taken deliberately: an unclaimed
+ * event is a gap someone can grep for, where a wrongly-claimed one just looks
+ * like curation.
+ *
+ * `exclude` no longer gates anything - nothing renders unless included. It is
+ * kept in the content files as the record of a judgement already made, so a
+ * later pass does not re-litigate ground already covered.
  */
-function relevantGlobalEvents(
-  events: AuraEvent[],
-  authors: Author[],
-  franchise: Franchise
-): AuraEvent[] {
+function relevantGlobalEvents(events: AuraEvent[], franchise: Franchise): AuraEvent[] {
   const rule = franchise.globalEvents ?? {};
   const include = new Set(rule.include ?? []);
-  const exclude = new Set(rule.exclude ?? []);
-
-  const births = authors.map((a) => yearOf(a.born)).filter((y): y is number => y !== null);
-  // No birth data means no defensible span, so fall back to showing everything
-  // rather than silently hiding context. Absent data must not look like a rule.
-  if (births.length === 0) return events.filter((e) => !exclude.has(e.id));
-
-  const from = Math.min(...births);
-  const deaths = authors.map((a) => yearOf(a.died));
-  // A living author has an open-ended present; one dead author among several
-  // must not close the window on the others.
-  const to = deaths.some((d) => d === null) ? 9999 : Math.max(...(deaths as number[]));
-
-  return events.filter((e) => {
-    if (exclude.has(e.id)) return false;
-    if (include.has(e.id)) return true;
-    const y = eventYear(e);
-    return y >= from && y <= to;
-  });
+  return events.filter((e) => include.has(e.id));
 }
 
 export function getFranchise(slug: string, locale?: string): FranchiseBundle | null {
@@ -294,7 +275,7 @@ export function getFranchise(slug: string, locale?: string): FranchiseBundle | n
   const allGlobal = (readYaml<{ events: AuraEvent[] }>(GLOBAL_EVENTS)?.events ?? []).map((e) =>
     merge(e, overlayFor(locale, path.join("events", "global.yaml")))
   );
-  const globalEvents = relevantGlobalEvents(allGlobal, authors, franchise);
+  const globalEvents = relevantGlobalEvents(allGlobal, franchise);
   const timeline = [...lifeEvents, ...franchiseEvents, ...globalEvents].sort(
     (a, b) => eventYear(a) - eventYear(b)
   );
