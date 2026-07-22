@@ -35,6 +35,7 @@ export function River({
   orderPositions,
   enteringLabel = "entering",
   permalinkLabel = "Link to this event",
+  forthcomingLabel = "Forthcoming",
   authorBorn,
   agedTemplate = "aged {age}",
 }: {
@@ -58,6 +59,8 @@ export function River({
   enteringLabel?: string;
   /** Localised accessible name for an event's permalink. */
   permalinkLabel?: string;
+  /** Localised badge for a work that is announced but not published yet. */
+  forthcomingLabel?: string;
   /** Birth date per author id, for showing their age at a life event. */
   authorBorn?: Map<string, string | number>;
   /** Localised "aged {age}" template. */
@@ -270,6 +273,15 @@ export function River({
                             )}
                             {w.canonTier !== "core" && (
                               <span className="ml-2 text-[var(--muted)]/70">{w.canonTier}</span>
+                            )}
+                            {/* An announced book is in its year like any
+                                other, so it needs to say plainly that it is
+                                not out - otherwise the page states a
+                                publication that has not happened. */}
+                            {w.forthcoming && (
+                              <span className="ml-2 rounded border border-[var(--accent)]/40 px-1 py-px normal-case text-[var(--accent)]">
+                                {forthcomingLabel}
+                              </span>
                             )}
                           </p>
                           {w.synopsis && (

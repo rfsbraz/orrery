@@ -70,6 +70,12 @@ export interface Work {
   title: string;
   authorIds: string[];
   published: number;
+  /** Announced release date (YYYY-MM-DD) for a work that is NOT out yet.
+   * `published` still carries the expected year, because every consumer of it
+   * is year arithmetic; this says only that the event has not happened. The
+   * content validator warns once the date passes, so an announced title cannot
+   * quietly sit here looking published. See orrery-content docs/SCHEMA.md. */
+  forthcoming?: string;
   subseries?: string | null;
   canonTier: CanonTier;
   publishedAs?: string;

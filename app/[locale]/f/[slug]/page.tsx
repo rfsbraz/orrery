@@ -213,6 +213,7 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
               allWorkIds={b.works.map((w) => w.id)}
               enteringLabel={t("franchise.entering")}
               permalinkLabel={t("event.permalink")}
+              forthcomingLabel={t("work.forthcoming")}
               authorBorn={new Map(b.authors.filter((a) => a.born).map((a) => [a.id, a.born!]))}
               agedTemplate={t("event.aged", { age: "{age}" })}
             />

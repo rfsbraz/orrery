@@ -50,6 +50,7 @@ export function RiverView({
   allWorkIds,
   enteringLabel,
   permalinkLabel,
+  forthcomingLabel,
   authorBorn,
   agedTemplate,
 }: {
@@ -68,6 +69,7 @@ export function RiverView({
   enteringLabel?: string;
   /** Localised accessible name for an event's permalink. */
   permalinkLabel?: string;
+  forthcomingLabel?: string;
   /** Birth date per author id, for a life event's age. */
   authorBorn?: Map<string, string | number>;
   /** Localised "aged {age}" template. */
@@ -104,6 +106,7 @@ export function RiverView({
           orderPositions={positions}
           enteringLabel={enteringLabel}
           permalinkLabel={permalinkLabel}
+          forthcomingLabel={forthcomingLabel}
           authorBorn={authorBorn}
           agedTemplate={agedTemplate}
         />
