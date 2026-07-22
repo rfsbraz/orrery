@@ -98,25 +98,3 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-
-  # Tell the private ops repo to deploy. The deploy itself cannot live here:
-  # it needs a self-hosted runner on homeberry, and GitHub is explicit that
-  # self-hosted runners must not be used with public repositories, since a
-  # pull request from anyone could then run code on that machine. This repo is
-  # public, so all it does is announce that an image exists.
-  notify-deploy:
-    needs: build
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Dispatch to the deploy repo
-        env:
-          GH_TOKEN: ${{ secrets.DEPLOY_DISPATCH_TOKEN }}
-          SHA: ${{ github.sha }}
-        run: |
-          if [ -z "${GH_TOKEN}" ]; then
-            echo "::warning title=Not deployed::DEPLOY_DISPATCH_TOKEN is not set, so the new image was published but nothing was told to roll it. Add a fine-grained PAT scoped to rfsbraz/TheOneStack (Contents: read and write) as DEPLOY_DISPATCH_TOKEN."
-            exit 0
-          fi
-          gh api repos/rfsbraz/TheOneStack/dispatches             --method POST             --raw-field event_type=orrery-published             --raw-field "client_payload[sha]=${SHA}"
-          echo "Asked TheOneStack to deploy ${SHA:0:8}." >> "$GITHUB_STEP_SUMMARY"
