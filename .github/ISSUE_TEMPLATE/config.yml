@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Wrong or missing content
+    url: https://github.com/rfsbraz/orrery-content/issues/new/choose
+    about: Dates, bibliographies, reading orders, author life events. The canon is a separate repo.
+  - name: Security vulnerability
+    url: https://github.com/rfsbraz/orrery/security/advisories/new
+    about: Please report privately, never as a public issue.
