@@ -7,6 +7,7 @@ import { getFranchise, listFranchiseSlugs } from "@/lib/content";
 import { capabilities } from "@/lib/content/capabilities";
 import { companionFor } from "@/lib/progress/companion";
 import { coverFor, pickEdition } from "@/lib/content/editions";
+import { WorkTitlesProvider } from "@/components/i18n/provider";
 import { stripRefs } from "@/lib/content/refs";
 import { signatureOf, themeVars } from "@/lib/theme";
 import { buildRiver, subseriesEntries } from "@/lib/content/river";
@@ -83,6 +84,7 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
   const workTitles = Object.fromEntries(b.works.map((w) => [w.id, w.title]));
 
   return (
+    <WorkTitlesProvider titles={workTitles}>
     <div
       data-franchise={slug}
       style={themeVars(b.theme)}
@@ -225,5 +227,6 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
 
       </main>
     </div>
+    </WorkTitlesProvider>
   );
 }
