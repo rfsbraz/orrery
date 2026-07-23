@@ -4,10 +4,8 @@ import { FindACopy } from "./find-a-copy";
 import { Cover } from "./cover";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { EventAnchor, eventAnchorId } from "./event-anchor";
-import { CompanionPanel } from "./companion/panel";
 import { impactStyles, signatureLine, type SignatureKind } from "@/lib/theme";
 import type { AuraEvent, Work } from "@/lib/content/types";
-import type { CompanionData } from "@/lib/progress/companion";
 
 function yearOf(e: AuraEvent): number {
   const m = String(e.date ?? e.dateRange ?? "").match(/\d{4}/);
@@ -27,7 +25,6 @@ export function Timeline({
   works,
   events,
   authorNames,
-  companions,
   editions,
   signature = "thread",
   permalinkLabel = "Link to this event",
@@ -35,8 +32,6 @@ export function Timeline({
   works: Work[];
   events: AuraEvent[];
   authorNames?: Map<string, string>;
-  /** Per-work companion data; present only when the capability is active. */
-  companions?: Record<string, CompanionData>;
   /** Per-work cover URL + buy ISBN (editions layer; absent entries fall back). */
   editions?: Record<string, { cover: string | null; isbn13?: string }>;
   /** Localised accessible name for an event's permalink. */
@@ -103,12 +98,6 @@ export function Timeline({
                   />
                 )}
                 <ProgressControl workId={item.work.id} />
-                {companions?.[item.work.id] && (
-                  <CompanionPanel
-                    data={companions[item.work.id]}
-                    workTitles={Object.fromEntries(titles)}
-                  />
-                )}
                 <FindACopy
                   title={item.work.title}
                   author={authorNames?.get(item.work.authorIds[0])}

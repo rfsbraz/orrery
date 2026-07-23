@@ -6,7 +6,6 @@ import { OrderSelector } from "./orders/order-selector";
 import { ListProgress } from "./progress/list-progress";
 import type { RiverLayer, SeriesEntry } from "@/lib/content/river";
 import type { ReadingOrder } from "@/lib/content/types";
-import type { CompanionData } from "@/lib/progress/companion";
 import type { SignatureKind } from "@/lib/theme";
 
 /** Scope the walk to one order's works, recomputing era/decade markers. */
@@ -43,7 +42,6 @@ export function RiverView({
   covers,
   workTitles,
   localTitles,
-  companions,
   authorNames,
   isbns,
   signature,
@@ -60,7 +58,6 @@ export function RiverView({
   covers: Record<string, string>;
   workTitles: Record<string, string>;
   localTitles?: Record<string, string>;
-  companions?: Record<string, CompanionData>;
   authorNames?: Map<string, string>;
   isbns?: Record<string, string | undefined>;
   signature?: SignatureKind;
@@ -99,7 +96,6 @@ export function RiverView({
           covers={covers}
           workTitles={workTitles}
           localTitles={localTitles}
-          companions={companions}
           authorNames={authorNames}
           isbns={isbns}
           signature={signature}
