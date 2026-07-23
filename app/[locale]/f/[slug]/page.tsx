@@ -5,7 +5,6 @@ import { localeFromSegment, localePath } from "@/lib/i18n/config";
 import { translator } from "@/lib/i18n/messages";
 import { getFranchise, listFranchiseSlugs } from "@/lib/content";
 import { capabilities } from "@/lib/content/capabilities";
-import { companionFor } from "@/lib/progress/companion";
 import { coverFor, pickEdition } from "@/lib/content/editions";
 import { WorkTitlesProvider } from "@/components/i18n/provider";
 import { stripRefs } from "@/lib/content/refs";
@@ -47,9 +46,6 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
   if (!b) notFound();
 
   const caps = capabilities(b);
-  const companions = caps.companion
-    ? Object.fromEntries(b.works.map((w) => [w.id, companionFor(w, b)]))
-    : undefined;
   // Covers resolve from curated editions or OpenLibrary IDs; buy-ISBNs only
   // from curated editions (the editions capability). Text-first when neither.
   const isbns: Record<string, string | undefined> = {};
@@ -208,7 +204,6 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
               covers={covers}
               workTitles={workTitles}
               localTitles={localTitles}
-              companions={companions}
               authorNames={authorNames}
               isbns={isbns}
               signature={signatureOf(b.theme)}

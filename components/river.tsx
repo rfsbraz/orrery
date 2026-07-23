@@ -2,7 +2,6 @@ import { Prose } from "./prose";
 import { Cover } from "./cover";
 import { FindACopy } from "./find-a-copy";
 import { ProgressControl } from "./progress/control";
-import { CompanionPanel } from "./companion/panel";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { signatureLine, type SignatureKind } from "@/lib/theme";
 import { EventAnchor, eventAnchorId } from "./event-anchor";
@@ -10,7 +9,6 @@ import { Sketch } from "./sketch";
 import { RiverEventCard } from "./river-event-card";
 import { ageAt, formatAge } from "@/lib/age";
 import type { RiverLayer, SeriesEntry } from "@/lib/content/river";
-import type { CompanionData } from "@/lib/progress/companion";
 
 /**
  * The River: the atmospheric context browse (CONCEPT §5 - "the soul of the
@@ -29,7 +27,6 @@ export function River({
   covers,
   workTitles,
   signature = "thread",
-  companions,
   authorNames,
   isbns,
   localTitles,
@@ -44,8 +41,6 @@ export function River({
   series: Map<string, SeriesEntry>;
   covers: Record<string, string>;
   workTitles: Record<string, string>;
-  /** Per-work companion data; present only when the capability is active. */
-  companions?: Record<string, CompanionData>;
   /** Author display names, for store-link queries. */
   authorNames?: Map<string, string>;
   /** Verified buy-ISBNs per work (editions capability). */
@@ -302,9 +297,6 @@ export function River({
                             />
                           )}
                           <ProgressControl workId={w.id} />
-                          {companions?.[w.id] && (
-                            <CompanionPanel data={companions[w.id]} workTitles={workTitles} />
-                          )}
                           <FindACopy
                             title={w.title}
                             author={authorNames?.get(w.authorIds[0])}

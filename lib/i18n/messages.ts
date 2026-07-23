@@ -86,10 +86,6 @@ export const messages = {
       "Every wing of the museum on one timeline: what each author was writing, year by year, while the same world happened to all of them.",
     "hall.decades": "Decades",
 
-    "companion.whileYouRead": "While you read",
-    "companion.position": "{n} of {total} in publication order",
-    "companion.era": "the {era}",
-    "companion.connectsTo": "Connects to",
 
     "copy.find": "Find a copy",
     "copy.hide": "Hide copies",
@@ -250,10 +246,6 @@ export const messages = {
       "Todas as alas do museu numa só linha do tempo: o que cada autor escrevia, ano a ano, enquanto o mesmo mundo acontecia a todos.",
     "hall.decades": "Décadas",
 
-    "companion.whileYouRead": "Enquanto lê",
-    "companion.position": "{n} de {total} por ordem de publicação",
-    "companion.era": "a era {era}",
-    "companion.connectsTo": "Liga-se a",
 
     "copy.find": "Encontrar um exemplar",
     "copy.hide": "Esconder",
