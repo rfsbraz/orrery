@@ -7,6 +7,7 @@ import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { signatureLine, type SignatureKind } from "@/lib/theme";
 import { EventAnchor, eventAnchorId } from "./event-anchor";
 import { Sketch } from "./sketch";
+import { RiverEventCard } from "./river-event-card";
 import { ageAt, formatAge } from "@/lib/age";
 import type { RiverLayer, SeriesEntry } from "@/lib/content/river";
 import type { CompanionData } from "@/lib/progress/companion";
@@ -79,10 +80,15 @@ export function River({
   // per-layer index would leave every card on the same side and the sequence
   // would read as a column of identical rows - the monotony this is here to
   // break.
+  //
+  // Ruptures are in the walk now. They used to be excluded, because a rupture
+  // was a centred band with no side to alternate; as a card it has one, and
+  // leaving it out both froze it on the right and put a phase break in the
+  // alternation every time one appeared.
   const sideOf = new Map<string, "left" | "right">();
   let illustratedSoFar = 0;
   for (const l of layers) {
-    for (const e of l.texture) {
+    for (const e of [...l.ruptures, ...l.texture]) {
       if (e.images?.sketch) {
         sideOf.set(e.id, illustratedSoFar % 2 === 0 ? "right" : "left");
         illustratedSoFar += 1;
@@ -91,7 +97,26 @@ export function River({
   }
 
   return (
-    <div>
+    // The rail: one continuous line down the whole river, with a node per
+    // illustrated moment (drawn by RiverEventCard) and a short rule reaching
+    // across to each card. Previously the only vertical lines were per-section
+    // - a signature stripe inside each year and a border on the seam list - so
+    // the page had several short rules at different offsets and no single
+    // through-line. Time is the spine of this view; it should look like one.
+    //
+    // Desktop only. On a phone the column is the full width and a rail would
+    // eat 10% of it to say something the vertical order already says.
+    <div className="relative lg:pl-8">
+      {/* The rail wears the wing's signature element. That element is a design-law
+          feature (one per wing: beam, thread or rule), and it used to be drawn as
+          a short stripe inside every year's works section - so a wing's signature
+          appeared a dozen times as disconnected fragments, none of them long
+          enough to read as the thing it names. One continuous line through the
+          whole river is what a signature was always meant to be. */}
+      <span
+        aria-hidden
+        className={`pointer-events-none absolute left-0 top-2 bottom-2 max-lg:hidden ${signatureLine[signature]}`}
+      />
       {layers.map((l) => (
         <div key={l.year}>
           {l.decadeStart && (
@@ -114,30 +139,41 @@ export function River({
                   l.era.images?.sketch ? "lg:w-[52%] lg:py-14 lg:pr-10" : ""
                 }`}
               >
-                <div className={`flex items-center gap-3 ${l.era.images?.sketch ? "lg:justify-start" : ""}`}>
-                  <span aria-hidden className={`h-px bg-[var(--accent)]/30 ${l.era.images?.sketch ? "w-8 lg:w-12" : "flex-1"}`} />
-                  <p className="font-mono text-[10px] uppercase tracking-[0.4em] text-[var(--accent)]">
+                {/* Alignment is a property of the era plate, not of whether an
+                    asset happens to exist yet. This block used to switch
+                    between centred and left-aligned on `images?.sketch`, so the
+                    same element sat differently on two wings for a reason a
+                    reader cannot see, and a wing's headers re-aligned
+                    themselves as art landed. Left throughout; the illustration
+                    takes the right half when there is one. */}
+                <div className="flex items-center gap-3">
+                  <span aria-hidden className="h-px w-8 bg-[var(--accent)]/30 lg:w-12" />
+                  <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--accent)]">
                     {enteringLabel}
                   </p>
-                  <span aria-hidden className={`h-px bg-[var(--accent)]/30 ${l.era.images?.sketch ? "w-8 lg:w-12" : "flex-1"}`} />
+                  <span aria-hidden className="h-px w-8 bg-[var(--accent)]/30 lg:w-12" />
                 </div>
-                <h2 className={`display mt-3 text-3xl font-semibold tracking-tight ${l.era.images?.sketch ? "lg:text-left lg:text-5xl lg:leading-[1.05]" : "text-center"}`}>
+                {/* Regular weight, matching every other display heading in the
+                    river. Semibold everywhere meant weight distinguished
+                    nothing; size and space carry the hierarchy instead. */}
+                <h2 className={`display mt-3 text-left text-3xl font-normal tracking-tight ${l.era.images?.sketch ? "lg:text-5xl lg:leading-[1.05]" : ""}`}>
                   {l.era.title}
                 </h2>
-                <p className={`mt-1 font-mono text-xs text-[var(--muted)] ${l.era.images?.sketch ? "lg:text-left lg:text-base lg:text-[var(--accent)]" : "text-center"}`}>
+                <p className="mt-1 text-left font-mono text-xs text-[var(--accent)] lg:text-sm">
                   {l.era.period}
                 </p>
                 {l.era.themes && l.era.themes.length > 0 && (
-                  <p className={`mt-2.5 text-[10px] uppercase tracking-[0.2em] text-[var(--muted)] ${l.era.images?.sketch ? "lg:text-left" : "text-center"}`}>
+                  // Same tracking as the eyebrow above it. These were 0.4em and
+                  // 0.2em: two scales for the same kind of uppercase micro-label,
+                  // eleven lines apart.
+                  <p className="mt-2.5 text-left text-[10px] uppercase tracking-[0.3em] text-[var(--muted)]">
                     {l.era.themes.join(" · ")}
                   </p>
                 )}
                 {l.era.description && (
                   <Prose
                     text={l.era.description}
-                    className={`prose-read mt-3 block max-w-xl text-sm text-[var(--ink)]/70 ${
-                      l.era.images?.sketch ? "lg:mx-0 lg:text-left" : "mx-auto text-center"
-                    }`}
+                    className="prose-read mt-3 block max-w-xl text-left text-sm text-[var(--ink)]/70"
                   />
                 )}
               </div>
@@ -156,54 +192,29 @@ export function River({
             </header>
           )}
 
-          {/* ruptures: full-bleed inverted bands */}
-          {l.ruptures.map((e) => (
-            <div
-              key={e.id}
-              id={eventAnchorId(e.id)}
-              className="group -mx-6 my-8 scroll-mt-24 bg-[var(--ink)] px-6 py-10 text-[var(--bg)]"
-            >
-              <SpoilerGate
-                spoilerAfter={e.spoilerAfter}
-                boundaryTitle={workTitles[e.spoilerAfter ?? ""]}
-              >
-                <p className="font-mono text-xs text-[var(--accent)]">
-                  {l.year}
-                  {ageFor(e) && (
-                    <span className="opacity-70"> · {agedTemplate.replace("{age}", ageFor(e)!)}</span>
-                  )}
-                  <EventAnchor eventId={e.id} label={permalinkLabel} className="text-[var(--accent)]" />
-                </p>
-                <p className="display mt-1.5 max-w-2xl text-2xl font-semibold leading-snug">
-                  {e.title}
-                </p>
-                {e.description && (
-                  <Prose
-                    text={e.description}
-                    className="prose-read mt-2 block max-w-xl text-sm opacity-75"
-                  />
-                )}
-                {/* A rupture band is the wing's paper tone inverted out of the
-                    page, so a transparent sketch lands directly on it with no
-                    edge at all - the drawing simply sits on the paper. Wide
-                    and centred: this is the one event the reader is meant to
-                    stop at. */}
-                <Sketch
-                  images={e.images}
-                  tint={e.reach === "global"}
-                  className="mx-auto mt-7 h-72 w-full max-w-3xl max-lg:h-56"
+          {/* ruptures: the same card, at scale (see RiverEventCard) */}
+          {l.ruptures.length > 0 && (
+            <ul>
+              {l.ruptures.map((e) => (
+                <RiverEventCard
+                  key={e.id}
+                  event={e}
+                  scale="rupture"
+                  side={sideOf.get(e.id) ?? "right"}
+                  year={l.year}
+                  age={ageFor(e) ? agedTemplate.replace("{age}", ageFor(e)!) : null}
+                  permalinkLabel={permalinkLabel}
+                  boundaryTitle={workTitles[e.spoilerAfter ?? ""]}
                 />
-              </SpoilerGate>
-            </div>
-          ))}
+              ))}
+            </ul>
+          )}
 
           {(l.works.length > 0 || l.texture.length > 0) && (
-            <section className="relative overflow-hidden border-t border-[var(--ink)]/8 py-5 pl-4">
-              {/* the franchise signature threads the layers together */}
-              <span
-                aria-hidden
-                className={`pointer-events-none absolute left-0 top-0 bottom-0 ${signatureLine[signature]}`}
-              />
+            <section className="relative overflow-hidden border-t border-[var(--ink)]/8 py-5">
+              {/* The signature stripe that used to sit here is now the river's
+                  one continuous rail (above). Two vertical lines 32px apart
+                  read as an indent, not as structure. */}
               {/* ghosted year numeral behind the layer */}
               <span
                 aria-hidden
@@ -308,7 +319,10 @@ export function River({
               )}
 
               {l.texture.length > 0 && (
-                <ul className="mt-3 space-y-3 overflow-visible border-l-2 border-[var(--ink)]/15 pl-3">
+                // No border-l here any more: the river's own rail is the
+                // vertical line, and a second one three pixels away read as an
+                // indent rather than as structure.
+                <ul className="mt-3 space-y-3 overflow-visible">
                   {l.texture.map((e) => {
                     // An illustrated event earns a card: the drawn paper needs
                     // room and its own air, and it carries the year and title
@@ -316,74 +330,36 @@ export function River({
                     // stay compact seams, so a wing with no sketches yet is
                     // unchanged rather than full of empty boxes.
                     const illustrated = Boolean(e.images?.sketch);
+                    if (illustrated) {
+                      return (
+                        <RiverEventCard
+                          key={e.id}
+                          event={e}
+                          side={sideOf.get(e.id) ?? "right"}
+                          age={ageFor(e) ? agedTemplate.replace("{age}", ageFor(e)!) : null}
+                          permalinkLabel={permalinkLabel}
+                          boundaryTitle={workTitles[e.spoilerAfter ?? ""]}
+                        />
+                      );
+                    }
                     return (
                     <li
                       key={e.id}
                       id={eventAnchorId(e.id)}
-                      className={
-                        illustrated
-                          ? "group -ml-3 scroll-mt-24 rounded-xl border border-[var(--ink)]/10 bg-[var(--surface)]/50 p-5 max-lg:p-4"
-                          : "group scroll-mt-24 text-xs leading-relaxed text-[var(--ink)]/55 max-lg:text-[14px]"
-                      }
+                      className="group scroll-mt-24 text-xs leading-relaxed text-[var(--ink)]/70 max-lg:text-[14px]"
                     >
                       <SpoilerGate
                         spoilerAfter={e.spoilerAfter}
                         boundaryTitle={workTitles[e.spoilerAfter ?? ""]}
                       >
-                        {illustrated ? (
-                          <div
-                            className={`flex items-start gap-5 max-lg:flex-col max-lg:gap-3 ${
-                              sideOf.get(e.id) === "left" ? "lg:flex-row-reverse" : ""
-                            }`}
-                          >
-                            <div className="min-w-0 flex-1">
-                              {/* No year here: the layer prints it immediately
-                                  above this card, and the ghosted numeral sits
-                                  behind it. A rupture DOES carry its own year,
-                                  because it renders outside the layer section
-                                  and has nothing above it. */}
-                              <p className="font-mono text-xs text-[var(--accent)]">
-                                {ageFor(e) && agedTemplate.replace("{age}", ageFor(e)!)}
-                                <EventAnchor eventId={e.id} label={permalinkLabel} />
-                              </p>
-                              <p className="display mt-1 text-xl font-semibold leading-snug text-[var(--ink)]">
-                                {e.title}
-                              </p>
-                              {e.description && (
-                                <Prose
-                                  text={e.description}
-                                  className="prose-read mt-2 block text-sm leading-relaxed text-[var(--ink)]/60"
-                                />
-                              )}
-                            </div>
-                            {/* -mb-8 lets the objects drawn breaking the paper's
-                                lower edge spill past the card, which is what
-                                makes it sit ON the page instead of inside it.
-
-                                Deliberately smaller than a rupture's band. A
-                                texture event is a seam, not a stop: at 46% it
-                                read as another headline illustration and the
-                                impact hierarchy flattened, worst of all on
-                                phones, where it ran the full column width and
-                                a low-impact event filled the screen. */}
-                            <Sketch
-                              images={e.images}
-                              tint={e.reach === "global"}
-                              className="-mb-8 w-[32%] shrink-0 max-lg:w-3/5 max-lg:self-center"
-                            />
-                          </div>
-                        ) : (
-                          <>
-                            <span className="font-medium text-[var(--ink)]/70">{e.title}.</span>{" "}
-                            {e.description && <Prose text={e.description} className="inline" />}
-                            {ageFor(e) && (
-                              <span className="ml-1 font-mono text-[0.9em] text-[var(--muted)]">
-                                ({agedTemplate.replace("{age}", ageFor(e)!)})
-                              </span>
-                            )}
-                            <EventAnchor eventId={e.id} label={permalinkLabel} />
-                          </>
+                        <span className="font-medium text-[var(--ink)]">{e.title}.</span>{" "}
+                        {e.description && <Prose text={e.description} className="inline" />}
+                        {ageFor(e) && (
+                          <span className="ml-1 font-mono text-[0.9em] text-[var(--muted)]">
+                            ({agedTemplate.replace("{age}", ageFor(e)!)})
+                          </span>
                         )}
+                        <EventAnchor eventId={e.id} label={permalinkLabel} />
                       </SpoilerGate>
                     </li>
                     );
