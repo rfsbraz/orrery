@@ -47,8 +47,11 @@ export function Sketch({
   if (!raw) return null;
   // Content stores a repo-relative path ("assets/<wing>/<id>.webp"); the build
   // copies orrery-content/assets into public/, so the served URL is rooted.
-  // Absolute URLs are still honoured in case a sketch is ever hosted elsewhere.
-  const src = /^https?:\/\//.test(raw) ? raw : `/${raw.replace(/^\/+/, "")}`;
+  // Absolute URLs are still honoured in case a sketch is ever hosted
+  // elsewhere - which now includes `data:` URIs (the layout-grammar demo
+  // page, app/[locale]/demo, generates inline SVG placeholders this way, see
+  // lib/demo/placeholder.ts) alongside the pre-existing http(s) case.
+  const src = /^(?:https?:|data:)/.test(raw) ? raw : `/${raw.replace(/^\/+/, "")}`;
 
   const plate = variant === "plate";
   const cover = fit ? fit === "cover" : plate;
