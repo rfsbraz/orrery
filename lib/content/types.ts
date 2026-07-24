@@ -22,6 +22,13 @@ export interface SketchImage {
   sketchSource?: string;
 }
 
+/** One of the 16 river layout-grammar cells (orrery-content docs/LAYOUT.md).
+ * An open string, not a union: the validator over there is the enforcement
+ * point, and the app must render whatever it gets, falling back to `beside`
+ * for anything it does not recognise (an older app build against newer
+ * content, a typo that slipped past validation) rather than throwing. */
+export type Organisation = string;
+
 export interface AuraEvent {
   id: string;
   date: string | number;
@@ -37,6 +44,28 @@ export interface AuraEvent {
   spoilerAfter?: string | null;
   images?: SketchImage;
   sources?: string[];
+  /** How the river cell lays image and text out (LAYOUT.md's 16 organisations).
+   * Absent means `beside`, the workhorse - most events, and every event authored
+   * before this field existed. */
+  organisation?: Organisation;
+  /** What the artwork depicts (VISUAL.md §3b's 25 types) and how it was
+   * authored. The app never branches on this for layout - that is
+   * `organisation`'s job - but it is useful for alt text and analytics. */
+  illustrationType?: string;
+  /** A composition twist layered onto a compatible `organisation`
+   * (`breakout`, `pull-focus`, `fold-reveal`, `anchor-with-satellites`,
+   * `branch` - see LAYOUT.md "Modifiers"). Unknown or incompatible modifiers
+   * are ignored, never a rendering error. */
+  modifier?: string;
+  /** How many image slots this entry's organisation needs (LAYOUT.md
+   * "images_required"). 1 unless the organisation says otherwise; the filed
+   * assets are `<id>.webp`, `<id>-2.webp`, ... */
+  imagesRequired?: number;
+  /** The author's own words, for the `epigraph` organisation - the one cell
+   * whose illustration is a quotation rather than a drawing. `title` carries
+   * the attribution (the work, the interview, the occasion) and `description`
+   * an optional gloss. Ignored by every other organisation. */
+  quote?: string;
 }
 
 export interface Pseudonym {
@@ -78,6 +107,12 @@ export interface Work {
   forthcoming?: string;
   subseries?: string | null;
   canonTier: CanonTier;
+  /** A work that changed the life: the debut, the breakout, the last one. The
+   * river gives it the `hero` treatment (components/river/work-card.tsx) so a
+   * wing's page is not one uniform grid of identical cards. Capped per wing by
+   * the content validator - the treatment only means anything while it is
+   * rare. */
+  featured?: boolean;
   publishedAs?: string;
   withAuthorIds?: string[];
   synopsis?: string;

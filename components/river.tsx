@@ -1,12 +1,11 @@
 import { Prose } from "./prose";
-import { Cover } from "./cover";
-import { FindACopy } from "./find-a-copy";
-import { ProgressControl } from "./progress/control";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { signatureLine, type SignatureKind } from "@/lib/theme";
 import { EventAnchor, eventAnchorId } from "./event-anchor";
-import { Sketch } from "./sketch";
-import { RiverEventCard } from "./river-event-card";
+import { RiverEventCard } from "./river/dispatcher";
+import { WorkCard } from "./river/work-card";
+import { Gutter, LEAP_YEARS } from "./river/gutter";
+import { ChapterGate } from "./river/chapter-gate";
 import { ageAt, formatAge } from "@/lib/age";
 import type { RiverLayer, SeriesEntry } from "@/lib/content/river";
 
@@ -36,6 +35,7 @@ export function River({
   forthcomingLabel = "Forthcoming",
   authorBorn,
   agedTemplate = "aged {age}",
+  elapsedTemplate = "{n} years",
 }: {
   layers: RiverLayer[];
   series: Map<string, SeriesEntry>;
@@ -57,6 +57,8 @@ export function River({
   permalinkLabel?: string;
   /** Localised badge for a work that is announced but not published yet. */
   forthcomingLabel?: string;
+  /** Localised "{n} years", printed in the gutter across a leap in time. */
+  elapsedTemplate?: string;
   /** Birth date per author id, for showing their age at a life event. */
   authorBorn?: Map<string, string | number>;
   /** Localised "aged {age}" template. */
@@ -112,10 +114,27 @@ export function River({
         aria-hidden
         className={`pointer-events-none absolute left-0 top-2 bottom-2 max-lg:hidden ${signatureLine[signature]}`}
       />
-      {layers.map((l) => (
+      {layers.map((l, i) => {
+        // The interval to the previous stratum, derived from the years the
+        // content already carries (components/river/gutter.tsx). Layers only
+        // exist for years that have something in them, so consecutive layers
+        // can be a decade apart and used to look one year apart.
+        const gap = i > 0 ? l.year - layers[i - 1].year : 0;
+        const leap = gap >= LEAP_YEARS;
+        return (
         <div key={l.year}>
+          {leap && <Gutter years={gap} label={elapsedTemplate.replace("{n}", String(gap))} />}
           {l.decadeStart && (
-            <div className="relative mt-14 border-t-2 border-[var(--accent)]/70 first:mt-0">
+            // A decade opening straight after a gutter does not need its own
+            // full top margin as well: the silence has already made the space,
+            // and stacking both tears the page in half. The gutter is what
+            // gives way nowhere - shrinking IT would shrink the longest
+            // silences most, which is backwards (see gutter.tsx).
+            <div
+              className={`relative border-t-2 border-[var(--accent)]/70 first:mt-0 ${
+                leap ? "mt-2" : "mt-14"
+              }`}
+            >
               <span className="sticky top-16 z-10 -ml-1 inline-block rounded bg-[var(--accent)] px-2 py-0.5 font-mono text-[11px] font-semibold text-[var(--bg)] lg:top-3">
                 {Math.floor(l.year / 10) * 10}s
               </span>
@@ -123,68 +142,10 @@ export function River({
           )}
 
           {l.eraStart && l.era && (
-            // The era plate: an unmistakable "you are entering a new era"
-            // threshold. With art it splits - the text holds the left, the
-            // illustration takes the right half and bleeds off the edge, so
-            // the era reads as a spread rather than a banner. Without art it
-            // stays the centred plate, which is what most wings still have.
-            <header className="relative -mx-6 mt-16 mb-4 overflow-hidden border-y border-[var(--accent)]/35 bg-[var(--accent)]/[0.06] first:mt-0">
-              <div
-                className={`relative px-6 py-9 ${
-                  l.era.images?.sketch ? "lg:w-[52%] lg:py-14 lg:pr-10" : ""
-                }`}
-              >
-                {/* Alignment is a property of the era plate, not of whether an
-                    asset happens to exist yet. This block used to switch
-                    between centred and left-aligned on `images?.sketch`, so the
-                    same element sat differently on two wings for a reason a
-                    reader cannot see, and a wing's headers re-aligned
-                    themselves as art landed. Left throughout; the illustration
-                    takes the right half when there is one. */}
-                <div className="flex items-center gap-3">
-                  <span aria-hidden className="h-px w-8 bg-[var(--accent)]/30 lg:w-12" />
-                  <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[var(--accent)]">
-                    {enteringLabel}
-                  </p>
-                  <span aria-hidden className="h-px w-8 bg-[var(--accent)]/30 lg:w-12" />
-                </div>
-                {/* Regular weight, matching every other display heading in the
-                    river. Semibold everywhere meant weight distinguished
-                    nothing; size and space carry the hierarchy instead. */}
-                <h2 className={`display mt-3 text-left text-3xl font-normal tracking-tight ${l.era.images?.sketch ? "lg:text-5xl lg:leading-[1.05]" : ""}`}>
-                  {l.era.title}
-                </h2>
-                <p className="mt-1 text-left font-mono text-xs text-[var(--accent)] lg:text-sm">
-                  {l.era.period}
-                </p>
-                {l.era.themes && l.era.themes.length > 0 && (
-                  // Same tracking as the eyebrow above it. These were 0.4em and
-                  // 0.2em: two scales for the same kind of uppercase micro-label,
-                  // eleven lines apart.
-                  <p className="mt-2.5 text-left text-[10px] uppercase tracking-[0.3em] text-[var(--muted)]">
-                    {l.era.themes.join(" · ")}
-                  </p>
-                )}
-                {l.era.description && (
-                  <Prose
-                    text={l.era.description}
-                    className="prose-read mt-3 block max-w-xl text-left text-sm text-[var(--ink)]/70"
-                  />
-                )}
-              </div>
-              {l.era.images?.sketch && (
-                <Sketch
-                  images={l.era.images}
-                  variant="plate"
-                  // Below the prose on a phone, matching how a rupture and an
-                  // illustrated card already stack there: read the era, then
-                  // see it. Above the title it read as a stray banner. On
-                  // desktop it is absolutely positioned, so this DOM order
-                  // costs the spread nothing.
-                  className="relative -mt-2 h-52 w-full lg:absolute lg:inset-y-0 lg:right-0 lg:mt-0 lg:h-full lg:w-[52%]"
-                />
-              )}
-            </header>
+            // `chapter-gate`, the era-plate slot in the layout grammar
+            // (LAYOUT.md) - one per era, folded in from what used to be
+            // inline JSX here. See components/river/chapter-gate.tsx.
+            <ChapterGate era={l.era} enteringLabel={enteringLabel} />
           )}
 
           {/* ruptures: the same card, at scale (see RiverEventCard) */}
@@ -221,92 +182,27 @@ export function River({
               <p className="mb-3 font-mono text-xs text-[var(--muted)]">{l.year}</p>
 
               {l.works.length > 0 && (
+                // Mixed widths on purpose (components/river/work-card.tsx): a
+                // `hero` takes the full row, a `standard` half of one, and a
+                // run of `compact` apocrypha stacks as a list. `flex-wrap`
+                // already lays that out; nothing here needs to know which
+                // treatment a work got.
                 <div className="flex flex-wrap gap-3">
-                  {l.works.map((w) => {
-                    const entry = series.get(w.id);
-                    return (
-                      <article
-                        key={w.id}
-                        id={`w-${w.id.split("/").pop()}`}
-                        className="relative flex w-[calc(50%-0.375rem)] scroll-mt-20 gap-3 rounded-md border border-[var(--ink)]/10 bg-[var(--surface)] p-3 max-lg:w-full max-lg:rounded-2xl"
-                      >
-                        {orderPositions?.has(w.id) && (
-                          // Desktop: same checklist language as the phone,
-                          // in the same corner the old pill occupied - no
-                          // layout shift, just the circle.
-                          <span
-                            aria-hidden
-                            className="absolute -left-3 -top-3 flex h-6 w-6 items-center justify-center rounded-full border border-[var(--accent)]/60 bg-[var(--bg)] font-mono text-[11px] font-semibold text-[var(--accent)] max-lg:hidden"
-                          >
-                            {orderPositions.get(w.id)}
-                          </span>
-                        )}
-                        {orderPositions?.has(w.id) && (
-                          // Mobile: the order reads as a numbered checklist -
-                          // the position is a real sequence, so it earns a
-                          // real marker.
-                          <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center self-start rounded-full border border-[var(--accent)]/50 font-mono text-xs font-semibold text-[var(--accent)] lg:hidden">
-                            {orderPositions.get(w.id)}
-                          </span>
-                        )}
-                        <Cover
-                          src={covers[w.id]}
-                          title={w.title}
-                          year={w.published}
-                          className="h-[76px] w-[50px] max-lg:h-[104px] max-lg:w-[68px]"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <h3 className="display text-[15px] font-semibold leading-tight max-lg:text-[17px]">
-                            {localTitles?.[w.id] ?? w.title}
-                          </h3>
-                          {localTitles?.[w.id] && localTitles[w.id] !== w.title && (
-                            // The original title stays visible: a reader
-                            // searching or discussing needs both.
-                            <p className="mt-0.5 text-[11px] italic text-[var(--muted)] max-lg:text-[13px]">
-                              {w.title}
-                            </p>
-                          )}
-                          <p className="mt-0.5 text-[10px] uppercase tracking-wide text-[var(--muted)] max-lg:mt-1 max-lg:text-[12px]">
-                            {entry && (
-                              <span className="text-[var(--accent)]/90">
-                                {entry.name} · #{entry.n} of {entry.total}
-                              </span>
-                            )}
-                            {w.publishedAs && (
-                              <span className={entry ? "ml-2 italic normal-case" : "italic normal-case"}>
-                                as {w.publishedAs}
-                              </span>
-                            )}
-                            {w.canonTier !== "core" && (
-                              <span className="ml-2 text-[var(--muted)]/70">{w.canonTier}</span>
-                            )}
-                            {/* An announced book is in its year like any
-                                other, so it needs to say plainly that it is
-                                not out - otherwise the page states a
-                                publication that has not happened. */}
-                            {w.forthcoming && (
-                              <span className="ml-2 rounded border border-[var(--accent)]/40 px-1 py-px normal-case text-[var(--accent)]">
-                                {forthcomingLabel}
-                              </span>
-                            )}
-                          </p>
-                          {w.synopsis && (
-                            <Prose
-                              text={w.synopsis}
-                              className="prose-read mt-1 line-clamp-2 block text-xs text-[var(--ink)]/65 max-lg:line-clamp-3 max-lg:text-[14px] max-lg:leading-relaxed"
-                            />
-                          )}
-                          <ProgressControl workId={w.id} />
-                          <FindACopy
-                            title={w.title}
-                            author={authorNames?.get(w.authorIds[0])}
-                            openLibraryId={w.externalIds?.openLibrary}
-                            isbn13={isbns?.[w.id]}
-                          />
-                        </div>
-                      </article>
-                    );
-                  })}
+                  {l.works.map((w) => (
+                    <WorkCard
+                      key={w.id}
+                      w={w}
+                      ctx={{
+                        entry: series.get(w.id),
+                        cover: covers[w.id],
+                        localTitle: localTitles?.[w.id],
+                        orderPosition: orderPositions?.get(w.id),
+                        forthcomingLabel,
+                        authorName: authorNames?.get(w.authorIds[0]),
+                        isbn13: isbns?.[w.id],
+                      }}
+                    />
+                  ))}
                 </div>
               )}
 
@@ -361,7 +257,8 @@ export function River({
             </section>
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

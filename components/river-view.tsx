@@ -51,6 +51,7 @@ export function RiverView({
   forthcomingLabel,
   authorBorn,
   agedTemplate,
+  elapsedTemplate,
 }: {
   layers: RiverLayer[];
   orders: ReadingOrder[];
@@ -71,6 +72,7 @@ export function RiverView({
   authorBorn?: Map<string, string | number>;
   /** Localised "aged {age}" template. */
   agedTemplate?: string;
+  elapsedTemplate?: string;
 }) {
   const [selection, setSelection] = useState<{ id: string; workIds: string[] } | null>(null);
 
@@ -105,6 +107,7 @@ export function RiverView({
           forthcomingLabel={forthcomingLabel}
           authorBorn={authorBorn}
           agedTemplate={agedTemplate}
+          elapsedTemplate={elapsedTemplate}
         />
       </div>
     </>

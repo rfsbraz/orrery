@@ -21,6 +21,8 @@ export function Sketch({
   className,
   tint = false,
   variant = "object",
+  fit,
+  onError,
 }: {
   images?: SketchImage;
   /** Empty by default: these are atmosphere, and the adjacent prose says it. */
@@ -29,15 +31,30 @@ export function Sketch({
   /** World events are drawn once in neutral house style and coloured per wing. */
   tint?: boolean;
   variant?: "object" | "plate";
+  /** Override the variant's default object-fit. `plate` defaults to `cover`
+   * and `object` to `contain`; a few layout-grammar organisations (e.g.
+   * `full-bleed-vista`) want a `cover` crop without the plate's edge-dissolve
+   * mask, which is the one combination the variant alone can't express. */
+  fit?: "contain" | "cover";
+  /** Forwarded to the underlying `<img>`. Lets a multi-image organisation
+   * (components/river/image-slot.tsx) hide a slot that 404s instead of
+   * showing a broken-image glyph, without this component needing to know
+   * anything about that - see the comment there for why it's a client-side
+   * check rather than a server-side existence check. */
+  onError?: () => void;
 }) {
   const raw = images?.sketch;
   if (!raw) return null;
   // Content stores a repo-relative path ("assets/<wing>/<id>.webp"); the build
   // copies orrery-content/assets into public/, so the served URL is rooted.
-  // Absolute URLs are still honoured in case a sketch is ever hosted elsewhere.
-  const src = /^https?:\/\//.test(raw) ? raw : `/${raw.replace(/^\/+/, "")}`;
+  // Absolute URLs are still honoured in case a sketch is ever hosted
+  // elsewhere - which now includes `data:` URIs (the layout-grammar demo
+  // page, app/[locale]/demo, generates inline SVG placeholders this way, see
+  // lib/demo/placeholder.ts) alongside the pre-existing http(s) case.
+  const src = /^(?:https?:|data:)/.test(raw) ? raw : `/${raw.replace(/^\/+/, "")}`;
 
   const plate = variant === "plate";
+  const cover = fit ? fit === "cover" : plate;
   const fade =
     "radial-gradient(ellipse 78% 78% at 50% 50%, #000 42%, rgba(0,0,0,0.72) 62%, transparent 88%)";
 
@@ -76,7 +93,8 @@ export function Sketch({
         src={src}
         alt={alt}
         loading="lazy"
-        className={`h-full w-full ${plate ? "object-cover" : "object-contain"}`}
+        onError={onError}
+        className={`h-full w-full ${cover ? "object-cover" : "object-contain"}`}
         style={plate ? { WebkitMaskImage: fade, maskImage: fade } : undefined}
       />
     </span>
