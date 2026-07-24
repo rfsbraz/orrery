@@ -11,14 +11,22 @@ import type { EventCardProps } from "./shared";
  * there is exactly one image slot here regardless of how many units it
  * depicts.
  *
+ * The strip is sized by WIDTH only, never by height. An earlier version set a
+ * fixed `h-24` and let `object-contain` do the rest, which pillarboxed a
+ * perfectly spec-compliant 4:1 asset: a 700px-wide box 96px tall is 7:1, so a
+ * 4:1 drawing was fitted by its height down to ~380px and centred in a sea of
+ * empty card. The asset already carries the aspect the spec asked for - the
+ * app's only job is to give it the full content width and let its own
+ * proportions set the height.
+ *
  * The desktop/mobile difference LAYOUT.md asks for is specifically about NOT
  * shrinking the units to illegibility on a narrow viewport: rather than
  * scaling the wide image down to fit (which is what a plain `w-full` would
- * do), the mobile rendering holds the image at a fixed minimum width inside
- * a horizontally scrolling container, so each unit stays the size it was
- * drawn at and the reader scrolls sideways through the sequence - the same
- * "next unit partially cropped" affordance the spec calls for falls out of
- * that for free (the scroll container's edge crops whatever comes next).
+ * do), the mobile rendering holds the image WIDER than its container inside a
+ * horizontally scrolling box, so each unit stays legible and the reader
+ * scrolls sideways through the sequence - the same "next unit partially
+ * cropped" affordance the spec calls for falls out of that for free (the
+ * scroll container's edge crops whatever comes next).
  */
 export function Strip({ event, scale = "seam", year, age, permalinkLabel, boundaryTitle }: EventCardProps) {
   const rupture = scale === "rupture";
@@ -35,10 +43,7 @@ export function Strip({ event, scale = "seam", year, age, permalinkLabel, bounda
 
           {illustrated && (
             <div className="mt-4 max-lg:-mx-4 max-lg:overflow-x-auto max-lg:px-4">
-              <Sketch
-                images={event.images}
-                className="h-24 w-full max-lg:h-20 max-lg:w-auto max-lg:min-w-[150%]"
-              />
+              <Sketch images={event.images} className="w-full max-lg:w-[160%] max-lg:max-w-none" />
             </div>
           )}
         </SpoilerGate>
