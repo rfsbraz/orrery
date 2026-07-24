@@ -7,6 +7,7 @@ import { signatureLine, type SignatureKind } from "@/lib/theme";
 import { EventAnchor, eventAnchorId } from "./event-anchor";
 import { RiverEventCard } from "./river/dispatcher";
 import { WorkCard } from "./river/work-card";
+import { Gutter, LEAP_YEARS } from "./river/gutter";
 import { ChapterGate } from "./river/chapter-gate";
 import { ageAt, formatAge } from "@/lib/age";
 import type { RiverLayer, SeriesEntry } from "@/lib/content/river";
@@ -37,6 +38,7 @@ export function River({
   forthcomingLabel = "Forthcoming",
   authorBorn,
   agedTemplate = "aged {age}",
+  elapsedTemplate = "{n} years",
 }: {
   layers: RiverLayer[];
   series: Map<string, SeriesEntry>;
@@ -58,6 +60,8 @@ export function River({
   permalinkLabel?: string;
   /** Localised badge for a work that is announced but not published yet. */
   forthcomingLabel?: string;
+  /** Localised "{n} years", printed in the gutter across a leap in time. */
+  elapsedTemplate?: string;
   /** Birth date per author id, for showing their age at a life event. */
   authorBorn?: Map<string, string | number>;
   /** Localised "aged {age}" template. */
@@ -113,10 +117,27 @@ export function River({
         aria-hidden
         className={`pointer-events-none absolute left-0 top-2 bottom-2 max-lg:hidden ${signatureLine[signature]}`}
       />
-      {layers.map((l) => (
+      {layers.map((l, i) => {
+        // The interval to the previous stratum, derived from the years the
+        // content already carries (components/river/gutter.tsx). Layers only
+        // exist for years that have something in them, so consecutive layers
+        // can be a decade apart and used to look one year apart.
+        const gap = i > 0 ? l.year - layers[i - 1].year : 0;
+        const leap = gap >= LEAP_YEARS;
+        return (
         <div key={l.year}>
+          {leap && <Gutter years={gap} label={elapsedTemplate.replace("{n}", String(gap))} />}
           {l.decadeStart && (
-            <div className="relative mt-14 border-t-2 border-[var(--accent)]/70 first:mt-0">
+            // A decade opening straight after a gutter does not need its own
+            // full top margin as well: the silence has already made the space,
+            // and stacking both tears the page in half. The gutter is what
+            // gives way nowhere - shrinking IT would shrink the longest
+            // silences most, which is backwards (see gutter.tsx).
+            <div
+              className={`relative border-t-2 border-[var(--accent)]/70 first:mt-0 ${
+                leap ? "mt-2" : "mt-14"
+              }`}
+            >
               <span className="sticky top-16 z-10 -ml-1 inline-block rounded bg-[var(--accent)] px-2 py-0.5 font-mono text-[11px] font-semibold text-[var(--bg)] lg:top-3">
                 {Math.floor(l.year / 10) * 10}s
               </span>
@@ -239,7 +260,8 @@ export function River({
             </section>
           )}
         </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

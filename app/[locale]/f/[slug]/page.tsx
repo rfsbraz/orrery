@@ -213,6 +213,7 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
               forthcomingLabel={t("work.forthcoming")}
               authorBorn={new Map(b.authors.filter((a) => a.born).map((a) => [a.id, a.born!]))}
               agedTemplate={t("event.aged", { age: "{age}" })}
+              elapsedTemplate={t("event.elapsed", { n: "{n}" })}
             />
           </ProgressProvider>
           <CommunityOrders franchiseSlug={slug} workTitles={workTitles} />
