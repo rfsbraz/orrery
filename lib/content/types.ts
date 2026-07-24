@@ -107,6 +107,12 @@ export interface Work {
   forthcoming?: string;
   subseries?: string | null;
   canonTier: CanonTier;
+  /** A work that changed the life: the debut, the breakout, the last one. The
+   * river gives it the `hero` treatment (components/river/work-card.tsx) so a
+   * wing's page is not one uniform grid of identical cards. Capped per wing by
+   * the content validator - the treatment only means anything while it is
+   * rare. */
+  featured?: boolean;
   publishedAs?: string;
   withAuthorIds?: string[];
   synopsis?: string;
