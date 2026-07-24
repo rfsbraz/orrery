@@ -1,7 +1,4 @@
 import { Prose } from "./prose";
-import { Cover } from "./cover";
-import { FindACopy } from "./find-a-copy";
-import { ProgressControl } from "./progress/control";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { signatureLine, type SignatureKind } from "@/lib/theme";
 import { EventAnchor, eventAnchorId } from "./event-anchor";
