@@ -1,4 +1,7 @@
-import type { AuraEvent, Era } from "@/lib/content/types";
+import fs from "node:fs";
+import path from "node:path";
+
+import type { AuraEvent, Era, SketchImage } from "@/lib/content/types";
 import type { EventCardProps } from "@/components/river/shared";
 import { demoPlaceholder, type PlaceholderColors, type PlaceholderPattern } from "./placeholder";
 
@@ -473,7 +476,49 @@ export function buildDemoTimeline(colors: PlaceholderColors): DemoEntry[] {
     },
   ];
 
-  return entries;
+  return withFiledArt(entries);
+}
+
+/**
+ * Swap a placeholder for the REAL generated asset wherever one has been filed.
+ *
+ * The demo issues (`[art] demo: ...` on orrery-content) are how the whole
+ * pipeline gets proven end to end - prompt, generation, chroma key, dissolve,
+ * webp, filename - and the last link in that chain is whether the thing
+ * actually renders inside the organisation it was drawn for. Without this the
+ * page would keep showing labelled boxes next to a folder full of finished
+ * art, and the one question the demo exists to answer would stay unanswered.
+ *
+ * Per entry, not all-or-nothing: art arrives one issue at a time, so an entry
+ * with a filed asset shows it and every other entry keeps its placeholder.
+ *
+ * Existence is checked on the SERVER, against the content submodule, because
+ * that is the only place it can be checked at all - `Sketch` renders an
+ * `<img>` and a missing file is a broken-image glyph, not a fallback. This
+ * module is imported by `app/[locale]/demo/page.tsx`, a server component, and
+ * by nothing under a `"use client"` boundary; keep it that way or the
+ * `node:fs` import below becomes a build error.
+ */
+function withFiledArt(entries: DemoEntry[]): DemoEntry[] {
+  const dir = path.join(process.cwd(), "orrery-content", "assets", "demo");
+  const filed = (id: string): SketchImage | null => {
+    const rel = `assets/demo/${id}.webp`;
+    if (!fs.existsSync(path.join(dir, `${id}.webp`))) return null;
+    return {
+      sketch: rel,
+      sketchCredit: "Generated for Orrery (gpt-image-1)",
+      sketchSource: "demo",
+    };
+  };
+
+  return entries.map((e) => {
+    if (e.kind === "era") {
+      const real = filed(e.era.id);
+      return real ? { ...e, era: { ...e.era, images: real } } : e;
+    }
+    const real = filed(e.event.id);
+    return real ? { ...e, event: { ...e.event, images: real } } : e;
+  });
 }
 
 /** LAYOUT.md's own organisation order, for the jump nav. `chapter-gate` is
