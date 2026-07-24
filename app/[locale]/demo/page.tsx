@@ -82,9 +82,10 @@ export default async function DemoPage(props: { params: Promise<{ locale: string
           <h1 className="display text-4xl font-semibold tracking-tight">Layout grammar demo</h1>
           <p className="prose-read mt-3 max-w-2xl text-sm text-[var(--ink)]/70">
             Every one of the sixteen river organisations from orrery-content docs/LAYOUT.md, rendered through the
-            real dispatcher against a fabricated demo life (Alba Ferro, b. 1971 - invented for this page only). No
-            generated art exists yet: every image below is an inline SVG placeholder drawn at the exact aspect its
-            organisation expects. Internal review only - not a product surface.
+            real dispatcher against a fabricated demo life (Alba Ferro, b. 1971 - invented for this page only). Each
+            cell shows the real generated asset once it has been filed under orrery-content assets/demo; any not yet
+            drawn fall back to an inline SVG placeholder at that organisation&apos;s exact aspect. Internal review
+            only - not a product surface.
           </p>
         </header>
 
