@@ -14,8 +14,24 @@ import type { EventCardProps } from "./shared";
  * centred, safe margin - VISUAL.md), so the app just needs to not fight that
  * composition with its own crop, which a plain `object-contain` square would.
  *
+ * The rim is its own absolutely-positioned element rather than a border on
+ * the clipping box, because of `breakout` below. An earlier version put both
+ * on one div and switched it to `overflow-visible` for breakout, which did
+ * not make a detail escape the rim - it removed the circular clip from the
+ * artwork entirely, so an opaque or square-composed asset rendered as a plain
+ * square sitting on top of the ring. Splitting them means the ring is always
+ * a circle, drawn regardless of what the art does.
+ *
  * Compatible modifier: `breakout` - a detail (a ribbon end, a chain) escaping
- * the medallion's own rim - real here via `overflow-visible` on the frame.
+ * the medallion's own rim. The escape has to be DRAWN: the asset is
+ * transparent (LAYOUT.md fixes medallion's background), composed with its
+ * subject inside the safe circle and the escaping detail outside it, and the
+ * app renders it uncropped and `contain`-fitted so that detail crosses the
+ * ring. A `cover` fit would crop the escape away, which is why breakout also
+ * changes the fit and not just the clip. An opaque asset with `breakout` will
+ * still cover the rim - that is inherent to the modifier, not a bug to fix
+ * here; the generator's job is to supply transparent art for it.
+ *
  * `pull-focus` and `anchor-with-satellites` are also listed compatible but
  * not implemented; they no-op.
  */
@@ -30,12 +46,22 @@ export function Medallion({ event, year, age, permalinkLabel, boundaryTitle }: E
         <SpoilerGate spoilerAfter={event.spoilerAfter} boundaryTitle={boundaryTitle}>
           <div className="flex flex-col items-center text-center">
             {illustrated && (
-              <div
-                className={`relative aspect-square w-[28%] max-lg:w-[38%] ${
-                  breakout ? "overflow-visible" : "overflow-hidden"
-                } rounded-full border-2 border-[var(--accent)]/50 shadow-sm`}
-              >
-                <Sketch images={event.images} fit="cover" className="h-full w-full rounded-full" />
+              <div className="relative aspect-square w-[28%] max-lg:w-[38%]">
+                <span
+                  aria-hidden
+                  className="absolute inset-0 rounded-full border-2 border-[var(--accent)]/50 shadow-sm"
+                />
+                <div
+                  className={
+                    breakout ? "absolute inset-0" : "absolute inset-0 overflow-hidden rounded-full"
+                  }
+                >
+                  <Sketch
+                    images={event.images}
+                    fit={breakout ? "contain" : "cover"}
+                    className="h-full w-full"
+                  />
+                </div>
               </div>
             )}
             <div className="mt-3 max-w-sm">

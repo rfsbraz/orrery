@@ -4,7 +4,7 @@
  * real content pipeline, and nothing under lib/demo/ should ever be imported
  * by a production route.
  *
- * There is no real generated art yet for any of the fifteen organisations, so
+ * There is no real generated art yet for any of the sixteen organisations, so
  * each placeholder is drawn at the EXACT pixel aspect orrery-content
  * docs/LAYOUT.md specifies for that organisation - a vista placeholder is
  * wide, a medallion placeholder is square, a strip placeholder is
@@ -58,7 +58,7 @@ export interface PlaceholderColors {
   accent: string;
 }
 
-export type PlaceholderPattern = "plain" | "strip" | "mosaic";
+export type PlaceholderPattern = "plain" | "strip" | "mosaic" | "medallion";
 
 export interface PlaceholderSpec {
   /** Baked into the drawing itself, e.g. "MEDALLION" or "STRIP · UNIT 4/8". */
@@ -121,6 +121,30 @@ function mosaicShapes(w: number, h: number, accent: string): string {
   return out;
 }
 
+/** `medallion`'s art is the one placeholder that must NOT be a filled square.
+ * LAYOUT.md fixes that organisation's background as transparent with the
+ * subject composed for a circular crop, and its `breakout` modifier turns the
+ * app's circular clip OFF so a drawn detail can cross the rim - so a square
+ * opaque placeholder would sit flat on top of the rim and make a working
+ * layout look broken, which is the opposite of what a review page is for.
+ * This draws the honest thing instead: a round subject on transparency, plus
+ * one small tab crossing the rim at the lower right, standing in for the
+ * ribbon end or chain link a real breakout asset would draw there. */
+function medallionShapes(w: number, h: number, colors: PlaceholderColors, stroke: number): string {
+  const cx = Math.round(w / 2);
+  const cy = Math.round(h / 2);
+  // Inset so the drawn subject sits INSIDE the app's rim rather than under it.
+  const r = Math.round(Math.min(w, h) / 2) - stroke * 3;
+  const tabW = Math.round(w / 7);
+  const tabH = Math.round(h / 4);
+  const tabX = cx + Math.round(r * 6 / 10);
+  const tabY = cy + Math.round(r * 5 / 10);
+  return (
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${colors.surface}" stroke="${colors.accent}c0" stroke-width="${stroke}"/>` +
+    `<rect x="${tabX}" y="${tabY}" width="${tabW}" height="${tabH}" rx="6" fill="${colors.surface}" stroke="${colors.accent}c0" stroke-width="${stroke}"/>`
+  );
+}
+
 /** Build one placeholder data URI at the given spec. See the file header for
  * why it is a data: URI, why every number in it is an integer, and why it
  * ends in an inert `#.svg`. */
@@ -159,8 +183,14 @@ export function demoPlaceholder(spec: PlaceholderSpec): string {
   const dash = strokeWidth * 5;
   const dashGap = strokeWidth * 3;
 
-  const shapes =
-    pattern === "strip"
+  // `medallion` draws its own round subject on transparency (see
+  // medallionShapes) and therefore skips BOTH the opaque fill and the
+  // rectangular dashed border every other placeholder gets - a square frame is
+  // exactly what that organisation must not have.
+  const round = pattern === "medallion";
+  const shapes = round
+    ? medallionShapes(w, h, colors, strokeWidth)
+    : pattern === "strip"
       ? stripShapes(w, h, colors.accent)
       : pattern === "mosaic"
         ? mosaicShapes(w, h, colors.accent)
@@ -168,8 +198,10 @@ export function demoPlaceholder(spec: PlaceholderSpec): string {
 
   const svg =
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" role="img" aria-label="${escapeAttr(label)}">` +
-    `<rect width="${w}" height="${h}" fill="${colors.surface}"/>` +
-    `<rect x="2" y="2" width="${w - 4}" height="${h - 4}" fill="none" stroke="${colors.accent}c0" stroke-width="${strokeWidth}" stroke-dasharray="${dash} ${dashGap}"/>` +
+    (round
+      ? ""
+      : `<rect width="${w}" height="${h}" fill="${colors.surface}"/>` +
+        `<rect x="2" y="2" width="${w - 4}" height="${h - 4}" fill="none" stroke="${colors.accent}c0" stroke-width="${strokeWidth}" stroke-dasharray="${dash} ${dashGap}"/>`) +
     shapes +
     `<text x="${cx}" y="${cy - smallFont}" font-family="ui-monospace,monospace" font-size="${fontSize}" font-weight="600" fill="${colors.ink}" text-anchor="middle" dominant-baseline="middle">${escapeText(label)}</text>` +
     `<text x="${cx}" y="${cy + smallFont}" font-family="ui-monospace,monospace" font-size="${smallFont}" fill="${colors.accent}" text-anchor="middle" dominant-baseline="middle">${escapeText(aspectLabel)}</text>` +
