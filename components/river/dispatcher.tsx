@@ -12,13 +12,14 @@ import { LayeredStack } from "./layered-stack";
 import { Mosaic } from "./mosaic";
 import { Interlude } from "./interlude";
 import { Passage } from "./passage";
+import { Epigraph } from "./epigraph";
 import type { EventCardProps } from "./shared";
 
 /**
  * The layout-grammar dispatcher (orrery-content docs/LAYOUT.md): one
  * component per `organisation`, chosen by the event's own field. This is
  * the entire point of splitting the grammar onto two axes - the app renders
- * VARIETY (which of these fifteen shapes a moment gets) while the generator
+ * VARIETY (which of these sixteen shapes a moment gets) while the generator
  * renders COHESION (VISUAL.md's uniform author style within whichever shape
  * is chosen).
  *
@@ -44,6 +45,7 @@ const ORGANISATIONS: Record<string, React.ComponentType<EventCardProps>> = {
   mosaic: Mosaic,
   interlude: Interlude,
   passage: Passage,
+  epigraph: Epigraph,
 };
 
 export function RiverEventCard(props: EventCardProps) {

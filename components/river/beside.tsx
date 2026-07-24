@@ -6,7 +6,7 @@ import type { EventCardProps } from "./shared";
 /**
  * `beside` - the workhorse (LAYOUT.md). Prose one side, one illustration the
  * other, ~45/55, alternating side down the page. This used to be the ONLY
- * river card; it is now one of fifteen, but it is still most of a wing, so it
+ * river card; it is now one of sixteen, but it is still most of a wing, so it
  * keeps the tuning (and the history) the original `RiverEventCard` earned.
  *
  * Seams and ruptures render through this same component, which is the point.

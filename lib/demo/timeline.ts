@@ -54,7 +54,7 @@ const ASPECTS: Record<string, AspectSpec> = {
   diptych: { width: 800, height: 800, aspectLabel: "1:1" },
   strip: { width: 2400, height: 600, aspectLabel: "4:1", pattern: "strip" },
   marginalia: { width: 400, height: 400, aspectLabel: "1:1" },
-  medallion: { width: 800, height: 800, aspectLabel: "1:1" },
+  medallion: { width: 800, height: 800, aspectLabel: "1:1", pattern: "medallion" },
   "split-counterpoint": { width: 800, height: 1000, aspectLabel: "4:5" },
   "layered-stack": { width: 1200, height: 900, aspectLabel: "4:3" },
   mosaic: { width: 1200, height: 800, aspectLabel: "3:2", pattern: "mosaic" },
@@ -294,6 +294,29 @@ export function buildDemoTimeline(colors: PlaceholderColors): DemoEntry[] {
         images: sketchFor("immersion", "IMMERSION", colors),
       },
       cardProps: { scale: "rupture", side: nextSide(), year: 1998, age: age(1998) },
+    },
+
+    {
+      kind: "event",
+      id: "demo-epigraph-on-the-debut",
+      event: {
+        id: "demo-epigraph-on-the-debut",
+        date: 1999,
+        title: "Interviewed by a regional paper, a year after the debut",
+        scope: "author-life",
+        authorId: "demo-author",
+        impact: "low",
+        // The only organisation with no `images` and no `illustrationType` at
+        // all - the quotation is the illustration. Placed straight after the
+        // `immersion` rupture on purpose: it is the one entry that can follow
+        // the loudest cell on the page without competing with it.
+        quote:
+          "I did not write a book about the sea. I wrote a book about not being able to leave, and the sea was simply what was in the way.",
+        description: "On being asked, for the ninth time that year, why every chapter ends at the water.",
+        organisation: "epigraph",
+        imagesRequired: 0,
+      },
+      cardProps: { year: 1999, age: age(1999) },
     },
 
     {

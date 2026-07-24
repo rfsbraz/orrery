@@ -8,17 +8,17 @@ import { buildDemoTimeline, ORGANISATION_ORDER, type DemoEntry } from "@/lib/dem
 
 export const metadata: Metadata = {
   title: "Layout grammar demo (internal) - Orrery",
-  // noindex: this is a review tool for fifteen river organisations, not a
+  // noindex: this is a review tool for sixteen river organisations, not a
   // page anyone should land on from search.
   robots: { index: false, follow: false },
 };
 
 /**
- * Internal review page: every one of the fifteen river layout-grammar
+ * Internal review page: every one of the sixteen river layout-grammar
  * organisations (orrery-content docs/LAYOUT.md), rendered through the REAL
  * dispatcher (components/river/dispatcher.tsx) and the REAL organisation
  * components - never a mock, never a copy of their markup - against a
- * fabricated "demo" timeline (lib/demo/timeline.ts) so all fifteen can be
+ * fabricated "demo" timeline (lib/demo/timeline.ts) so all sixteen can be
  * judged side by side without waiting on real generated art.
  *
  * Deliberately NOT wired through River/RiverView (components/river.tsx):
@@ -81,7 +81,7 @@ export default async function DemoPage(props: { params: Promise<{ locale: string
         <header className="mt-4 mb-8">
           <h1 className="display text-4xl font-semibold tracking-tight">Layout grammar demo</h1>
           <p className="prose-read mt-3 max-w-2xl text-sm text-[var(--ink)]/70">
-            Every one of the fifteen river organisations from orrery-content docs/LAYOUT.md, rendered through the
+            Every one of the sixteen river organisations from orrery-content docs/LAYOUT.md, rendered through the
             real dispatcher against a fabricated demo life (Alba Ferro, b. 1971 - invented for this page only). No
             generated art exists yet: every image below is an inline SVG placeholder drawn at the exact aspect its
             organisation expects. Internal review only - not a product surface.

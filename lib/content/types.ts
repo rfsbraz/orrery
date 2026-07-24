@@ -22,7 +22,7 @@ export interface SketchImage {
   sketchSource?: string;
 }
 
-/** One of the 15 river layout-grammar cells (orrery-content docs/LAYOUT.md).
+/** One of the 16 river layout-grammar cells (orrery-content docs/LAYOUT.md).
  * An open string, not a union: the validator over there is the enforcement
  * point, and the app must render whatever it gets, falling back to `beside`
  * for anything it does not recognise (an older app build against newer
@@ -44,7 +44,7 @@ export interface AuraEvent {
   spoilerAfter?: string | null;
   images?: SketchImage;
   sources?: string[];
-  /** How the river cell lays image and text out (LAYOUT.md's 15 organisations).
+  /** How the river cell lays image and text out (LAYOUT.md's 16 organisations).
    * Absent means `beside`, the workhorse - most events, and every event authored
    * before this field existed. */
   organisation?: Organisation;
@@ -61,6 +61,11 @@ export interface AuraEvent {
    * "images_required"). 1 unless the organisation says otherwise; the filed
    * assets are `<id>.webp`, `<id>-2.webp`, ... */
   imagesRequired?: number;
+  /** The author's own words, for the `epigraph` organisation - the one cell
+   * whose illustration is a quotation rather than a drawing. `title` carries
+   * the attribution (the work, the interview, the occasion) and `description`
+   * an optional gloss. Ignored by every other organisation. */
+  quote?: string;
 }
 
 export interface Pseudonym {

@@ -6,10 +6,10 @@ import type { AuraEvent, SketchImage } from "@/lib/content/types";
 /**
  * The furniture every river organisation shares: the rail node, the date/age
  * line, the title and prose primitives, and the multi-image slot resolver.
- * Fifteen organisations lay these out differently (that variety is the whole
+ * Sixteen organisations lay these out differently (that variety is the whole
  * point of LAYOUT.md) but none of them should re-derive what the rail node
  * looks like or how an event's permalink anchor works - that was the failure
- * mode a single `RiverEventCard` never had a chance to repeat, and fifteen
+ * mode a single `RiverEventCard` never had a chance to repeat, and sixteen
  * copies of it would bring it back with interest.
  */
 
