@@ -98,12 +98,6 @@ export default async function Home(props: { params: Promise<{ locale: string }> 
           <h2 className="text-xs font-medium uppercase tracking-widest text-neutral-500">
             {t("home.authors")}
           </h2>
-          <Link
-            href={localePath(locale, "/hall")}
-            className="text-xs text-neutral-400 underline decoration-neutral-700 underline-offset-2 hover:text-neutral-100"
-          >
-            {t("home.hallLink")}
-          </Link>
         </div>
 
         {/* Mobile: a shelf of engraved plates you thumb through. */}

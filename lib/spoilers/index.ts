@@ -1,5 +1,5 @@
 // The spoiler engine (CONCEPT §9): a cross-cutting primitive, not a feature.
-// Any event, character appearance, or connection can carry a boundary
+// Any event (franchise, global, or author life event) can carry a boundary
 // (`spoilerAfter: <work-id>`): the work beyond which the detail is safe.
 //
 // Semantics:
