@@ -1,0 +1,118 @@
+name: Deploy drift
+
+# "Merged but never deployed" and "the running image is behind main" have both
+# bitten repeatedly: a PR merges, the image builds, and homeberry keeps serving
+# the old one - the site looks shipped while it is not. Nothing noticed, because
+# nothing was watching the gap between main and what the public URL is actually
+# running.
+#
+# The image now bakes its git SHA into /revision.txt (see Dockerfile). This asks
+# the live site which commit it is and compares it to main. A daily cadence, not
+# post-deploy: right after a merge the image is still building, so a check then
+# would always "drift". A day later, still behind is the real failure.
+#
+# One rolling `deploy:drift` issue, opened on a mismatch and closed the moment
+# the site catches up. A site that cannot be reached, or that predates
+# /revision.txt, is reported as "cannot determine" - never as drift, so this
+# does not cry wolf before the first deploy that carries the file.
+on:
+  schedule:
+    - cron: "0 8 * * *" # daily 08:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: deploy-drift
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Compare the live revision to main
+        id: cmp
+        env:
+          SITE: ${{ vars.SITE_URL || 'https://orrery.homeberry.me' }}
+          EXPECTED: ${{ github.sha }}
+        run: |
+          set -uo pipefail
+          live=$(curl -fsS --max-time 20 "${SITE}/revision.txt" 2>/dev/null | tr -d '[:space:]' || true)
+          echo "expected=${EXPECTED}" >> "$GITHUB_OUTPUT"
+          echo "live=${live:-<unreachable>}" >> "$GITHUB_OUTPUT"
+
+          if [ -z "$live" ] || [ "$live" = "unknown" ]; then
+            echo "state=unknown" >> "$GITHUB_OUTPUT"
+          elif [ "$live" = "$EXPECTED" ]; then
+            echo "state=current" >> "$GITHUB_OUTPUT"
+          else
+            echo "state=drift" >> "$GITHUB_OUTPUT"
+          fi
+
+          {
+            echo "### Deploy drift"
+            echo "- expected (main): \`${EXPECTED}\`"
+            echo "- live (${SITE}): \`${live:-<unreachable>}\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Note when the state cannot be determined
+        if: steps.cmp.outputs.state == 'unknown'
+        run: echo "::warning title=Cannot determine deployed revision::${{ steps.cmp.outputs.live }} - the site is unreachable or predates /revision.txt. Not treating this as drift."
+
+      - name: Ensure the label exists
+        if: steps.cmp.outputs.state != 'unknown'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh label create "deploy:drift" --repo "$REPO" --force \
+            --color "B60205" --description "The deployed site is behind main"
+
+      - name: Open or close the drift issue
+        if: steps.cmp.outputs.state != 'unknown'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          STATE: ${{ steps.cmp.outputs.state }}
+          EXPECTED: ${{ steps.cmp.outputs.expected }}
+          LIVE: ${{ steps.cmp.outputs.live }}
+          SITE: ${{ vars.SITE_URL || 'https://orrery.homeberry.me' }}
+        run: |
+          set -euo pipefail
+          title="Deployed site is behind main"
+          existing=$(gh issue list --repo "$REPO" --state open \
+            --search "${title} in:title" --json number,title \
+            --jq "map(select(.title == \"${title}\")) | .[0].number // empty")
+
+          if [ "$STATE" = "current" ]; then
+            if [ -n "$existing" ]; then
+              gh issue comment "$existing" --repo "$REPO" \
+                --body "The site now serves \`${EXPECTED}\`, matching main. Closing."
+              gh issue close "$existing" --repo "$REPO"
+              echo "closed #${existing}: caught up"
+            else
+              echo "in sync, no open issue - nothing to do"
+            fi
+            exit 0
+          fi
+
+          body=$(printf '%s\n' \
+            "The live site is running a commit behind \`main\`." \
+            "" \
+            "- **main:** \`${EXPECTED}\`" \
+            "- **${SITE}:** \`${LIVE}\`" \
+            "" \
+            "Either the image never built/pushed for the latest main, or homeberry has not pulled it. Check the Docker build workflow, then redeploy on homeberry. This closes itself once the site catches up.")
+
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --repo "$REPO" --body "$body"
+            echo "refreshed #${existing}"
+          else
+            gh issue create --repo "$REPO" --title "$title" \
+              --label "deploy:drift" --body "$body"
+            echo "opened drift issue"
+          fi
