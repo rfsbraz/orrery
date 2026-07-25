@@ -21,6 +21,13 @@ ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
 ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
+# The git SHA this image was built from, served statically at /revision.txt so a
+# deploy-drift check can ask the running site "which commit are you?" and compare
+# it to main. A content bump is itself an app commit (the submodule pin moves),
+# so this one value covers both app and content drift. `unknown` on a local
+# build that passes no build-arg.
+ARG REVISION=unknown
+RUN echo "$REVISION" > public/revision.txt
 RUN npm run build
 
 FROM node:26-alpine AS runner
