@@ -72,25 +72,40 @@ export function Beside({
             </div>
 
             {illustrated && (
-              /* The negative margins pull the illustration out to the card's
-                 own edges, so the drawing bleeds into the corner instead of
-                 sitting in a padded box with a polite gap around it. A
-                 `breakout` modifier goes one step further, spilling PAST that
-                 edge instead of stopping at it - which is why its branch also
-                 switches the card to `overflow-visible` above. */
-              <Sketch
-                images={event.images}
-                tint={event.reach === "global"}
-                className={
-                  rupture
-                    ? `-my-7 w-[45%] shrink-0 self-stretch max-lg:-mx-5 max-lg:-mb-5 max-lg:mt-0 max-lg:h-56 max-lg:w-auto ${
-                        side === "left" ? (breakout ? "-ml-10" : "-ml-7") : breakout ? "-mr-10" : "-mr-7"
-                      }`
-                    : `-my-5 w-[32%] shrink-0 self-stretch max-lg:-mx-4 max-lg:-mb-4 max-lg:mt-0 max-lg:h-40 max-lg:w-auto ${
-                        side === "left" ? (breakout ? "-ml-8" : "-ml-5") : breakout ? "-mr-8" : "-mr-5"
-                      }`
-                }
-              />
+              <>
+                {/* Desktop: a side column. The negative margins pull the
+                    illustration out to the card's own edges, so the drawing
+                    bleeds into the corner instead of sitting in a padded box
+                    with a polite gap around it. A `breakout` modifier goes one
+                    step further, spilling PAST that edge - which is why its
+                    branch also switches the card to `overflow-visible` above.
+                    Hidden on mobile, where a 32%-wide column would shrink the
+                    art to a thumbnail. */}
+                <Sketch
+                  images={event.images}
+                  tint={event.reach === "global"}
+                  className={`hidden self-stretch shrink-0 lg:block ${
+                    rupture
+                      ? `-my-7 w-[45%] ${side === "left" ? (breakout ? "-ml-10" : "-ml-7") : breakout ? "-mr-10" : "-mr-7"}`
+                      : `-my-5 w-[32%] ${side === "left" ? (breakout ? "-ml-8" : "-ml-5") : breakout ? "-mr-8" : "-mr-5"}`
+                  }`}
+                />
+                {/* Mobile: full width at the art's OWN aspect (LAYOUT.md,
+                    "art second at its own aspect"). `fit="native"` lets a
+                    square or portrait asset set its own height instead of
+                    being letterboxed into a fixed-height strip and floating
+                    in side margins, which is what a shared fixed `h-40`
+                    produced. `beside` is the restrained cell, so the art fills
+                    the card's content width and keeps its padding as a frame,
+                    rather than bleeding to the border the way the desktop
+                    column and the louder organisations do. */}
+                <Sketch
+                  images={event.images}
+                  tint={event.reach === "global"}
+                  fit="native"
+                  className="mt-3 w-full lg:hidden"
+                />
+              </>
             )}
           </div>
         </SpoilerGate>
