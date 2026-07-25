@@ -1,0 +1,8 @@
+# The last migration that has been applied to the LIVE database (homeberry).
+# The migration-pending workflow lists every *.sql newer than this as pending,
+# and keeps a `db:migration-pending` issue open until they are run.
+#
+# Update this line to the newest migration you have run (`supabase db push` on
+# homeberry), and commit it. Git history then doubles as the record of when each
+# migration went live.
+0003_groups.sql

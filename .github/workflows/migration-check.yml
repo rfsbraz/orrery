@@ -1,0 +1,115 @@
+name: Migration pending
+
+# Migrations under supabase/migrations/ are applied to homeberry by hand (the
+# service key lives only with the owner). So a migration can sit merged and
+# unapplied indefinitely - 0004 (the wing-slug rename) has, and the app has code
+# that expects it. Nothing tracked the gap between "committed" and "run".
+#
+# `supabase/migrations/.applied` names the last migration run on the live DB.
+# This lists everything newer as pending and keeps one `db:migration-pending`
+# issue open until it is caught up - self-closing when .applied catches the tip.
+#
+# On every push that touches a migration (a new one is now pending), plus weekly
+# (a standing nudge), plus manual.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+  schedule:
+    - cron: "0 9 * * 1" # Mondays 09:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: migration-check
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Work out what is unapplied
+        id: scan
+        run: |
+          set -euo pipefail
+          applied=$(grep -vE '^\s*#|^\s*$' supabase/migrations/.applied | head -1 | tr -d '[:space:]')
+          echo "Applied through: ${applied:-<none>}"
+
+          pending=""
+          for f in $(ls supabase/migrations/*.sql | xargs -n1 basename | sort); do
+            # Zero-padded numeric prefixes make a string compare the right order.
+            if [ -z "$applied" ] || [ "$f" \> "$applied" ]; then
+              pending="${pending}${f}\n"
+            fi
+          done
+
+          if [ -n "$pending" ]; then
+            echo "state=pending" >> "$GITHUB_OUTPUT"
+            printf "$pending" > /tmp/pending.txt
+          else
+            echo "state=clean" >> "$GITHUB_OUTPUT"
+            : > /tmp/pending.txt
+          fi
+          {
+            echo "### Migration pending"
+            echo "Applied through: \`${applied:-<none>}\`"
+            echo "Pending:"
+            echo '```'
+            cat /tmp/pending.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Ensure the label exists
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh label create "db:migration-pending" --repo "$REPO" --force \
+            --color "D93F0B" --description "A DB migration is committed but not yet applied to the live database"
+
+      - name: Open or close the pending issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          STATE: ${{ steps.scan.outputs.state }}
+        run: |
+          set -euo pipefail
+          title="Database migrations pending on the live DB"
+          existing=$(gh issue list --repo "$REPO" --state open \
+            --search "${title} in:title" --json number,title \
+            --jq "map(select(.title == \"${title}\")) | .[0].number // empty")
+
+          if [ "$STATE" = "clean" ]; then
+            if [ -n "$existing" ]; then
+              gh issue comment "$existing" --repo "$REPO" \
+                --body "\`.applied\` now matches the newest migration. Closing."
+              gh issue close "$existing" --repo "$REPO"
+              echo "closed #${existing}: caught up"
+            else
+              echo "nothing pending, no open issue"
+            fi
+            exit 0
+          fi
+
+          body=$(printf '%s\n' \
+            "These migrations are committed but not yet marked applied to the live database (homeberry):" \
+            "" \
+            '```' \
+            "$(cat /tmp/pending.txt)" \
+            '```' \
+            "Run them with \`supabase db push\` (or apply by hand), then bump \`supabase/migrations/.applied\` to the newest one and commit. This issue closes itself when \`.applied\` catches the tip.")
+
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --repo "$REPO" --body "$body"
+            echo "refreshed #${existing}"
+          else
+            gh issue create --repo "$REPO" --title "$title" \
+              --label "db:migration-pending" --body "$body"
+            echo "opened pending issue"
+          fi
