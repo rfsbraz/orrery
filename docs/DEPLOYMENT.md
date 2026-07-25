@@ -47,8 +47,10 @@ npx supabase db push                     # applies supabase/migrations/000{1,2,3
 `db push` runs, in order: `0001_init.sql` (profiles, progress, achievements +
 RLS + the explicit grants), `0002_community.sql` (reading_orders, order_votes,
 is_moderator), `0003_groups.sql` (groups, group_members, the scoped progress
-carve-out). Verify in Dashboard → Database → Tables that all six tables exist
-and RLS shows "enabled" on each.
+carve-out - **dropped again by `0005_drop_groups.sql`**, so a fresh deploy ends
+with neither table). Verify in Dashboard → Database → Tables that the
+profiles/progress/achievements and reading_orders/order_votes tables exist with
+RLS "enabled", and that no `groups` tables remain.
 
 ## 3. Configure auth
 

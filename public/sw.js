@@ -14,7 +14,7 @@
 // Anything with an auth cookie or a POST is never cached: personal progress
 // and community writes must not be served stale or leak between users.
 
-const VERSION = "orrery-v1";
+const VERSION = "orrery-v2";
 const PAGES = `${VERSION}-pages`;
 const ASSETS = `${VERSION}-assets`;
 const COVERS = `${VERSION}-covers`;
@@ -86,7 +86,7 @@ self.addEventListener("fetch", (event) => {
   }
 
   // Never cache anything personal or interactive.
-  if (/^\/(me|groups|g|u|moderate|import|login|api)\b/.test(url.pathname)) return;
+  if (/^\/(me|u|moderate|import|login|api)\b/.test(url.pathname)) return;
 
   // Pages: network first, cache as backup, offline page as the last resort.
   if (request.mode === "navigate") {

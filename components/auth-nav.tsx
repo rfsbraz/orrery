@@ -39,9 +39,6 @@ export function AuthNav() {
       <LocaleSwitcher />
       {authed ? (
         <>
-          <Link href={localePath(locale, "/groups")} className="text-neutral-400 hover:text-neutral-100">
-            {t("nav.clubs")}
-          </Link>
           <Link href={localePath(locale, "/me")} className="text-neutral-400 hover:text-neutral-100">
             {t("nav.myShelf")}
           </Link>
