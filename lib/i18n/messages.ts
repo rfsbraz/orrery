@@ -17,7 +17,6 @@ export const messages = {
       "Not just what order to read a franchise, but how to experience it in its moment - each book set against the life, world, and cultural events that shaped it.",
     "home.franchises": "Franchises",
     "home.authors": "Authors",
-    "home.hallLink": "The Hall - every author, one timeline",
     "home.empty": "No authors yet.",
 
     "franchise.works": "works",
@@ -42,7 +41,6 @@ export const messages = {
       "Every published work in the order it appeared - the default way to read the whole body of work.",
 
     "nav.whereToStart": "Where to start",
-    "nav.connections": "Connections",
 
     "progress.reading": "Reading",
     "progress.read": "Read",
@@ -73,19 +71,6 @@ export const messages = {
     "wizard.followsOrder": "Follows the order",
 
 
-    "connections.title": "Connections",
-    "connections.lede":
-      "The tissue between the books: crossovers, sequels across threads, shared cosmology - and the figures who walk between them. Reveals stay hidden until you have read your way to them.",
-    "connections.theMap": "The map",
-    "connections.mapNote":
-      "Works with at least one declared connection, in publication order. An arc's reach shows how far back a book leans.",
-    "connections.travellers": "The travellers",
-    "connections.appearances": "{n} appearances",
-
-    "hall.title": "The Hall",
-    "hall.lede":
-      "Every wing of the museum on one timeline: what each author was writing, year by year, while the same world happened to all of them.",
-    "hall.decades": "Decades",
 
 
     "copy.find": "Find a copy",
@@ -122,7 +107,6 @@ export const messages = {
     "meta.franchise": "{name} - reading order & timeline | Orrery",
     "meta.start": "Where to start with {name} | Orrery",
     "meta.compare": "{name} - compare reading orders | Orrery",
-    "meta.connections": "{name} - connections | Orrery",
     "orders.reading": "Reading order",
     "orders.chronological": "Everything, in publication order",
     "orders.debated": "Contested placements",
@@ -166,7 +150,6 @@ export const messages = {
       "Não apenas por que ordem ler uma obra, mas como vivê-la no seu momento - cada livro contra a vida, o mundo e os acontecimentos culturais que o moldaram.",
     "home.franchises": "Autores e universos",
     "home.authors": "Autores",
-    "home.hallLink": "O Salão - todos os autores, uma só linha do tempo",
     "home.empty": "Ainda não há autores.",
 
     "franchise.works": "obras",
@@ -191,7 +174,6 @@ export const messages = {
       "Todas as obras publicadas, pela ordem em que surgiram - a forma predefinida de ler a obra completa.",
 
     "nav.whereToStart": "Por onde começar",
-    "nav.connections": "Ligações",
 
     "progress.reading": "A ler",
     "progress.read": "Lido",
@@ -222,19 +204,6 @@ export const messages = {
     "wizard.followsOrder": "Segue a ordem",
 
 
-    "connections.title": "Ligações",
-    "connections.lede":
-      "O tecido entre os livros: cruzamentos, continuações entre linhas, cosmologia partilhada - e as figuras que caminham entre eles. As revelações ficam escondidas até lá chegar pela leitura.",
-    "connections.theMap": "O mapa",
-    "connections.mapNote":
-      "Obras com pelo menos uma ligação declarada, por ordem de publicação. O alcance de cada arco mostra quão atrás um livro se apoia.",
-    "connections.travellers": "Os viajantes",
-    "connections.appearances": "{n} aparições",
-
-    "hall.title": "O Salão",
-    "hall.lede":
-      "Todas as alas do museu numa só linha do tempo: o que cada autor escrevia, ano a ano, enquanto o mesmo mundo acontecia a todos.",
-    "hall.decades": "Décadas",
 
 
     "copy.find": "Encontrar um exemplar",
@@ -271,7 +240,6 @@ export const messages = {
     "meta.franchise": "{name} - ordem de leitura e cronologia | Orrery",
     "meta.start": "Por onde começar em {name} | Orrery",
     "meta.compare": "{name} - comparar ordens de leitura | Orrery",
-    "meta.connections": "{name} - ligações | Orrery",
     "orders.reading": "Ordem de leitura",
     "orders.chronological": "Tudo, por ordem de publicação",
     "orders.debated": "Colocações contestadas",

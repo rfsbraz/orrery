@@ -16,7 +16,7 @@ export function Contribute({
   locale: Locale;
   /** Prefills the issue title when we are on a franchise page. */
   franchiseName?: string;
-  /** Site-wide footer (home/hall) omits the page-specific actions. */
+  /** Site-wide footer (e.g. the home page) omits the page-specific actions. */
   compact?: boolean;
 }) {
   const t = translator(locale);

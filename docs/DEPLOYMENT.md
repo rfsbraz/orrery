@@ -140,8 +140,8 @@ secrets in ways that break inlined build args).
       `update profiles set is_moderator = true where id = '<your-user-uuid>';`
 - [ ] Submit + approve a community order end to end.
 - [ ] Check a private profile 404s anonymously and a public one renders.
-- [ ] `/f/stephen-king`, `/hall`, and each new franchise page render with
-      their capability nav correct (Tordo: no connections link; WoT: none).
+- [ ] `/f/stephen-king` and each new franchise page render with
+      their capability nav correct (Tordo: no "where to start" link).
 
 ## 7. Affiliate blocks (when ready to monetize)
 

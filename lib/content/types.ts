@@ -116,9 +116,6 @@ export interface Work {
   publishedAs?: string;
   withAuthorIds?: string[];
   synopsis?: string;
-  /** Work-to-work links beyond subseries (crossovers, sequels, shared cosmology).
-   * Declared on the later work pointing back; rendered both ways. */
-  connections?: string[];
   externalIds?: { openLibrary?: string; googleBooks?: string; wikidata?: string };
   /** Curated imagery from the visual-metadata pass. Every URL here has been
    * fetched and looked at by a curator, which an ISBN-derived OpenLibrary URL
@@ -128,24 +125,6 @@ export interface Work {
     coverCredit?: string;
     coverSource?: string;
   };
-}
-
-export interface CharacterAppearance {
-  workId: string;
-  note?: string;
-  /** When set, this appearance is a reveal: hidden until the reader has read
-   * the boundary work (and shielded for anonymous visitors). */
-  spoilerAfter?: string | null;
-}
-
-/** A recurring figure whose appearances thread works together (connective tissue). */
-export interface Character {
-  id: string;
-  name: string;
-  aka?: string[];
-  description?: string;
-  appearsIn: CharacterAppearance[];
-  sources?: string[];
 }
 
 /** A concrete published edition of a Work (covers, ISBNs, store links). */
@@ -207,9 +186,7 @@ export type FeatureSetting = "auto" | "on" | "off" | boolean;
 export interface FranchiseFeatures {
   river?: FeatureSetting;
   wizard?: FeatureSetting;
-  connections?: FeatureSetting;
   companion?: FeatureSetting;
-  hall?: FeatureSetting;
   editions?: FeatureSetting;
 }
 
@@ -256,7 +233,6 @@ export interface FranchiseBundle {
   orders: ReadingOrder[]; // default (derived) first, then curated
   /** Author-life + franchise + relevant global events, merged for the timeline. */
   timeline: AuraEvent[];
-  characters: Character[];
   editions: Edition[];
   theme?: Theme;
 }

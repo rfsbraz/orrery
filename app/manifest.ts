@@ -28,7 +28,6 @@ export default function manifest(): MetadataRoute.Manifest {
       },
     ],
     shortcuts: [
-      { name: "The Hall", short_name: "Hall", url: "/hall" },
       { name: "My shelf", short_name: "Shelf", url: "/me" },
     ],
   };

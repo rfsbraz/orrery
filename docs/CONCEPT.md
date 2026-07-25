@@ -76,10 +76,9 @@ Net: curation stays PR-based and versioned, custom orders "just work" as DB rows
 
 - **Global entity IDs.** Works have `<franchise-slug>/<work-slug>` (permanent, §4a). **Authors are global** in `content/authors/<slug>.yaml` and are referenced by `authorIds` / `withAuthorIds` - so one person is one entity across every franchise, and two people who share a name get distinct slugs (`aka:` carries alternate spellings for search).
 - **Typed reference syntax, two forms of the same `type:id` scheme:**
-  - *Structured fields* use bare IDs: `authorIds: [stephen-king]`, `withAuthorIds: [peter-straub]`, and (for work-to-work links like a shared multiverse) a `connections: [<work-id>]` field.
+  - *Structured fields* use bare IDs: `authorIds: [stephen-king]`, `withAuthorIds: [peter-straub]`.
   - *Prose* (bios, synopses, event/era descriptions, order rationales) uses inline links: `[[work:stephen-king/the-stand|The Stand]]`, `[[author:peter-straub]]` - wiki-style, pipe for display text. The app linkifies them.
 - **Everything must resolve.** `scripts/validate.py` in the content repo's CI checks every reference - structured and inline - and fails the build on a dangling one. This is the reference resolver behind the validation Action.
-- **Extensible:** the same scheme extends later to `character:<id>` (a recurring character like Randall Flagg across the King multiverse) with no rework.
 
 ## 5. Feature set
 

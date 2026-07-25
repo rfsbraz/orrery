@@ -29,7 +29,6 @@ function bundle(works: Work[], events: AuraEvent[] = [], eras: Era[] = []): Fran
     eras,
     orders: [],
     timeline: events,
-    characters: [],
     editions: [],
   };
 }

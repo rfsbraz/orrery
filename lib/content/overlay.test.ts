@@ -100,8 +100,8 @@ describe("translation overlays (pt-PT)", () => {
   });
 
   // Every prose-bearing collection on the bundle must be overlaid. This has
-  // now been missed three times, one collection at a time (works, then the
-  // home page's franchise list, then characters), so assert them together.
+  // been missed before, one collection at a time (works, then the home page's
+  // franchise list), so assert them together.
   it("every prose collection on a bundle is translated", () => {
     const en = getFranchise("stephen-king")!;
     const pt = getFranchise("stephen-king", "pt-PT")!;
@@ -112,7 +112,6 @@ describe("translation overlays (pt-PT)", () => {
     expect(differs(en.works[0]?.synopsis, pt.works[0]?.synopsis)).toBe(true);
     expect(differs(en.eras[0]?.title, pt.eras[0]?.title)).toBe(true);
     expect(differs(en.authors[0]?.bio, pt.authors[0]?.bio)).toBe(true);
-    expect(differs(en.characters[0]?.description, pt.characters[0]?.description)).toBe(true);
 
     // orders: the derived default is generated in English by the engine, so
     // check a curated one.

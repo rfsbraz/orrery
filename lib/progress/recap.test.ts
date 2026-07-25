@@ -19,7 +19,6 @@ function bundle(name: string, works: Work[], eras: Era[] = []): FranchiseBundle 
     eras,
     orders: [],
     timeline: [],
-    characters: [],
     editions: [],
   };
 }

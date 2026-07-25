@@ -6,7 +6,7 @@
 
 Passion project first, with tasteful good-faith affiliate income (per-country bookstore links) as a background layer. Built by and for completionists.
 
-- **Status:** live at [orrery.homeberry.me](https://orrery.homeberry.me). Ten wings, 483 works, 31 authors, full pt-PT locale coverage. Feature-complete through Phase 4 (museum, accounts, community, and the framework feature set - River, order diff, wizard, connections, companion, recap, Hall, editions).
+- **Status:** live at [orrery.homeberry.me](https://orrery.homeberry.me). Ten wings, 483 works, 31 authors, full pt-PT locale coverage. Feature-complete through Phase 4 (museum, accounts, community, and the framework feature set - River, order diff, wizard, companion, recap, editions).
 - **The plan:** see [`docs/CONCEPT.md`](docs/CONCEPT.md) - the full concept, data model, feature set, and phased roadmap.
 - **The features and the capability model:** see [`docs/FEATURES.md`](docs/FEATURES.md) - every feature activates per franchise from the shape of its content; a sparse chronology is a first-class citizen.
 - **Canon content lives in a separate repo:** [`orrery-content`](https://github.com/rfsbraz/orrery-content) holds the curated franchises, works, aura events, and reading orders (plus the `franchise-research` skill). This repo is the app; that one is the data.

@@ -3,7 +3,7 @@ import { localePath, type Locale } from "@/lib/i18n/config";
 // Parse inline [[type:id|text]] references in prose into renderable segments.
 // See orrery CONCEPT §4c: IDs are the source of truth; names are display-only.
 
-export type RefType = "work" | "author" | "franchise" | "character";
+export type RefType = "work" | "author" | "franchise";
 
 export interface RefLink {
   kind: "link";
@@ -18,7 +18,7 @@ export interface RefText {
 }
 export type Segment = RefLink | RefText;
 
-const REF = /\[\[(work|author|franchise|character):([^\]|]+)(?:\|([^\]]*))?\]\]/g;
+const REF = /\[\[(work|author|franchise):([^\]|]+)(?:\|([^\]]*))?\]\]/g;
 
 /**
  * Route for a referenced entity. Work IDs are `<franchise>/<work>`.
@@ -41,7 +41,7 @@ export function hrefFor(type: RefType, id: string, locale?: Locale): string {
     case "franchise":
       return at(`/f/${id}`);
     default:
-      return "#"; // character: no registry yet
+      return "#";
   }
 }
 

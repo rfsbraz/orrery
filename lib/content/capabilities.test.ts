@@ -28,7 +28,6 @@ function bundle(overrides: Partial<FranchiseBundle> = {}): FranchiseBundle {
     eras: [],
     orders: [order("x/default")],
     timeline: [],
-    characters: [],
     editions: [],
     ...overrides,
   };
@@ -40,9 +39,7 @@ describe("capabilities", () => {
     expect(caps).toEqual({
       river: false,
       wizard: false,
-      connections: false,
       companion: false,
-      hall: true,
       editions: false,
     });
   });
@@ -65,17 +62,6 @@ describe("capabilities", () => {
     expect(capabilities(b).wizard).toBe(true);
   });
 
-  it("connections activate via work links or characters", () => {
-    expect(
-      capabilities(bundle({ works: [work("x/one", { connections: ["x/two"] })] })).connections
-    ).toBe(true);
-    expect(
-      capabilities(
-        bundle({ characters: [{ id: "x/c", name: "C", appearsIn: [] }] })
-      ).connections
-    ).toBe(true);
-  });
-
   it("editions activate the editions capability", () => {
     expect(
       capabilities(bundle({ editions: [{ id: "x/one/ed", workId: "x/one" }] })).editions
@@ -84,9 +70,9 @@ describe("capabilities", () => {
 
   it("explicit overrides beat auto-detection both ways", () => {
     const on = bundle();
-    on.franchise.features = { river: "on", hall: "off" };
+    on.franchise.features = { river: "on", companion: "off" };
     expect(capabilities(on).river).toBe(true);
-    expect(capabilities(on).hall).toBe(false);
+    expect(capabilities(on).companion).toBe(false);
 
     const off = bundle({
       timeline: [{ id: "e", date: 1999, title: "t", impact: "low", description: "" }],
@@ -97,8 +83,8 @@ describe("capabilities", () => {
 
   it("boolean feature values work like on/off", () => {
     const b = bundle();
-    b.franchise.features = { wizard: true, hall: false };
+    b.franchise.features = { wizard: true, companion: false };
     expect(capabilities(b).wizard).toBe(true);
-    expect(capabilities(b).hall).toBe(false);
+    expect(capabilities(b).companion).toBe(false);
   });
 });

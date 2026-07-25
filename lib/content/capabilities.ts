@@ -9,9 +9,7 @@ import type { FeatureSetting, FranchiseBundle } from "./types";
 export type CapabilityKey =
   | "river"
   | "wizard"
-  | "connections"
   | "companion"
-  | "hall"
   | "editions";
 
 export type Capabilities = Record<CapabilityKey, boolean>;
@@ -23,13 +21,8 @@ function autoDetect(b: FranchiseBundle): Capabilities {
     river: b.timeline.length > 0,
     // The wizard is entirely content-driven.
     wizard: (b.franchise.startHere?.paths?.length ?? 0) > 0,
-    // Connections need edges: work links or a character roster.
-    connections:
-      b.characters.length > 0 || b.works.some((w) => (w.connections ?? []).length > 0),
     // Companion mode feeds on the aura around the book being read.
     companion: b.timeline.length > 0,
-    // Every franchise joins the cross-franchise hall unless opted out.
-    hall: true,
     // Exact-edition links/covers need edition data.
     editions: b.editions.length > 0,
   };
@@ -48,9 +41,7 @@ export function capabilities(b: FranchiseBundle): Capabilities {
   return {
     river: resolve(f.river, auto.river),
     wizard: resolve(f.wizard, auto.wizard),
-    connections: resolve(f.connections, auto.connections),
     companion: resolve(f.companion, auto.companion),
-    hall: resolve(f.hall, auto.hall),
     editions: resolve(f.editions, auto.editions),
   };
 }
