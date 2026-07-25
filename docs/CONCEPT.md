@@ -45,9 +45,8 @@ The central modeling decision is generalizing from one author to a platform. Sha
 - **Event** - the aura layer: `id, date | dateRange, title, description, impact (low | med | high), scope (author-life | world | culture | industry), reach (global | franchise-specific), sourceUrl, spoiler (see §9)`. Global-reach events (world/culture) are shared across every franchise; author-life events belong to one.
 - **Progress** (per user) - `userId, workId, status (unread | reading | read | abandoned), rating, dateRead, note`.
 - **Achievement** - data-driven (see §7): `id, name, description, icon, tier, category, criteria`.
-- **Group** - book clubs (see §5): `id, name, memberIds[], chosenOrderId, schedule?, groupProgress`.
 - **StoreLink** - monetization (see §8): `editionId, country, retailer, affiliateUrl`.
-- **User** - `id, handle, publicProfile, country (drives store links + locale), progress, achievements, groupIds[], curatorCredits[]`.
+- **User** - `id, handle, publicProfile, country (drives store links + locale), progress, achievements, curatorCredits[]`.
 - **Curator** - a credited role (see §5): a User with editorial rights over one or more franchises' orders and events.
 
 ## 4a. Content sources: canon (git) vs user data (Supabase)
@@ -102,7 +101,6 @@ Grouped by the phase that unlocks them (see §11).
 - **New-release tracking** for living authors, with notifications - retention loop.
 
 **Community**
-- **Groups / book clubs**: a shared order + members + a shared progress board + optional pace ("one book a month") + group achievements + spoiler-gated per-book discussion.
 - **Community reading orders**: submission + voting + moderation.
 - **Curation as a credited role**: curators get profile billing ("curated the Cosmere orders"), their own achievements, editorial reputation. This turns the data bottleneck (§8) into community energy.
 

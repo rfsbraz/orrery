@@ -32,7 +32,7 @@ in Supabase. Things worth reporting:
   lets a user read or write rows that are not theirs is the highest-severity
   class of bug in this project.
 - Authentication or session handling flaws.
-- Anything that lets a reading order, group or profile be modified by someone
+- Anything that lets a reading order or profile be modified by someone
   who does not own it, or moderated by someone who is not a moderator.
 - Injection or SSRF in the build or content pipeline.
 
