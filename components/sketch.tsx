@@ -34,8 +34,17 @@ export function Sketch({
   /** Override the variant's default object-fit. `plate` defaults to `cover`
    * and `object` to `contain`; a few layout-grammar organisations (e.g.
    * `full-bleed-vista`) want a `cover` crop without the plate's edge-dissolve
-   * mask, which is the one combination the variant alone can't express. */
-  fit?: "contain" | "cover";
+   * mask, which is the one combination the variant alone can't express.
+   *
+   * `native` is different in kind: `contain`/`cover` both make the image fill
+   * a box the CALLER sized (the span needs a definite height), whereas
+   * `native` renders the image at its own intrinsic aspect - `w-full h-auto`,
+   * no forced height - so the element takes the picture's shape instead of
+   * imposing one. That is what "art at its own aspect" means on a mobile
+   * `beside` card (LAYOUT.md): a square or portrait asset fills the card width
+   * and sets its own height, rather than being letterboxed to a fixed-height
+   * strip and left floating in side margins. */
+  fit?: "contain" | "cover" | "native";
   /** Forwarded to the underlying `<img>`. Lets a multi-image organisation
    * (components/river/image-slot.tsx) hide a slot that 404s instead of
    * showing a broken-image glyph, without this component needing to know
@@ -54,6 +63,7 @@ export function Sketch({
   const src = /^(?:https?:|data:)/.test(raw) ? raw : `/${raw.replace(/^\/+/, "")}`;
 
   const plate = variant === "plate";
+  const native = fit === "native";
   const cover = fit ? fit === "cover" : plate;
   const fade =
     "radial-gradient(ellipse 78% 78% at 50% 50%, #000 42%, rgba(0,0,0,0.72) 62%, transparent 88%)";
@@ -94,7 +104,11 @@ export function Sketch({
         alt={alt}
         loading="lazy"
         onError={onError}
-        className={`h-full w-full ${cover ? "object-cover" : "object-contain"}`}
+        className={
+          native
+            ? "block h-auto w-full"
+            : `h-full w-full ${cover ? "object-cover" : "object-contain"}`
+        }
         style={plate ? { WebkitMaskImage: fade, maskImage: fade } : undefined}
       />
     </span>
