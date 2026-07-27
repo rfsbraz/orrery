@@ -26,14 +26,21 @@ export const DISPLAY_FACES: Record<string, string> = {
   fraunces: "var(--font-display-fraunces)",
   spectral: "var(--font-display-spectral)",
   sourceSerif: "var(--font-display-source-serif)",
+  "instrument-serif": "var(--font-display-instrument-serif)",
 };
 
 export const DEFAULT_DISPLAY_FACE = "fraunces";
 
 /** Signature elements a franchise can choose in theme.yaml. */
-export type SignatureKind = "beam" | "thread" | "rule" | "none";
+export type SignatureKind = "beam" | "thread" | "rule" | "filament" | "none";
 
-const SIGNATURES = new Set<SignatureKind>(["beam", "thread", "rule", "none"]);
+const SIGNATURES = new Set<SignatureKind>([
+  "beam",
+  "thread",
+  "rule",
+  "filament",
+  "none",
+]);
 
 /** The franchise's signature element, defaulting to the neutral vertical thread. */
 export function signatureOf(theme?: Theme): SignatureKind {
@@ -68,6 +75,9 @@ export const signatureLine: Record<SignatureKind, string> = {
   thread: "w-px bg-[var(--ink)]/15",
   // A firm architectural rule.
   rule: "w-0.5 bg-[var(--accent)]/45",
+  // A single luminous strand threading the works - hairline, lit rather than
+  // coloured, so it reads as one continuous filament rather than a border.
+  filament: "w-px bg-[var(--accent)]/70 shadow-[0_0_4px_var(--accent)]",
   none: "hidden",
 };
 
