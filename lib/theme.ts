@@ -78,7 +78,13 @@ export const signatureLine: Record<SignatureKind, string> = {
   // A single luminous strand threading the works - hairline, lit rather than
   // coloured, so it reads as one continuous filament rather than a border.
   filament: "w-px bg-[var(--accent)]/70 shadow-[0_0_4px_var(--accent)]",
-  none: "hidden",
+  // `none` opts a wing OUT OF A BRANDED SIGNATURE (Jim Butcher: fabricating a
+  // cross-series thread would assert a link the author denies), not out of
+  // the river having a spine at all - the rail is the read itself, not a
+  // decoration, and a reader on a `none` wing still needs to see one
+  // continuous line down the page. So it renders the same quiet hairline as
+  // the neutral `thread` default rather than nothing.
+  none: "w-px bg-[var(--ink)]/15",
 };
 
 export const impactStyles: Record<string, string> = {
