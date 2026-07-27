@@ -1,6 +1,13 @@
 import { notFound } from "next/navigation";
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Fraunces, Spectral, Source_Serif_4 } from "next/font/google";
+import {
+  Geist,
+  Geist_Mono,
+  Fraunces,
+  Spectral,
+  Source_Serif_4,
+  Instrument_Serif,
+} from "next/font/google";
 import { RegisterSW } from "@/components/pwa/register-sw";
 import "../globals.css";
 import {
@@ -42,6 +49,11 @@ const spectral = Spectral({
 const sourceSerif = Source_Serif_4({
   variable: "--font-display-source-serif",
   subsets: ["latin"],
+});
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-display-instrument-serif",
+  subsets: ["latin"],
+  weight: ["400"],
 });
 
 // Installed, the app draws into the safe areas (see globals.css) and keeps the
@@ -94,7 +106,7 @@ export default async function LocaleLayout(props: {
   return (
     <html
       lang={LOCALE_HREFLANG[locale] ?? "en"}
-      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${spectral.variable} ${sourceSerif.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${spectral.variable} ${sourceSerif.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-neutral-950 font-sans text-neutral-200">
         <LocaleProvider locale={locale}>

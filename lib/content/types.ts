@@ -222,6 +222,16 @@ export interface Franchise {
    * rule. `include` claims an event outside the span the author writes out of;
    * `exclude` refuses one that overlaps but never reached the page. */
   globalEvents?: { include?: string[]; exclude?: string[] };
+  /** Curated header imagery from the visual-metadata pass (licensed, credited).
+   * 15 wings were already setting this in franchise.yaml before the field
+   * existed on this interface or was read anywhere - it is declared here and
+   * rendered by the franchise page. The credit is not decorative: several of
+   * these are CC BY, where attribution is a licence condition. */
+  images?: {
+    header?: string;
+    headerCredit?: string;
+    headerSource?: string;
+  };
 }
 
 /** A franchise with everything needed to render its page. */

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { DISPLAY_FACES, signatureOf, themeVars } from "./theme";
+import { DISPLAY_FACES, signatureLine, signatureOf, themeVars } from "./theme";
 import { getFranchise, listAchievements } from "./content";
 import type { Theme } from "./content/types";
 
@@ -28,6 +28,22 @@ describe("theme is content-driven", () => {
     expect(signatureOf(undefined)).toBe("thread");
     // an unknown signature degrades rather than rendering nothing
     expect(signatureOf({ preset: "x", signature: "lightning-bolts" })).toBe("thread");
+  });
+
+  it("filament is a curated signature, not a silent fallback to thread", () => {
+    // Sanderson's theme.yaml has asked for this since the wing was written; it
+    // resolved to `thread` until the kind was added, with nothing reporting it.
+    expect(signatureOf({ preset: "x", signature: "filament" })).toBe("filament");
+    expect(signatureLine.filament).not.toBe(signatureLine.thread);
+  });
+
+  it("instrument-serif is a curated face, not a silent fallback to fraunces", () => {
+    const vars = themeVars({
+      preset: "x",
+      displayFace: "instrument-serif",
+    }) as Record<string, string>;
+    expect(vars["--font-display"]).toBe(DISPLAY_FACES["instrument-serif"]);
+    expect(vars["--font-display"]).not.toBe(DISPLAY_FACES.fraunces);
   });
 
   it("the King wing's beam and serif come from its theme.yaml, not the app", () => {
