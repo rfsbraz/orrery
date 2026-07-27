@@ -92,28 +92,6 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
         </Link>
 
         <header className="relative mt-4 mb-10 max-lg:mt-2">
-          {/* Curated header imagery (visual-metadata). Painted first so every
-              later sibling sits over it, faded and masked so the type stays
-              legible. The credit renders because for several wings the licence
-              is CC BY, where attribution is a condition rather than a courtesy
-              - the same rule Portrait follows. */}
-          {b.franchise.images?.header ? (
-            <figure className="pointer-events-none absolute -inset-x-6 -top-8 m-0 h-[130%] overflow-hidden">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={b.franchise.images.header}
-                alt=""
-                aria-hidden
-                loading="lazy"
-                className="h-full w-full object-cover opacity-20 [mask-image:linear-gradient(to_bottom,black,transparent_80%)]"
-              />
-              {b.franchise.images.headerCredit ? (
-                <figcaption className="absolute bottom-1 right-6 text-[10px] leading-none text-[var(--muted)]/70">
-                  {b.franchise.images.headerCredit}
-                </figcaption>
-              ) : null}
-            </figure>
-          ) : null}
           {/* Desktop inherits the phone's instrument, at header scale: the
               field behind the title's empty right side, the plate upon it.
               Both absolute, so the existing type never reflows. */}
