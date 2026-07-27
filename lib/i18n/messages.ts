@@ -36,6 +36,8 @@ export const messages = {
     "home.series": "Popular series",
     "home.seriesBooks": "books",
     "work.forthcoming": "Forthcoming",
+    "work.format.screenplay": "Screenplay",
+    "work.format.play": "Stage play",
     "order.defaultName": "Complete, in publication order",
     "order.defaultRationale":
       "Every published work in the order it appeared - the default way to read the whole body of work.",
@@ -169,6 +171,8 @@ export const messages = {
     "home.series": "Séries populares",
     "home.seriesBooks": "livros",
     "work.forthcoming": "A publicar",
+    "work.format.screenplay": "Guião",
+    "work.format.play": "Peça de teatro",
     "order.defaultName": "Completa, por ordem de publicação",
     "order.defaultRationale":
       "Todas as obras publicadas, pela ordem em que surgiram - a forma predefinida de ler a obra completa.",

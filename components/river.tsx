@@ -33,6 +33,7 @@ export function River({
   enteringLabel = "entering",
   permalinkLabel = "Link to this event",
   forthcomingLabel = "Forthcoming",
+  formatLabels = { screenplay: "Screenplay", play: "Stage play" },
   authorBorn,
   agedTemplate = "aged {age}",
   elapsedTemplate = "{n} years",
@@ -57,6 +58,9 @@ export function River({
   permalinkLabel?: string;
   /** Localised badge for a work that is announced but not published yet. */
   forthcomingLabel?: string;
+  /** Localised badges for a work's `format` when it isn't an ordinary novel
+   * (orrery-content docs/SCHEMA.md) - a screenplay or a stage play. */
+  formatLabels?: { screenplay: string; play: string };
   /** Localised "{n} years", printed in the gutter across a leap in time. */
   elapsedTemplate?: string;
   /** Birth date per author id, for showing their age at a life event. */
@@ -198,6 +202,7 @@ export function River({
                         localTitle: localTitles?.[w.id],
                         orderPosition: orderPositions?.get(w.id),
                         forthcomingLabel,
+                        formatLabels,
                         authorName: authorNames?.get(w.authorIds[0]),
                         isbn13: isbns?.[w.id],
                       }}

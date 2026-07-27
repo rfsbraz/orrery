@@ -49,6 +49,8 @@ export interface WorkContext {
   localTitle?: string;
   orderPosition?: number;
   forthcomingLabel: string;
+  /** Localised labels for a work's `format` when it isn't a novel. */
+  formatLabels?: { screenplay: string; play: string };
   authorName?: string;
   isbn13?: string;
 }
@@ -107,6 +109,14 @@ function WorkMeta({
       )}
       {showTier && w.canonTier !== "core" && (
         <span className="ml-2 text-[var(--muted)]/70">{w.canonTier}</span>
+      )}
+      {/* Shown regardless of `showTier`: a compact row has no cover to hint
+          that this isn't an ordinary novel, so it needs the badge more, not
+          less, than a standard card does. */}
+      {w.format && w.format !== "novel" && ctx.formatLabels && (
+        <span className="ml-2 rounded border border-[var(--accent)]/40 px-1 py-px normal-case text-[var(--accent)]">
+          {ctx.formatLabels[w.format]}
+        </span>
       )}
       {/* An announced book sits in its year like any other, so it has to say
           plainly that it is not out - otherwise the page states a publication

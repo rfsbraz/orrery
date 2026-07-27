@@ -2,6 +2,13 @@
 // (see orrery-content/.claude/skills/franchise-research/SKILL.md).
 
 export type CanonTier = "core" | "extended" | "apocrypha";
+
+/** What a reader is actually picking up. Defaults to "novel" - only present
+ * when a work is something else a reader would want to know before starting
+ * it (orrery-content docs/SCHEMA.md, #83: J.K. Rowling's Fantastic Beasts
+ * screenplays and the Cursed Child playscript). Display-only, like
+ * `canonTier` - it does not change where a work sits in the reading spine. */
+export type WorkFormat = "novel" | "screenplay" | "play";
 export type Impact = "low" | "med" | "high";
 export type EventScope = "author-life" | "world" | "culture" | "industry";
 export type OrderType =
@@ -107,6 +114,8 @@ export interface Work {
   forthcoming?: string;
   subseries?: string | null;
   canonTier: CanonTier;
+  /** Defaults to "novel"; unset for every ordinary book. See `WorkFormat`. */
+  format?: WorkFormat;
   /** A work that changed the life: the debut, the breakout, the last one. The
    * river gives it the `hero` treatment (components/river/work-card.tsx) so a
    * wing's page is not one uniform grid of identical cards. Capped per wing by
