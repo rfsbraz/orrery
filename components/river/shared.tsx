@@ -39,7 +39,20 @@ export interface EventCardProps {
  * rupture's node is larger and filled; `faint` (used by `interlude`, whose
  * spec calls for the rail to "pause, fade or go dotted across the gap") draws
  * the same node at a fraction of the opacity instead of inventing a second
- * rail treatment. */
+ * rail treatment.
+ *
+ * Every organisation's root `<li>` is `relative` and sits flush with the
+ * card content - i.e. `lg:pl-8` (2rem = 32px, river.tsx) to the right of
+ * where the rail itself renders at `left-0` in that same ancestor's padding
+ * box. Absolutely-positioned children of the `<li>` are offset FROM the
+ * `<li>`'s own edge, so reaching the rail means going the full 32px back to
+ * the left, not a few pixels - the old `-left-3` / `-left-[1.15rem]` values
+ * fell well short of that, which is why the node used to float in the middle
+ * of the gutter, offset from the rail and not touching it. `RAIL_GAP` names
+ * that 32px coupling explicitly so it can't drift out of sync with
+ * `lg:pl-8` unnoticed again. */
+const RAIL_GAP = 32; // px, must match river.tsx's `lg:pl-8`
+
 export function RailNode({
   rupture = false,
   faint = false,
@@ -47,19 +60,23 @@ export function RailNode({
   rupture?: boolean;
   faint?: boolean;
 }) {
+  // Centred exactly on the rail (half the node's own diameter back from it).
+  const diameter = rupture ? 12 : 10;
+  const nodeOffset = RAIL_GAP + diameter / 2;
   return (
     <span className={faint ? "opacity-30" : ""}>
       <span
         aria-hidden
         className={`absolute top-7 -translate-y-1/2 rounded-full border border-[var(--accent)]/70 ${
-          rupture
-            ? "-left-[1.4rem] h-3 w-3 bg-[var(--accent)]"
-            : "-left-[1.15rem] h-2.5 w-2.5 bg-[var(--bg)]"
+          rupture ? "h-3 w-3 bg-[var(--accent)]" : "h-2.5 w-2.5 bg-[var(--bg)]"
         } max-lg:hidden`}
+        style={{ left: -nodeOffset }}
       />
+      {/* Spans the full gutter, rail to card - a constant width regardless of
+          rupture, since the node's own radius (drawn on top) is what varies. */}
       <span
         aria-hidden
-        className={`absolute top-7 -left-3 h-px w-3 bg-[var(--accent)]/40 max-lg:hidden ${
+        className={`absolute top-7 -left-8 h-px w-8 bg-[var(--accent)]/40 max-lg:hidden ${
           faint ? "border-t border-dashed" : ""
         }`}
       />
