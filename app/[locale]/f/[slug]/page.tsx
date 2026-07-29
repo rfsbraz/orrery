@@ -5,7 +5,7 @@ import { localeFromSegment, localePath } from "@/lib/i18n/config";
 import { translator } from "@/lib/i18n/messages";
 import { getFranchise, listFranchiseSlugs } from "@/lib/content";
 import { capabilities } from "@/lib/content/capabilities";
-import { coverFor, pickEdition } from "@/lib/content/editions";
+import { coverFor, freeReadUrl, pickEdition } from "@/lib/content/editions";
 import { WorkTitlesProvider } from "@/components/i18n/provider";
 import { stripRefs } from "@/lib/content/refs";
 import { signatureOf, themeVars } from "@/lib/theme";
@@ -49,6 +49,7 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
   // Covers resolve from curated editions or OpenLibrary IDs; buy-ISBNs only
   // from curated editions (the editions capability). Text-first when neither.
   const isbns: Record<string, string | undefined> = {};
+  const readUrls: Record<string, string | null | undefined> = {};
   const layers = buildRiver(b);
   const series = subseriesEntries(b.works);
   const covers: Record<string, string> = {};
@@ -58,6 +59,13 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
     const cover = coverFor(w, edition);
     if (cover) covers[w.id] = cover;
     if (edition?.isbn13) isbns[w.id] = edition.isbn13;
+    // A free full text is looked up independently of the picked buy-edition:
+    // the best edition to purchase and the best edition to read for free are
+    // not necessarily the same one.
+    if (caps.editions) {
+      const readUrl = freeReadUrl(w.id, b.editions, locale);
+      if (readUrl) readUrls[w.id] = readUrl;
+    }
     // A published title in the reader's language (never an invented one).
     if (edition?.title && edition.language === locale) localTitles[w.id] = edition.title;
   }
@@ -206,6 +214,7 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
               localTitles={localTitles}
               authorNames={authorNames}
               isbns={isbns}
+              readUrls={readUrls}
               signature={signatureOf(b.theme)}
               allWorkIds={b.works.map((w) => w.id)}
               enteringLabel={t("franchise.entering")}

@@ -19,12 +19,18 @@ const COUNTRIES: [string, string][] = [
 
 const KEY = "orrery.country";
 
+export interface FindACopyProps extends StoreLinkInput {
+  /** A complete, free, legally-hosted text - strictly better than any store
+   * link below, so it renders outside the collapsed section, not behind it. */
+  readUrl?: string | null;
+}
+
 /**
  * Per-work "find a copy" links, tuned to the reader's country. The choice is
  * remembered in localStorage so it's picked once, not per book. Museum pages
  * stay static; this is a small client affordance layered on top.
  */
-export function FindACopy(props: StoreLinkInput) {
+export function FindACopy({ readUrl, ...props }: FindACopyProps) {
   const t = useT();
   const [open, setOpen] = useState(false);
   const [country, setCountry] = useState<string>("");
@@ -45,6 +51,16 @@ export function FindACopy(props: StoreLinkInput) {
 
   return (
     <div className="mt-2 text-xs">
+      {readUrl && (
+        <a
+          href={readUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mb-1 inline-block min-h-[40px] font-medium leading-[40px] text-[var(--accent)] underline decoration-[var(--accent)]/40 underline-offset-2 hover:decoration-[var(--accent)] lg:mb-0 lg:block lg:min-h-0 lg:leading-normal"
+        >
+          {t("copy.readFree")}
+        </a>
+      )}
       <button
         onClick={() => setOpen((o) => !o)}
         className="text-neutral-500 hover:text-neutral-300 inline-block min-h-[40px] leading-[40px] lg:min-h-0 lg:leading-normal"

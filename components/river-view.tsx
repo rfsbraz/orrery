@@ -44,6 +44,7 @@ export function RiverView({
   localTitles,
   authorNames,
   isbns,
+  readUrls,
   signature,
   allWorkIds,
   enteringLabel,
@@ -62,6 +63,7 @@ export function RiverView({
   localTitles?: Record<string, string>;
   authorNames?: Map<string, string>;
   isbns?: Record<string, string | undefined>;
+  readUrls?: Record<string, string | null | undefined>;
   signature?: SignatureKind;
   allWorkIds: string[];
   /** Localised label above an era plate title ("entering" / "a entrar em"). */
@@ -102,6 +104,7 @@ export function RiverView({
           localTitles={localTitles}
           authorNames={authorNames}
           isbns={isbns}
+          readUrls={readUrls}
           signature={signature}
           orderPositions={positions}
           enteringLabel={enteringLabel}

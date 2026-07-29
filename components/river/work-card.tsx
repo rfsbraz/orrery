@@ -53,6 +53,7 @@ export interface WorkContext {
   formatLabels?: { screenplay: string; play: string };
   authorName?: string;
   isbn13?: string;
+  readUrl?: string | null;
 }
 
 function anchorId(w: Work) {
@@ -191,6 +192,7 @@ function HeroWork({ w, ctx }: { w: Work; ctx: WorkContext }) {
           author={ctx.authorName}
           openLibraryId={w.externalIds?.openLibrary}
           isbn13={ctx.isbn13}
+          readUrl={ctx.readUrl}
         />
       </div>
     </article>
@@ -234,6 +236,7 @@ function StandardWork({ w, ctx }: { w: Work; ctx: WorkContext }) {
           author={ctx.authorName}
           openLibraryId={w.externalIds?.openLibrary}
           isbn13={ctx.isbn13}
+          readUrl={ctx.readUrl}
         />
       </div>
     </article>

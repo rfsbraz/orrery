@@ -32,8 +32,9 @@ export function Timeline({
   works: Work[];
   events: AuraEvent[];
   authorNames?: Map<string, string>;
-  /** Per-work cover URL + buy ISBN (editions layer; absent entries fall back). */
-  editions?: Record<string, { cover: string | null; isbn13?: string }>;
+  /** Per-work cover URL + buy ISBN + free-read URL (editions layer; absent
+   * entries fall back). */
+  editions?: Record<string, { cover: string | null; isbn13?: string; readUrl?: string | null }>;
   /** Localised accessible name for an event's permalink. */
   permalinkLabel?: string;
   /** The franchise's signature element, from its theme.yaml. */
@@ -103,6 +104,7 @@ export function Timeline({
                   author={authorNames?.get(item.work.authorIds[0])}
                   openLibraryId={item.work.externalIds?.openLibrary}
                   isbn13={editions?.[item.work.id]?.isbn13}
+                  readUrl={editions?.[item.work.id]?.readUrl}
                 />
                 </div>
               </div>

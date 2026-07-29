@@ -28,6 +28,7 @@ export function River({
   signature = "thread",
   authorNames,
   isbns,
+  readUrls,
   localTitles,
   orderPositions,
   enteringLabel = "entering",
@@ -46,6 +47,9 @@ export function River({
   authorNames?: Map<string, string>;
   /** Verified buy-ISBNs per work (editions capability). */
   isbns?: Record<string, string | undefined>;
+  /** A complete, free, legally-hosted text per work, where one is on file
+   * (editions.yaml `readUrl` - Project Gutenberg, Standard Ebooks, ...). */
+  readUrls?: Record<string, string | null | undefined>;
   /** Published title in the reader's language, where such an edition exists. */
   localTitles?: Record<string, string>;
   /** 1-based position per work within the selected reading order. */
@@ -205,6 +209,7 @@ export function River({
                         formatLabels,
                         authorName: authorNames?.get(w.authorIds[0]),
                         isbn13: isbns?.[w.id],
+                        readUrl: readUrls?.[w.id],
                       }}
                     />
                   ))}
