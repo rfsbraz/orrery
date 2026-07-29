@@ -49,10 +49,29 @@ export function FullBleedVista({
             // overlaid with text the way `chapter-gate`'s plate mask exists
             // to dissolve under, so the radial fade would just be an
             // unexplained vignette here.
+            //
+            // Desktop is sized by ASPECT RATIO, not a fixed pixel height. A
+            // fixed h-64/h-80 against a ~850px column produced a >3:1 crop
+            // window against a 3:2 or 16:9 source, which at `cover` discards
+            // roughly half the image's height, split evenly top and bottom -
+            // and every sketch's orrery motif (VISUAL.md §1a) defaults to the
+            // sky, so it landed in the discarded band more often than not
+            // (the Stephen King birth card is the case that surfaced it).
+            // aspect-[2/1]/[16/9] keep the crop within ~10% top and bottom
+            // against both authored source aspects, which is enough margin
+            // for a motif placed anywhere reasonably off-centre, while still
+            // reading shallower than the source - the "breath" this
+            // organisation is for. Mobile keeps its original fixed height:
+            // the narrower column is already close to the source aspect
+            // there, so the crop was never the problem on that breakpoint.
             <Sketch
               images={event.images}
               fit="cover"
-              className={`block w-full ${rupture ? "h-80 max-lg:h-56" : "h-64 max-lg:h-48"}`}
+              className={`block w-full ${
+                rupture
+                  ? "aspect-[16/9] max-lg:aspect-auto max-lg:h-56"
+                  : "aspect-[2/1] max-lg:aspect-auto max-lg:h-48"
+              }`}
             />
           )}
           <div
