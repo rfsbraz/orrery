@@ -79,6 +79,7 @@ export const messages = {
     "copy.hide": "Hide copies",
     "copy.country": "Country for store links",
     "copy.anywhere": "Anywhere",
+    "copy.readFree": "Read for free",
 
     "shelf.title": "Your shelf",
     "shelf.signInPrompt": "Sign in to track your reading and see it in context.",
@@ -214,6 +215,7 @@ export const messages = {
     "copy.hide": "Esconder",
     "copy.country": "País para as lojas",
     "copy.anywhere": "Qualquer país",
+    "copy.readFree": "Ler gratuitamente",
 
     "shelf.title": "A sua estante",
     "shelf.signInPrompt": "Entre na conta para acompanhar as suas leituras e vê-las em contexto.",

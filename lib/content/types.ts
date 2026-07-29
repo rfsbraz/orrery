@@ -150,6 +150,8 @@ export interface Edition {
   publisher?: string;
   year?: number;
   coverUrl?: string | null;
+  /** A complete, free, legally-hosted text (Project Gutenberg, Standard Ebooks). */
+  readUrl?: string | null;
   note?: string;
   sources?: string[];
 }

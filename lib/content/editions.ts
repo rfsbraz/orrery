@@ -72,6 +72,24 @@ export function coverFor(work: Work, edition?: Edition | null): string | null {
   return null;
 }
 
+/**
+ * The best `readUrl` on file for a work - a complete, free, legally-hosted
+ * text (Project Gutenberg, Standard Ebooks, ...), strictly better than any
+ * store link `storeLinks()` can build. Locale match wins when there is one
+ * (rare - most free texts are English), else the first one curated. Null
+ * when the work has no such edition, which is the common case and not an
+ * error: most books are not public domain.
+ */
+export function freeReadUrl(workId: string, editions: Edition[], locale?: string): string | null {
+  const candidates = editions.filter((e) => e.workId === workId && e.readUrl);
+  if (candidates.length === 0) return null;
+  if (locale) {
+    const exact = candidates.find((e) => e.language === locale);
+    if (exact) return exact.readUrl!;
+  }
+  return candidates[0].readUrl!;
+}
+
 /** ISBN-13 (978-prefixed) to ISBN-10, for retailers that key on ISBN-10. */
 export function isbn13to10(isbn13: string): string | null {
   const digits = isbn13.replace(/[^0-9]/g, "");
