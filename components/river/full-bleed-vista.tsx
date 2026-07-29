@@ -50,28 +50,26 @@ export function FullBleedVista({
             // to dissolve under, so the radial fade would just be an
             // unexplained vignette here.
             //
-            // Desktop is sized by ASPECT RATIO, not a fixed pixel height. A
-            // fixed h-64/h-80 against a ~850px column produced a >3:1 crop
-            // window against a 3:2 or 16:9 source, which at `cover` discards
-            // roughly half the image's height, split evenly top and bottom -
-            // and every sketch's orrery motif (VISUAL.md §1a) defaults to the
-            // sky, so it landed in the discarded band more often than not
-            // (the Stephen King birth card is the case that surfaced it).
-            // aspect-[2/1]/[16/9] keep the crop within ~10% top and bottom
-            // against both authored source aspects, which is enough margin
-            // for a motif placed anywhere reasonably off-centre, while still
-            // reading shallower than the source - the "breath" this
-            // organisation is for. Mobile keeps its original fixed height:
-            // the narrower column is already close to the source aspect
-            // there, so the crop was never the problem on that breakpoint.
+            // Sized by ASPECT RATIO, not a fixed pixel height, at EVERY
+            // breakpoint. A fixed height against a full-width column
+            // produces a crop window against the 3:2/16:9 source that gets
+            // MORE severe the wider the column is - at `cover` that discards
+            // height evenly top and bottom, and every sketch's orrery motif
+            // (VISUAL.md §1a) defaults to the sky, so it kept landing in the
+            // discarded band (the Stephen King birth card is the case that
+            // surfaced it, first on desktop, then again on a wide phone once
+            // desktop was fixed and mobile still had a fixed height - the
+            // crop keeps growing with viewport width no matter which
+            // breakpoint it happens at). aspect-[2/1]/[16/9] keep the crop
+            // to roughly 10% top and bottom against both authored source
+            // aspects AT ANY WIDTH, which is enough margin for a motif
+            // placed anywhere reasonably off-centre, while still reading
+            // shallower than the source - the "breath" this organisation is
+            // for.
             <Sketch
               images={event.images}
               fit="cover"
-              className={`block w-full ${
-                rupture
-                  ? "aspect-[16/9] max-lg:aspect-auto max-lg:h-56"
-                  : "aspect-[2/1] max-lg:aspect-auto max-lg:h-48"
-              }`}
+              className={`block w-full ${rupture ? "aspect-[16/9]" : "aspect-[2/1]"}`}
             />
           )}
           <div
