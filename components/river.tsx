@@ -60,7 +60,7 @@ export function River({
   permalinkLabel = "Link to this event",
   forthcomingLabel = "Forthcoming",
   formatLabels = DEFAULT_FORMAT_LABELS,
-  publishedAsLabel = (name: string) => `as ${name}`,
+  publishedAsTemplate = "as {name}",
   authorBorn,
   agedTemplate = "aged {age}",
   elapsedTemplate = "{n} years",
@@ -92,8 +92,11 @@ export function River({
    * (orrery-content docs/SCHEMA.md). This is the badge that replaced raw
    * `canonTier` on the card - see `components/river/work-card.tsx`. */
   formatLabels?: Record<Exclude<WorkFormat, "novel">, string>;
-  /** Localised "as {name}" for a work published under a pseudonym. */
-  publishedAsLabel?: (name: string) => string;
+  /** Localised "as {name}" template for a work published under a pseudonym.
+   * A template string, not a function - a function prop crossing the
+   * server/client boundary breaks static export ("Functions cannot be
+   * passed directly to Client Components", found in CI 2026-08-01). */
+  publishedAsTemplate?: string;
   /** Localised "{n} years", printed in the gutter across a leap in time. */
   elapsedTemplate?: string;
   /** Birth date per author id, for showing their age at a life event. */
@@ -236,7 +239,7 @@ export function River({
                         orderPosition: orderPositions?.get(w.id),
                         forthcomingLabel,
                         formatLabels,
-                        publishedAsLabel,
+                        publishedAsTemplate,
                         authorName: authorNames?.get(w.authorIds[0]),
                         isbn13: isbns?.[w.id],
                         readUrl: readUrls?.[w.id],

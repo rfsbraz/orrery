@@ -30,7 +30,7 @@ export function Timeline({
   signature = "thread",
   permalinkLabel = "Link to this event",
   formatLabels = DEFAULT_FORMAT_LABELS,
-  publishedAsLabel = (name: string) => `as ${name}`,
+  publishedAsTemplate = "as {name}",
 }: {
   works: Work[];
   events: AuraEvent[];
@@ -47,8 +47,8 @@ export function Timeline({
    * `canonTier` (core/extended/apocrypha) drives layout but is never itself
    * displayed. */
   formatLabels?: Record<Exclude<WorkFormat, "novel">, string>;
-  /** Localised "as {name}" for a work published under a pseudonym. */
-  publishedAsLabel?: (name: string) => string;
+  /** Localised "as {name}" template for a work published under a pseudonym. */
+  publishedAsTemplate?: string;
 }) {
   const items: Item[] = [
     ...works.map((w) => ({ kind: "work" as const, year: w.published, work: w })),
@@ -93,7 +93,7 @@ export function Timeline({
                   )}
                   {item.work.publishedAs && (
                     <span className="text-[11px] italic text-[var(--muted)]">
-                      {publishedAsLabel(item.work.publishedAs)}
+                      {publishedAsTemplate.replace("{name}", item.work.publishedAs)}
                     </span>
                   )}
                   {item.work.format && item.work.format !== "novel" && (

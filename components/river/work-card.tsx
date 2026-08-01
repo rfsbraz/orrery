@@ -51,8 +51,8 @@ export interface WorkContext {
   forthcomingLabel: string;
   /** Localised labels for a work's `format` when it isn't a novel. */
   formatLabels?: Record<Exclude<WorkFormat, "novel">, string>;
-  /** Localised "as {name}" for a work published under a pseudonym. */
-  publishedAsLabel: (name: string) => string;
+  /** Localised "as {name}" template for a work published under a pseudonym. */
+  publishedAsTemplate: string;
   authorName?: string;
   isbn13?: string;
   readUrl?: string | null;
@@ -108,7 +108,7 @@ function WorkMeta({
       )}
       {w.publishedAs && (
         <span className={ctx.entry ? "ml-2 italic normal-case" : "italic normal-case"}>
-          {ctx.publishedAsLabel(w.publishedAs)}
+          {ctx.publishedAsTemplate.replace("{name}", w.publishedAs)}
         </span>
       )}
       {w.format && w.format !== "novel" && ctx.formatLabels && (
