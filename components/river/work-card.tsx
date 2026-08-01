@@ -3,7 +3,7 @@ import { Cover } from "../cover";
 import { FindACopy } from "../find-a-copy";
 import { ProgressControl } from "../progress/control";
 import type { SeriesEntry } from "@/lib/content/river";
-import type { Work } from "@/lib/content/types";
+import type { Work, WorkFormat } from "@/lib/content/types";
 
 /**
  * The works layer's own treatments, the counterpart to the event layer's
@@ -50,7 +50,9 @@ export interface WorkContext {
   orderPosition?: number;
   forthcomingLabel: string;
   /** Localised labels for a work's `format` when it isn't a novel. */
-  formatLabels?: { screenplay: string; play: string };
+  formatLabels?: Record<Exclude<WorkFormat, "novel">, string>;
+  /** Localised "as {name}" for a work published under a pseudonym. */
+  publishedAsLabel: (name: string) => string;
   authorName?: string;
   isbn13?: string;
   readUrl?: string | null;
@@ -81,19 +83,20 @@ function OrderMarker({ n, inline = false }: { n?: number; inline?: boolean }) {
   );
 }
 
-/** Series position, pseudonym, canon tier, forthcoming badge - the metadata
- * line, shared so the three treatments cannot drift apart on what a work says
- * about itself. `tier` is suppressed in `compact`, where being apocrypha is
- * already what put the work in that treatment. */
+/** Series position, pseudonym, format badge - the metadata line, shared so
+ * the three treatments cannot drift apart on what a work says about itself.
+ * `canonTier` (core/extended/apocrypha) drives `treatmentFor` above but is
+ * never itself displayed - it told a reader where the curator filed the
+ * work, not what it is. `format` is what prints: a compact row has no cover
+ * to hint that this isn't an ordinary novel, so it needs the badge more, not
+ * less, than a standard card does. */
 function WorkMeta({
   w,
   ctx,
-  showTier = true,
   className = "",
 }: {
   w: Work;
   ctx: WorkContext;
-  showTier?: boolean;
   className?: string;
 }) {
   return (
@@ -105,15 +108,9 @@ function WorkMeta({
       )}
       {w.publishedAs && (
         <span className={ctx.entry ? "ml-2 italic normal-case" : "italic normal-case"}>
-          as {w.publishedAs}
+          {ctx.publishedAsLabel(w.publishedAs)}
         </span>
       )}
-      {showTier && w.canonTier !== "core" && (
-        <span className="ml-2 text-[var(--muted)]/70">{w.canonTier}</span>
-      )}
-      {/* Shown regardless of `showTier`: a compact row has no cover to hint
-          that this isn't an ordinary novel, so it needs the badge more, not
-          less, than a standard card does. */}
       {w.format && w.format !== "novel" && ctx.formatLabels && (
         <span className="ml-2 rounded border border-[var(--accent)]/40 px-1 py-px normal-case text-[var(--accent)]">
           {ctx.formatLabels[w.format]}
@@ -264,7 +261,7 @@ function CompactWork({ w, ctx }: { w: Work; ctx: WorkContext }) {
           full-width row is wide enough that right-aligned metadata detaches
           from its own title and lands on top of the layer's ghosted year
           numeral. */}
-      <WorkMeta w={w} ctx={ctx} showTier={false} className="min-w-0 truncate max-lg:text-[11px]" />
+      <WorkMeta w={w} ctx={ctx} className="min-w-0 truncate max-lg:text-[11px]" />
     </article>
   );
 }

@@ -5,10 +5,29 @@ export type CanonTier = "core" | "extended" | "apocrypha";
 
 /** What a reader is actually picking up. Defaults to "novel" - only present
  * when a work is something else a reader would want to know before starting
- * it (orrery-content docs/SCHEMA.md, #83: J.K. Rowling's Fantastic Beasts
- * screenplays and the Cursed Child playscript). Display-only, like
- * `canonTier` - it does not change where a work sits in the reading spine. */
-export type WorkFormat = "novel" | "screenplay" | "play";
+ * it (orrery-content docs/SCHEMA.md). Display-only, like `canonTier` - it
+ * does not change where a work sits in the reading spine. Widened 2026-08-01
+ * from 3 values to a real taxonomy: this is what the badge renders now
+ * instead of raw `canonTier`, so every value needs a matching
+ * `work.format.<value>` key in `lib/i18n/messages.ts` for every locale. */
+export type WorkFormat =
+  | "novel"
+  | "novella"
+  | "short-story"
+  | "short-story-collection"
+  | "poem"
+  | "poetry-collection"
+  | "essay"
+  | "essay-collection"
+  | "memoir"
+  | "nonfiction"
+  | "reference"
+  | "play"
+  | "screenplay"
+  | "tv-series"
+  | "graphic-novel"
+  | "picture-book"
+  | "anthology";
 export type Impact = "low" | "med" | "high";
 export type EventScope = "author-life" | "world" | "culture" | "industry";
 export type OrderType =
