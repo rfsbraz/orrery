@@ -5,7 +5,7 @@ import { River } from "./river";
 import { OrderSelector } from "./orders/order-selector";
 import { ListProgress } from "./progress/list-progress";
 import type { RiverLayer, SeriesEntry } from "@/lib/content/river";
-import type { ReadingOrder } from "@/lib/content/types";
+import type { ReadingOrder, WorkFormat } from "@/lib/content/types";
 import type { SignatureKind } from "@/lib/theme";
 
 /** Scope the walk to one order's works, recomputing era/decade markers. */
@@ -51,6 +51,7 @@ export function RiverView({
   permalinkLabel,
   forthcomingLabel,
   formatLabels,
+  publishedAsTemplate,
   authorBorn,
   agedTemplate,
   elapsedTemplate,
@@ -71,7 +72,8 @@ export function RiverView({
   /** Localised accessible name for an event's permalink. */
   permalinkLabel?: string;
   forthcomingLabel?: string;
-  formatLabels?: { screenplay: string; play: string };
+  formatLabels?: Record<Exclude<WorkFormat, "novel">, string>;
+  publishedAsTemplate?: string;
   /** Birth date per author id, for a life event's age. */
   authorBorn?: Map<string, string | number>;
   /** Localised "aged {age}" template. */
@@ -111,6 +113,7 @@ export function RiverView({
           permalinkLabel={permalinkLabel}
           forthcomingLabel={forthcomingLabel}
           formatLabels={formatLabels}
+          publishedAsTemplate={publishedAsTemplate}
           authorBorn={authorBorn}
           agedTemplate={agedTemplate}
           elapsedTemplate={elapsedTemplate}

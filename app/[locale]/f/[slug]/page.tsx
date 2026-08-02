@@ -221,9 +221,24 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
               permalinkLabel={t("event.permalink")}
               forthcomingLabel={t("work.forthcoming")}
               formatLabels={{
+                novella: t("work.format.novella"),
+                "short-story": t("work.format.short-story"),
+                "short-story-collection": t("work.format.short-story-collection"),
+                poem: t("work.format.poem"),
+                "poetry-collection": t("work.format.poetry-collection"),
+                essay: t("work.format.essay"),
+                "essay-collection": t("work.format.essay-collection"),
+                memoir: t("work.format.memoir"),
+                nonfiction: t("work.format.nonfiction"),
+                reference: t("work.format.reference"),
                 screenplay: t("work.format.screenplay"),
                 play: t("work.format.play"),
+                "tv-series": t("work.format.tv-series"),
+                "graphic-novel": t("work.format.graphic-novel"),
+                "picture-book": t("work.format.picture-book"),
+                anthology: t("work.format.anthology"),
               }}
+              publishedAsTemplate={t("work.publishedAs", { name: "{name}" })}
               authorBorn={new Map(b.authors.filter((a) => a.born).map((a) => [a.id, a.born!]))}
               agedTemplate={t("event.aged", { age: "{age}" })}
               elapsedTemplate={t("event.elapsed", { n: "{n}" })}

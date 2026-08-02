@@ -8,6 +8,31 @@ import { Gutter, LEAP_YEARS } from "./river/gutter";
 import { ChapterGate } from "./river/chapter-gate";
 import { ageAt, formatAge } from "@/lib/age";
 import type { RiverLayer, SeriesEntry } from "@/lib/content/river";
+import type { WorkFormat } from "@/lib/content/types";
+
+/** English fallback for `formatLabels` when no translator reaches this far
+ * (e.g. a bare render in tests). Real pages always pass the translated set
+ * from `lib/i18n/messages.ts` (`work.format.*`). Exported so every consumer
+ * of `WorkContext.formatLabels` (River, Timeline) shares one literal instead
+ * of each keeping its own copy to drift out of sync with `WorkFormat`. */
+export const DEFAULT_FORMAT_LABELS: Record<Exclude<WorkFormat, "novel">, string> = {
+  novella: "Novella",
+  "short-story": "Short story",
+  "short-story-collection": "Short story collection",
+  poem: "Poem",
+  "poetry-collection": "Poetry collection",
+  essay: "Essay",
+  "essay-collection": "Essay collection",
+  memoir: "Memoir",
+  nonfiction: "Nonfiction",
+  reference: "Reference",
+  screenplay: "Screenplay",
+  play: "Stage play",
+  "tv-series": "TV series",
+  "graphic-novel": "Graphic novel",
+  "picture-book": "Picture book",
+  anthology: "Anthology",
+};
 
 /**
  * The River: the atmospheric context browse (CONCEPT §5 - "the soul of the
@@ -34,7 +59,8 @@ export function River({
   enteringLabel = "entering",
   permalinkLabel = "Link to this event",
   forthcomingLabel = "Forthcoming",
-  formatLabels = { screenplay: "Screenplay", play: "Stage play" },
+  formatLabels = DEFAULT_FORMAT_LABELS,
+  publishedAsTemplate = "as {name}",
   authorBorn,
   agedTemplate = "aged {age}",
   elapsedTemplate = "{n} years",
@@ -63,8 +89,14 @@ export function River({
   /** Localised badge for a work that is announced but not published yet. */
   forthcomingLabel?: string;
   /** Localised badges for a work's `format` when it isn't an ordinary novel
-   * (orrery-content docs/SCHEMA.md) - a screenplay or a stage play. */
-  formatLabels?: { screenplay: string; play: string };
+   * (orrery-content docs/SCHEMA.md). This is the badge that replaced raw
+   * `canonTier` on the card - see `components/river/work-card.tsx`. */
+  formatLabels?: Record<Exclude<WorkFormat, "novel">, string>;
+  /** Localised "as {name}" template for a work published under a pseudonym.
+   * A template string, not a function - a function prop crossing the
+   * server/client boundary breaks static export ("Functions cannot be
+   * passed directly to Client Components", found in CI 2026-08-01). */
+  publishedAsTemplate?: string;
   /** Localised "{n} years", printed in the gutter across a leap in time. */
   elapsedTemplate?: string;
   /** Birth date per author id, for showing their age at a life event. */
@@ -207,6 +239,7 @@ export function River({
                         orderPosition: orderPositions?.get(w.id),
                         forthcomingLabel,
                         formatLabels,
+                        publishedAsTemplate,
                         authorName: authorNames?.get(w.authorIds[0]),
                         isbn13: isbns?.[w.id],
                         readUrl: readUrls?.[w.id],

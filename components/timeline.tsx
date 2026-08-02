@@ -5,7 +5,8 @@ import { Cover } from "./cover";
 import { SpoilerGate } from "./spoilers/spoiler-gate";
 import { EventAnchor, eventAnchorId } from "./event-anchor";
 import { impactStyles, signatureLine, type SignatureKind } from "@/lib/theme";
-import type { AuraEvent, Work } from "@/lib/content/types";
+import type { AuraEvent, Work, WorkFormat } from "@/lib/content/types";
+import { DEFAULT_FORMAT_LABELS } from "./river";
 
 function yearOf(e: AuraEvent): number {
   const m = String(e.date ?? e.dateRange ?? "").match(/\d{4}/);
@@ -28,6 +29,8 @@ export function Timeline({
   editions,
   signature = "thread",
   permalinkLabel = "Link to this event",
+  formatLabels = DEFAULT_FORMAT_LABELS,
+  publishedAsTemplate = "as {name}",
 }: {
   works: Work[];
   events: AuraEvent[];
@@ -39,6 +42,13 @@ export function Timeline({
   permalinkLabel?: string;
   /** The franchise's signature element, from its theme.yaml. */
   signature?: SignatureKind;
+  /** Localised badges for a work's `format` when it isn't an ordinary novel
+   * (orrery-content docs/SCHEMA.md). Same badge as the River's work cards -
+   * `canonTier` (core/extended/apocrypha) drives layout but is never itself
+   * displayed. */
+  formatLabels?: Record<Exclude<WorkFormat, "novel">, string>;
+  /** Localised "as {name}" template for a work published under a pseudonym. */
+  publishedAsTemplate?: string;
 }) {
   const items: Item[] = [
     ...works.map((w) => ({ kind: "work" as const, year: w.published, work: w })),
@@ -83,12 +93,12 @@ export function Timeline({
                   )}
                   {item.work.publishedAs && (
                     <span className="text-[11px] italic text-[var(--muted)]">
-                      as {item.work.publishedAs}
+                      {publishedAsTemplate.replace("{name}", item.work.publishedAs)}
                     </span>
                   )}
-                  {item.work.canonTier !== "core" && (
+                  {item.work.format && item.work.format !== "novel" && (
                     <span className="text-[10px] uppercase tracking-wide text-[var(--muted)]/70">
-                      {item.work.canonTier}
+                      {formatLabels[item.work.format]}
                     </span>
                   )}
                 </div>
