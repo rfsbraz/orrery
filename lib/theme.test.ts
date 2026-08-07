@@ -6,7 +6,6 @@ import type { Theme } from "./content/types";
 describe("theme is content-driven", () => {
   it("a theme's palette and display face reach the page as CSS vars", () => {
     const theme: Theme = {
-      preset: "x",
       palette: { bg: "#111", accent: "#f00" },
       displayFace: "spectral",
     };
@@ -17,29 +16,28 @@ describe("theme is content-driven", () => {
   });
 
   it("an uncurated display face falls back instead of breaking the page", () => {
-    const vars = themeVars({ preset: "x", displayFace: "comic-nightmare" }) as Record<string, string>;
+    const vars = themeVars({ displayFace: "comic-nightmare" }) as Record<string, string>;
     expect(vars["--font-display"]).toBe(DISPLAY_FACES.fraunces);
   });
 
   it("the signature comes from content, defaulting to the neutral thread", () => {
-    expect(signatureOf({ preset: "x", signature: "beam" })).toBe("beam");
-    expect(signatureOf({ preset: "x", signature: "rule" })).toBe("rule");
-    expect(signatureOf({ preset: "x" })).toBe("thread");
+    expect(signatureOf({ signature: "beam" })).toBe("beam");
+    expect(signatureOf({ signature: "rule" })).toBe("rule");
+    expect(signatureOf({})).toBe("thread");
     expect(signatureOf(undefined)).toBe("thread");
     // an unknown signature degrades rather than rendering nothing
-    expect(signatureOf({ preset: "x", signature: "lightning-bolts" })).toBe("thread");
+    expect(signatureOf({ signature: "lightning-bolts" })).toBe("thread");
   });
 
   it("filament is a curated signature, not a silent fallback to thread", () => {
     // Sanderson's theme.yaml has asked for this since the wing was written; it
     // resolved to `thread` until the kind was added, with nothing reporting it.
-    expect(signatureOf({ preset: "x", signature: "filament" })).toBe("filament");
+    expect(signatureOf({ signature: "filament" })).toBe("filament");
     expect(signatureLine.filament).not.toBe(signatureLine.thread);
   });
 
   it("instrument-serif is a curated face, not a silent fallback to fraunces", () => {
     const vars = themeVars({
-      preset: "x",
       displayFace: "instrument-serif",
     }) as Record<string, string>;
     expect(vars["--font-display"]).toBe(DISPLAY_FACES["instrument-serif"]);

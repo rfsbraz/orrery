@@ -272,6 +272,11 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
                 "picture-book": t("work.format.picture-book"),
                 anthology: t("work.format.anthology"),
               }}
+              authorRoleLabels={{
+                contributor: t("work.authorRole.contributor"),
+                editor: t("work.authorRole.editor"),
+              }}
+              contributionTitleTemplate={t("work.contributionTitle", { title: "{title}" })}
               publishedAsTemplate={t("work.publishedAs", { name: "{name}" })}
               authorBorn={new Map(b.authors.filter((a) => a.born).map((a) => [a.id, a.born!]))}
               agedTemplate={t("event.aged", { age: "{age}" })}

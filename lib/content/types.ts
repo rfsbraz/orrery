@@ -28,6 +28,16 @@ export type WorkFormat =
   | "graphic-novel"
   | "picture-book"
   | "anthology";
+
+/** What this author actually did to the work, defaulting to "author" - only
+ * present when it is something else. Exists so a wing can hold honest
+ * completionist data (a story in an anthology, a book only edited or
+ * introduced) without the work rendering as if this author wrote the whole
+ * thing, which is the false claim the field exists to prevent (orrery-content
+ * docs/SCHEMA.md, "authorRole and canonTier"). `co-author` needs no separate
+ * badge - full co-authorship already reaches the reader via `withAuthorIds`
+ * (see `coAuthors` below). */
+export type AuthorRole = "author" | "co-author" | "contributor" | "editor";
 export type Impact = "low" | "med" | "high";
 export type EventScope = "author-life" | "world" | "culture" | "industry";
 export type OrderType =
@@ -157,6 +167,12 @@ export interface Work {
   featured?: boolean;
   publishedAs?: string;
   withAuthorIds?: string[];
+  /** Defaults to "author"; unset for every ordinary book. See `AuthorRole`. */
+  authorRole?: AuthorRole;
+  /** The piece this author actually contributed, when it is not the whole
+   * book (e.g. one story in an anthology). Only meaningful alongside
+   * `authorRole: "contributor"` or `"editor"`. */
+  contributionTitle?: string;
   /** This work's own text is reprinted in full inside the work at this id
    * (orrery#168) - a periodical or standalone-booklet appearance later
    * collected whole into a bigger volume, the way Fernando Pessoa's
@@ -225,15 +241,22 @@ export interface ReadingOrder {
   derived?: boolean;
 }
 
+// `preset` (a free-form evocative label like "murder-book-noir" - every wing
+// picks a unique one, so it was never an enum the app could switch on) and
+// `typePairing`/`motif` (present in this type but never once written to any
+// wing's theme.yaml) all had zero readers anywhere in the app - the same dead
+// pattern as the removed `images.header` (orrery#169). SCHEMA.md's own
+// design-law prose already named the real three levers ("personality through
+// palette + one display face + one signature") without preset among them, so
+// this brings the type in line with what the app - and the schema's own
+// description of itself - actually consume. Existing content that still sets
+// these fields is untouched and harmless.
 export interface Theme {
-  preset: string;
   palette?: Record<string, string>;
   /** Key into the app's curated display faces (lib/theme.ts DISPLAY_FACES). */
   displayFace?: string;
   /** The franchise's signature element: beam | thread | rule | none. */
   signature?: string;
-  typePairing?: Record<string, string>;
-  motif?: string;
   notes?: string;
 }
 
