@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { localeFromSegment, localePath } from "@/lib/i18n/config";
 import { translator } from "@/lib/i18n/messages";
-import { getFranchise, listFranchiseSlugs } from "@/lib/content";
+import { getFranchise, listFranchiseSlugs, getAllBundles, creditedAppearances, getAuthor } from "@/lib/content";
 import { capabilities } from "@/lib/content/capabilities";
 import { coverFor, freeReadUrl, pickEdition } from "@/lib/content/editions";
 import { WorkTitlesProvider } from "@/components/i18n/provider";
@@ -70,6 +70,25 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
     if (edition?.title && edition.language === locale) localTitles[w.id] = edition.title;
   }
   const authorNames = new Map(b.authors.map((a) => [a.id, a.name]));
+  // A co-author reached via withAuthorIds is rarely one of THIS wing's own
+  // authors (b.authors) - they're credited on one book, not the wing's
+  // throughline - so their name has to be resolved from the global registry
+  // the same way a bare id would be. Built once, over the union of every
+  // work's withAuthorIds, rather than a lookup per card.
+  const coAuthorIds = new Set(b.works.flatMap((w) => w.withAuthorIds ?? []));
+  for (const id of coAuthorIds) {
+    if (!authorNames.has(id)) {
+      const a = getAuthor(id, locale);
+      if (a) authorNames.set(id, a.name);
+    }
+  }
+  // Every id in authorNames gets a link to its own page - `/author/<id>`
+  // redirects straight to a wing-owner's own wing (app/[locale]/author/[id]/
+  // page.tsx), so clicking a co-author's name here already lands wherever
+  // their own work actually lives, with no branching needed at this call site.
+  const authorHrefs = new Map(
+    [...authorNames.keys()].map((id) => [id, localePath(locale, `/author/${id}`)])
+  );
 
   // Authors whose bio is worth showing here: the ones this franchise is
   // actually about, and only where the bio says something the franchise
@@ -86,6 +105,19 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
       pseudonyms: a.pseudonyms,
     }));
   const workTitles = Object.fromEntries(b.works.map((w) => [w.id, w.title]));
+
+  // Where ELSE this wing's own author(s) turn up: a work co-written with
+  // someone else lives on exactly one wing's shelf (franchise-research's own
+  // scoping rule), so a collaboration credited via withAuthorIds never
+  // duplicates onto this wing - it stays visible from here as a link back to
+  // wherever it actually lives, the same "who else did I write with" query
+  // the standalone co-author page already runs, just from the wing-owner
+  // side of it for once (orrery#178).
+  const guestAppearances = creditedAppearances(
+    b.authors.map((a) => a.id),
+    getAllBundles(locale),
+    slug
+  );
 
   return (
     <WorkTitlesProvider titles={workTitles}>
@@ -213,6 +245,8 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
               workTitles={workTitles}
               localTitles={localTitles}
               authorNames={authorNames}
+              authorHrefs={authorHrefs}
+              withCoAuthorPrefix={t("work.withCoAuthorPrefix")}
               isbns={isbns}
               readUrls={readUrls}
               signature={signatureOf(b.theme)}
@@ -246,6 +280,28 @@ export default async function FranchisePage(props: { params: Promise<{ locale: s
           </ProgressProvider>
           <CommunityOrders franchiseSlug={slug} workTitles={workTitles} />
         </section>
+
+        {guestAppearances.length > 0 && (
+          <section className="mt-10 border-t border-[var(--ink)]/10 pt-8">
+            <h2 className="display text-lg font-semibold">{t("franchise.alsoAppearsIn")}</h2>
+            <ul className="mt-3 space-y-2 text-sm">
+              {guestAppearances.map(({ work, franchiseId, franchiseName }) => (
+                <li key={work.id}>
+                  <Link
+                    href={localePath(locale, `/f/${franchiseId}#w-${work.id.split("/").pop()}`)}
+                    className="text-[var(--ink)]/85 underline-offset-2 hover:underline"
+                  >
+                    {work.title}
+                  </Link>
+                  <span className="text-[var(--muted)]">
+                    {" "}
+                    · {work.published} · {franchiseName}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         <Contribute locale={locale} franchiseName={b.franchise.name} />
 

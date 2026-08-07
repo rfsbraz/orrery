@@ -43,6 +43,8 @@ export function RiverView({
   workTitles,
   localTitles,
   authorNames,
+  authorHrefs,
+  withCoAuthorPrefix,
   isbns,
   readUrls,
   signature,
@@ -63,6 +65,11 @@ export function RiverView({
   workTitles: Record<string, string>;
   localTitles?: Record<string, string>;
   authorNames?: Map<string, string>;
+  /** `/author/<id>` for every id in `authorNames` - a co-author page that
+   * redirects straight to their own wing if they have one. */
+  authorHrefs?: Map<string, string>;
+  /** Localised "with" prefix before a work's `withAuthorIds` credit line. */
+  withCoAuthorPrefix?: string;
   isbns?: Record<string, string | undefined>;
   readUrls?: Record<string, string | null | undefined>;
   signature?: SignatureKind;
@@ -105,6 +112,8 @@ export function RiverView({
           workTitles={workTitles}
           localTitles={localTitles}
           authorNames={authorNames}
+          authorHrefs={authorHrefs}
+          withCoAuthorPrefix={withCoAuthorPrefix}
           isbns={isbns}
           readUrls={readUrls}
           signature={signature}
