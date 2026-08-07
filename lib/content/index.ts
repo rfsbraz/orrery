@@ -377,6 +377,39 @@ export function getAllBundles(locale?: string): FranchiseBundle[] {
     .filter((b): b is FranchiseBundle => Boolean(b));
 }
 
+export interface CreditedAppearance {
+  work: Work;
+  franchiseId: string;
+  franchiseName: string;
+}
+
+/**
+ * Every work across `bundles` crediting any of `authorIds` - as the primary
+ * author or via `withAuthorIds` - so a reader can find a book from EVERY
+ * person named on it, not just the one whose shelf it lives on.
+ *
+ * A work still lives in exactly one wing's bibliography (franchise-research's
+ * own scoping rule - James Patterson's ~200 co-written thrillers are not
+ * duplicated into each collaborator's own wing), so this is a pure discovery
+ * query, never a second copy: pass `excludeFranchiseId` to ask "where ELSE
+ * does this person turn up" from that person's own wing page, or omit it for
+ * a co-author with no wing of their own, who has nowhere else this lives.
+ */
+export function creditedAppearances(
+  authorIds: Iterable<string>,
+  bundles: FranchiseBundle[],
+  excludeFranchiseId?: string
+): CreditedAppearance[] {
+  const ids = new Set(authorIds);
+  return bundles
+    .filter((b) => b.franchise.id !== excludeFranchiseId)
+    .flatMap((b) =>
+      b.works
+        .filter((w) => w.authorIds.some((a) => ids.has(a)) || (w.withAuthorIds ?? []).some((a) => ids.has(a)))
+        .map((w) => ({ work: w, franchiseId: b.franchise.id, franchiseName: b.franchise.name }))
+    );
+}
+
 /** First year of an event's date/dateRange, for sorting. */
 export function eventYear(e: AuraEvent): number {
   const raw = String(e.date ?? e.dateRange ?? "");

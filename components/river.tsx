@@ -52,6 +52,8 @@ export function River({
   workTitles,
   signature = "thread",
   authorNames,
+  authorHrefs,
+  withCoAuthorPrefix,
   isbns,
   readUrls,
   localTitles,
@@ -69,8 +71,14 @@ export function River({
   series: Map<string, SeriesEntry>;
   covers: Record<string, string>;
   workTitles: Record<string, string>;
-  /** Author display names, for store-link queries. */
+  /** Author display names, for store-link queries and a work's co-author
+   * credit line. */
   authorNames?: Map<string, string>;
+  /** `/author/<id>` per id in `authorNames`, so a co-author credit can link
+   * to their own page (which redirects to their own wing, if they have one). */
+  authorHrefs?: Map<string, string>;
+  /** Localised "with" prefix before a work's withAuthorIds credit line. */
+  withCoAuthorPrefix?: string;
   /** Verified buy-ISBNs per work (editions capability). */
   isbns?: Record<string, string | undefined>;
   /** A complete, free, legally-hosted text per work, where one is on file
@@ -241,6 +249,11 @@ export function River({
                         formatLabels,
                         publishedAsTemplate,
                         authorName: authorNames?.get(w.authorIds[0]),
+                        coAuthors: (w.withAuthorIds ?? []).flatMap((id) => {
+                          const name = authorNames?.get(id);
+                          return name ? [{ name, href: authorHrefs?.get(id) }] : [];
+                        }),
+                        withCoAuthorPrefix,
                         isbn13: isbns?.[w.id],
                         readUrl: readUrls?.[w.id],
                       }}

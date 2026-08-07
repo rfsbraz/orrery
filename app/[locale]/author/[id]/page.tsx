@@ -5,7 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { localeFromSegment, localePath } from "@/lib/i18n/config";
 import { translator } from "@/lib/i18n/messages";
-import { getAuthor, listFranchises, getAllBundles } from "@/lib/content";
+import { getAuthor, listFranchises, getAllBundles, creditedAppearances } from "@/lib/content";
 import { AboutTheAuthorBody } from "@/components/about-the-author";
 import { Prose } from "@/components/prose";
 
@@ -76,11 +76,11 @@ export default async function AuthorPage(props: {
 
   const t = translator(locale);
   // Every work this person is named on, and the wing whose shelf carries it.
-  const appearances = getAllBundles(locale).flatMap((b) =>
-    b.works
-      .filter((w) => (w.withAuthorIds ?? []).includes(id) || w.authorIds.includes(id))
-      .map((w) => ({ work: w, slug: b.franchise.id, wing: b.franchise.name }))
-  );
+  const appearances = creditedAppearances([id], getAllBundles(locale)).map((a) => ({
+    work: a.work,
+    slug: a.franchiseId,
+    wing: a.franchiseName,
+  }));
 
   const life = [...(author.lifeEvents ?? [])].sort((a, b) =>
     String(a.date).localeCompare(String(b.date))

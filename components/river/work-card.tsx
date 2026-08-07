@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Prose } from "../prose";
 import { Cover } from "../cover";
 import { FindACopy } from "../find-a-copy";
@@ -54,6 +55,14 @@ export interface WorkContext {
   /** Localised "as {name}" template for a work published under a pseudonym. */
   publishedAsTemplate: string;
   authorName?: string;
+  /** This work's `withAuthorIds` credit, resolved to a display name and
+   * (when the person has their own page) a link to it - clicking a
+   * collaborator's name travels to their own wing if they have one
+   * (app/[locale]/author/[id]/page.tsx redirects there), or to their
+   * standalone co-author page otherwise. */
+  coAuthors?: { name: string; href?: string }[];
+  /** Localised "with" prefix before the coAuthors credit line. */
+  withCoAuthorPrefix?: string;
   isbn13?: string;
   readUrl?: string | null;
 }
@@ -122,6 +131,23 @@ function WorkMeta({
       {w.forthcoming && (
         <span className="ml-2 rounded border border-[var(--accent)]/40 px-1 py-px normal-case text-[var(--accent)]">
           {ctx.forthcomingLabel}
+        </span>
+      )}
+      {ctx.coAuthors && ctx.coAuthors.length > 0 && (
+        <span className="ml-2 italic normal-case">
+          {ctx.withCoAuthorPrefix ?? "with"}{" "}
+          {ctx.coAuthors.map((c, i) => (
+            <span key={c.href ?? c.name}>
+              {i > 0 && ", "}
+              {c.href ? (
+                <Link href={c.href} className="not-italic underline-offset-2 hover:underline">
+                  {c.name}
+                </Link>
+              ) : (
+                c.name
+              )}
+            </span>
+          ))}
         </span>
       )}
     </p>
