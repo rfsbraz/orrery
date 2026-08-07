@@ -99,6 +99,22 @@ export interface Pseudonym {
   note?: string;
 }
 
+/** A literary heteronym: an invented persona with its own authored biography,
+ * not a pen name (orrery-content docs/SCHEMA.md, "heteronyms"). `authored:
+ * true` marks born/died/lifeEvents as fiction the real author wrote, never
+ * biographical fact about a real person - render them with that framing,
+ * never as a plain fact. */
+export interface Heteronym {
+  id: string;
+  name: string;
+  authored: boolean;
+  born?: string | number;
+  died?: string | number;
+  bio?: string;
+  lifeEvents?: AuraEvent[];
+  sources?: string[];
+}
+
 export interface Author {
   id: string;
   name: string;
@@ -107,6 +123,7 @@ export interface Author {
   died?: string | number;
   bio?: string;
   pseudonyms?: Pseudonym[];
+  heteronyms?: Heteronym[];
   lifeEvents?: AuraEvent[];
   /** Curated imagery from the visual-metadata pass (licensed, credited). */
   images?: {

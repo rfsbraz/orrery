@@ -11,6 +11,8 @@ import type {
   Era,
   Franchise,
   FranchiseBundle,
+  Heteronym,
+  Pseudonym,
   ReadingOrder,
   Theme,
   Work,
@@ -83,6 +85,17 @@ function mergeList<T extends { id: string }>(
  *
  * Nested lists are merged by id explicitly (see mergeList) precisely so the
  * base keeps its structure. Skipping non-scalars here is what makes that safe.
+ *
+ * `pseudonyms` and `heteronyms` are the same trap in a different shape, and
+ * both used to hit it: an author's `heteronyms` array (objects, not id-keyed
+ * at this function's level) and `pseudonyms` array (objects with no `id` at
+ * all) both fell through the `Array.isArray(v)` branch below with nothing to
+ * catch them, so an overlay could carry a full translation of either and the
+ * merged author would still show the base's untranslated array - not an
+ * error, just silently inert. See `mergePseudonyms` (matched by `name`, the
+ * field's only stable key) and `mergeHeteronyms` (matched by `id`, then each
+ * heteronym's own `lifeEvents` merged the same way `withAuthorTranslations`
+ * already merges the author's).
  */
 /**
  * Lists of plain strings that are PROSE a reader reads, not structure.
@@ -142,15 +155,71 @@ export function getAuthor(id: string, locale?: string): Author | undefined {
   return withAuthorTranslations(base, locale);
 }
 
+/**
+ * Merge a `pseudonyms` overlay. Pseudonyms have no `id` (SCHEMA.md: just
+ * `name` + `note`), so `merge`/`mergeList` don't apply directly - matched by
+ * `name` instead, which is already the field a reader and the React key on
+ * `about-the-author.tsx` both treat as the unique identifier. `name` itself
+ * is never taken from the overlay: it is the join key, not content, the same
+ * rule `merge()` applies to `id`.
+ */
+export function mergePseudonyms(
+  base: Pseudonym[] | undefined,
+  translated: unknown
+): Pseudonym[] | undefined {
+  if (!base || !Array.isArray(translated)) return base;
+  const noteByName = new Map<string, string>();
+  for (const t of translated as Record<string, unknown>[]) {
+    if (typeof t?.name === "string" && typeof t.note === "string" && t.note) {
+      noteByName.set(t.name, t.note);
+    }
+  }
+  return base.map((p) => {
+    const note = noteByName.get(p.name);
+    return note ? { ...p, note } : p;
+  });
+}
+
+/**
+ * Merge a `heteronyms` overlay. A heteronym is id-bearing like any other
+ * nested list, so the outer match reuses `merge`/`mergeList` - but each
+ * heteronym carries its OWN `lifeEvents`, one level deeper than an author's,
+ * so that has to be re-merged per heteronym rather than once for the whole
+ * author (the shape `withAuthorTranslations` already uses for the author's
+ * own lifeEvents, applied recursively).
+ */
+export function mergeHeteronyms(
+  base: Heteronym[] | undefined,
+  entry: Record<string, unknown> | undefined
+): Heteronym[] | undefined {
+  const translated = entry?.heteronyms;
+  if (!base || !Array.isArray(translated)) return base;
+  const byId: Overlay = {};
+  for (const t of translated as Record<string, unknown>[]) {
+    if (t?.id) byId[t.id as string] = t;
+  }
+  return base.map((h) => {
+    const merged = merge(h, byId);
+    const nestedLifeEvents = byId[h.id]?.lifeEvents;
+    const lifeEvents = Array.isArray(nestedLifeEvents)
+      ? mergeList(merged.lifeEvents, nestedLifeEvents)
+      : merged.lifeEvents;
+    return { ...merged, lifeEvents };
+  });
+}
+
 /** Apply an author's translation overlay, including either lifeEvents shape. */
 function withAuthorTranslations(a: Author, locale?: string): Author {
   const ov = overlayFor(locale, path.join("authors", `${a.id}.yaml`));
+  const entry = ov[a.id];
   const merged = merge(a, ov);
-  const nested = ov[a.id]?.lifeEvents;
+  const nested = entry?.lifeEvents;
   const lifeEvents = Array.isArray(nested)
     ? mergeList(merged.lifeEvents, nested)
     : (merged.lifeEvents ?? []).map((e) => merge(e, ov));
-  return { ...merged, lifeEvents };
+  const pseudonyms = mergePseudonyms(merged.pseudonyms, entry?.pseudonyms);
+  const heteronyms = mergeHeteronyms(merged.heteronyms, entry);
+  return { ...merged, lifeEvents, pseudonyms, heteronyms };
 }
 
 export function listFranchiseSlugs(): string[] {
