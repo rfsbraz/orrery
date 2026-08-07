@@ -35,7 +35,14 @@ export function buildContext(
   const erasByFranchise = new Map<string, Era[]>();
 
   for (const b of bundles) {
-    worksByFranchise.set(b.franchise.id, b.works);
+    // A work naming `containedIn` (orrery#168) has its own text reprinted
+    // whole inside another work in this same list - counting both toward
+    // `franchise_complete`/`era_reader` would require reading one text
+    // twice under two ids to reach 100%. `workById` stays unfiltered (a
+    // reader who marks the contained id read directly still resolves fine
+    // for punctual_read and the rest); only the "which ids count toward
+    // completion" pool drops it.
+    worksByFranchise.set(b.franchise.id, b.works.filter((w) => !w.containedIn));
     erasByFranchise.set(b.franchise.id, b.eras);
     for (const w of b.works) workById.set(w.id, w);
     for (const o of b.orders) orderById.set(o.id, { orderedWorkIds: o.orderedWorkIds });

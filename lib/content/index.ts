@@ -230,9 +230,16 @@ export function listFranchiseSlugs(): string[] {
 }
 
 /** The default order: every work in publication-chronological order (CONCEPT §4b). */
-function deriveDefaultOrder(slug: string, works: Work[], locale?: string): ReadingOrder {
+export function deriveDefaultOrder(slug: string, works: Work[], locale?: string): ReadingOrder {
   const t = translator(locale && isLocale(locale) ? locale : DEFAULT_LOCALE);
-  const ordered = [...works].sort((a, b) => a.published - b.published);
+  // A work naming `containedIn` (orrery#168) has its own text reprinted whole
+  // inside another work in this list - keep it in the wing's bibliography
+  // (browsable, completionist-correct), but the linear walk skips it, or a
+  // reader hits the same pages twice under two different ids with nothing
+  // saying so.
+  const ordered = works
+    .filter((w) => !w.containedIn)
+    .sort((a, b) => a.published - b.published);
   return {
     id: `${slug}/default`,
     name: t("order.defaultName"),
