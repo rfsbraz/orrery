@@ -160,6 +160,20 @@ export interface Work {
   featured?: boolean;
   publishedAs?: string;
   withAuthorIds?: string[];
+  /** This work's own text is reprinted in full inside the work at this id
+   * (orrery#168) - a periodical or standalone-booklet appearance later
+   * collected whole into a bigger volume, the way Fernando Pessoa's
+   * `o-guardador-de-rebanhos` (Athena, 1925) is also the first third of
+   * `poemas-de-alberto-caeiro` (1946). Both remain real, separately-dated,
+   * separately-sourced works - this id is NOT dropped from the wing's
+   * bibliography - but a reader walking the DERIVED default order would
+   * otherwise read the same text twice, once under each id, with nothing
+   * telling them so. `deriveDefaultOrder` skips a work that names one, and
+   * completion tracking (`lib/achievements/evaluate.ts`) treats reading the
+   * container as covering this id too. Never a curated order's own call:
+   * `orders.yaml` orders are hand-picked and can include or omit either id
+   * exactly as their own rationale argues, same as any other work. */
+  containedIn?: string;
   synopsis?: string;
   externalIds?: { openLibrary?: string; googleBooks?: string; wikidata?: string };
   /** Curated imagery from the visual-metadata pass. Every URL here has been
