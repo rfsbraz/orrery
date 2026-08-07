@@ -52,6 +52,10 @@ export interface WorkContext {
   forthcomingLabel: string;
   /** Localised labels for a work's `format` when it isn't a novel. */
   formatLabels?: Record<Exclude<WorkFormat, "novel">, string>;
+  /** Localised labels for a work's `authorRole` when it isn't the default. */
+  authorRoleLabels?: Record<"contributor" | "editor", string>;
+  /** Localised template for the specific piece named in `contributionTitle`. */
+  contributionTitleTemplate?: string;
   /** Localised "as {name}" template for a work published under a pseudonym. */
   publishedAsTemplate: string;
   authorName?: string;
@@ -123,6 +127,14 @@ function WorkMeta({
       {w.format && w.format !== "novel" && ctx.formatLabels && (
         <span className="ml-2 rounded border border-[var(--accent)]/40 px-1 py-px normal-case text-[var(--accent)]">
           {ctx.formatLabels[w.format]}
+        </span>
+      )}
+      {(w.authorRole === "contributor" || w.authorRole === "editor") && ctx.authorRoleLabels && (
+        <span className="ml-2 rounded border border-[var(--accent)]/40 px-1 py-px normal-case text-[var(--accent)]">
+          {ctx.authorRoleLabels[w.authorRole]}
+          {w.contributionTitle && ctx.contributionTitleTemplate && (
+            <> {ctx.contributionTitleTemplate.replace("{title}", w.contributionTitle)}</>
+          )}
         </span>
       )}
       {/* An announced book sits in its year like any other, so it has to say

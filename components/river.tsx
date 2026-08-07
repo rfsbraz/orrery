@@ -34,6 +34,15 @@ export const DEFAULT_FORMAT_LABELS: Record<Exclude<WorkFormat, "novel">, string>
   anthology: "Anthology",
 };
 
+/** English fallback for `authorRoleLabels`, same reasoning as
+ * `DEFAULT_FORMAT_LABELS` above. `author` and `co-author` need no label here:
+ * `author` is the silent default, and full co-authorship already reaches the
+ * reader via `withAuthorIds` (see `coAuthors` on `WorkContext`). */
+export const DEFAULT_AUTHOR_ROLE_LABELS: Record<"contributor" | "editor", string> = {
+  contributor: "Contributor",
+  editor: "Editor",
+};
+
 /**
  * The River: the atmospheric context browse (CONCEPT §5 - "the soul of the
  * product"), rendered as strata. Time is sediment and you descend through it:
@@ -62,6 +71,8 @@ export function River({
   permalinkLabel = "Link to this event",
   forthcomingLabel = "Forthcoming",
   formatLabels = DEFAULT_FORMAT_LABELS,
+  authorRoleLabels = DEFAULT_AUTHOR_ROLE_LABELS,
+  contributionTitleTemplate = "“{title}”",
   publishedAsTemplate = "as {name}",
   authorBorn,
   agedTemplate = "aged {age}",
@@ -100,6 +111,14 @@ export function River({
    * (orrery-content docs/SCHEMA.md). This is the badge that replaced raw
    * `canonTier` on the card - see `components/river/work-card.tsx`. */
   formatLabels?: Record<Exclude<WorkFormat, "novel">, string>;
+  /** Localised badges for a work's `authorRole` when this author didn't write
+   * the whole thing (a story in an anthology, a book only edited) - the
+   * false claim `authorRole` exists to prevent (orrery-content docs/SCHEMA.md,
+   * "authorRole and canonTier"). */
+  authorRoleLabels?: Record<"contributor" | "editor", string>;
+  /** Localised "“{title}”" template for the specific piece a
+   * contributor/editor is credited for, when `contributionTitle` is set. */
+  contributionTitleTemplate?: string;
   /** Localised "as {name}" template for a work published under a pseudonym.
    * A template string, not a function - a function prop crossing the
    * server/client boundary breaks static export ("Functions cannot be
@@ -247,6 +266,8 @@ export function River({
                         orderPosition: orderPositions?.get(w.id),
                         forthcomingLabel,
                         formatLabels,
+                        authorRoleLabels,
+                        contributionTitleTemplate,
                         publishedAsTemplate,
                         authorName: authorNames?.get(w.authorIds[0]),
                         coAuthors: (w.withAuthorIds ?? []).flatMap((id) => {

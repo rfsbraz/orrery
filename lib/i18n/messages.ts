@@ -55,6 +55,9 @@ export const messages = {
     "work.format.graphic-novel": "Graphic novel",
     "work.format.picture-book": "Picture book",
     "work.format.anthology": "Anthology",
+    "work.authorRole.contributor": "Contributor",
+    "work.authorRole.editor": "Editor",
+    "work.contributionTitle": "“{title}”",
     "order.defaultName": "Complete, in publication order",
     "order.defaultRationale":
       "Every published work in the order it appeared - the default way to read the whole body of work.",
@@ -208,6 +211,9 @@ export const messages = {
     "work.format.graphic-novel": "Novela gráfica",
     "work.format.picture-book": "Livro ilustrado",
     "work.format.anthology": "Antologia",
+    "work.authorRole.contributor": "Colaborador",
+    "work.authorRole.editor": "Editor",
+    "work.contributionTitle": "“{title}”",
     "order.defaultName": "Completa, por ordem de publicação",
     "order.defaultRationale":
       "Todas as obras publicadas, pela ordem em que surgiram - a forma predefinida de ler a obra completa.",

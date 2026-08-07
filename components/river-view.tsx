@@ -53,6 +53,8 @@ export function RiverView({
   permalinkLabel,
   forthcomingLabel,
   formatLabels,
+  authorRoleLabels,
+  contributionTitleTemplate,
   publishedAsTemplate,
   authorBorn,
   agedTemplate,
@@ -80,6 +82,8 @@ export function RiverView({
   permalinkLabel?: string;
   forthcomingLabel?: string;
   formatLabels?: Record<Exclude<WorkFormat, "novel">, string>;
+  authorRoleLabels?: Record<"contributor" | "editor", string>;
+  contributionTitleTemplate?: string;
   publishedAsTemplate?: string;
   /** Birth date per author id, for a life event's age. */
   authorBorn?: Map<string, string | number>;
@@ -122,6 +126,8 @@ export function RiverView({
           permalinkLabel={permalinkLabel}
           forthcomingLabel={forthcomingLabel}
           formatLabels={formatLabels}
+          authorRoleLabels={authorRoleLabels}
+          contributionTitleTemplate={contributionTitleTemplate}
           publishedAsTemplate={publishedAsTemplate}
           authorBorn={authorBorn}
           agedTemplate={agedTemplate}
