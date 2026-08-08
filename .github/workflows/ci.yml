@@ -4,7 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [opened, synchronize, reopened, ready_for_review]
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -13,8 +13,10 @@ concurrency:
 jobs:
   test:
     runs-on: ubuntu-latest
-    # Skip release-please's own PRs
-    if: ${{ !startsWith(github.head_ref || '', 'release-please--') }}
+    # Skip release-please's own PRs, and skip a draft PR (still WIP - the
+    # ready_for_review type above means the real run fires when it opens for
+    # review, no extra push needed to wake it).
+    if: ${{ !startsWith(github.head_ref || '', 'release-please--') && (github.event_name != 'pull_request' || !github.event.pull_request.draft) }}
     steps:
       - uses: actions/checkout@v7
         with:
