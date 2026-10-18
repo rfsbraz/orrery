@@ -1,0 +1,6 @@
+- id: fixture-edition-en
+  workId: spoiler-fixture/the-first-lamp
+  language: en
+  format: paperback
+  year: 1990
+  note: "FIXTURE-EDITION-NOTE: the back cover reveals the twin."

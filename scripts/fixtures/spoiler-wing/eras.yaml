@@ -1,0 +1,5 @@
+- id: fixture-era
+  title: The lamp years
+  period: "1990-1994"
+  description: "The made-up years of both lamps."
+  note: "FIXTURE-ERA-NOTE: the keeper leaves the coast at the end."
