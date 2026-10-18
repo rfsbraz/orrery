@@ -32,7 +32,7 @@ export function SpoilerGate({
   }
 
   return (
-    <span className="inline-flex flex-wrap items-center gap-2 rounded border border-dashed border-[var(--ink)]/25 bg-[var(--surface)] px-2 py-1 align-baseline">
+    <span className="relative inline-flex flex-wrap items-center gap-2 rounded border border-dashed border-[var(--ink)]/25 bg-[var(--surface)] px-2 py-1 align-baseline">
       <span className="text-xs italic text-[var(--muted)]">
         {boundaryTitle
           ? t("spoiler.hiddenUntil", { work: boundaryTitle })
