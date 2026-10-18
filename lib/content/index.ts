@@ -130,6 +130,21 @@ function merge<T extends { id: string }>(base: T, overlay: Overlay): T {
   return out as T;
 }
 
+/**
+ * Drop a curator `note` (orrery#106). On works, eras, events and editions the
+ * note records what a synopsis deliberately withholds, so it often names the
+ * spoiler itself. Nothing renders it, but anything handed to a client
+ * component is serialized into the page's HTML and RSC payload, so it is
+ * removed here, before any page can pass it on. The notes readers are meant
+ * to see (startHere paths, pseudonyms) are not run through this.
+ */
+export function withoutNote<T extends object>(item: T): T {
+  if (!("note" in item)) return item;
+  const out = { ...item } as Record<string, unknown>;
+  delete out.note;
+  return out as T;
+}
+
 function readYaml<T>(file: string): T | null {
   if (!fs.existsSync(file)) return null;
   return parseYaml(fs.readFileSync(file, "utf8")) as T;
@@ -219,7 +234,7 @@ function withAuthorTranslations(a: Author, locale?: string): Author {
     : (merged.lifeEvents ?? []).map((e) => merge(e, ov));
   const pseudonyms = mergePseudonyms(merged.pseudonyms, entry?.pseudonyms);
   const heteronyms = mergeHeteronyms(merged.heteronyms, entry);
-  return { ...merged, lifeEvents, pseudonyms, heteronyms };
+  return { ...merged, lifeEvents: lifeEvents?.map(withoutNote), pseudonyms, heteronyms };
 }
 
 export function listFranchiseSlugs(): string[] {
@@ -311,21 +326,21 @@ export function getFranchise(slug: string, locale?: string): FranchiseBundle | n
 
   const rel_ = (f: string) => path.join("franchises", slug, f);
   const works = (readYaml<Work[]>(path.join(dir, "works.yaml")) ?? []).map((w) =>
-    merge(w, overlayFor(locale, rel_("works.yaml")))
+    withoutNote(merge(w, overlayFor(locale, rel_("works.yaml"))))
   );
   const eras = (readYaml<Era[]>(path.join(dir, "eras.yaml")) ?? []).map((e) =>
-    merge(e, overlayFor(locale, rel_("eras.yaml")))
+    withoutNote(merge(e, overlayFor(locale, rel_("eras.yaml"))))
   );
   const curatedOrders = (readYaml<ReadingOrder[]>(path.join(dir, "orders.yaml")) ?? []).map((o) =>
     merge(o, overlayFor(locale, rel_("orders.yaml")))
   );
   const theme = readYaml<Theme>(path.join(dir, "theme.yaml")) ?? undefined;
   const franchiseEvents = (readYaml<AuraEvent[]>(path.join(dir, "events.yaml")) ?? []).map((e) =>
-    merge(e, overlayFor(locale, rel_("events.yaml")))
+    withoutNote(merge(e, overlayFor(locale, rel_("events.yaml"))))
   );
   // Editions are deliberately NOT overlaid: an edition's `title` is the title
   // as published, which is data, not prose to translate.
-  const editions = readYaml<Edition[]>(path.join(dir, "editions.yaml")) ?? [];
+  const editions = (readYaml<Edition[]>(path.join(dir, "editions.yaml")) ?? []).map(withoutNote);
 
   const authors = franchise.authorIds
     .map((id) => authorMap().get(id))
@@ -345,7 +360,7 @@ export function getFranchise(slug: string, locale?: string): FranchiseBundle | n
     }))
   );
   const allGlobal = (readYaml<{ events: AuraEvent[] }>(GLOBAL_EVENTS)?.events ?? []).map((e) =>
-    merge(e, overlayFor(locale, path.join("events", "global.yaml")))
+    withoutNote(merge(e, overlayFor(locale, path.join("events", "global.yaml"))))
   );
   const globalEvents = relevantGlobalEvents(allGlobal, franchise);
   const timeline = [...lifeEvents, ...franchiseEvents, ...globalEvents].sort(
