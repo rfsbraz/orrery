@@ -212,15 +212,15 @@ export interface Edition {
   format?: "hardcover" | "paperback" | "ebook" | "audiobook";
   publisher?: string;
   year?: number;
-  coverUrl?: string | null;
-  /** A complete, free, legally-hosted text (Project Gutenberg, Standard Ebooks). */
-  readUrl?: string | null;
   /**
    * `false` marks a verified edition that is never the one to surface (an
    * abridged or young-adult adaptation): it loses any tie against another
    * edition in the same language, however recent.
    */
   primary?: boolean;
+  coverUrl?: string | null;
+  /** A complete, free, legally-hosted text (Project Gutenberg, Standard Ebooks). */
+  readUrl?: string | null;
   note?: string;
   sources?: string[];
 }
