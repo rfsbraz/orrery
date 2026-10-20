@@ -48,6 +48,15 @@ never a hard wall. The reader's read-set comes from `ProgressProvider`
 
 Used by: the classic timeline, the River, and the reading companion.
 
+Curator `note` fields on works, eras, events and editions say what a synopsis
+withholds, so they often name the spoiler outright. They are never rendered,
+and the content loader drops them (`withoutNote` in `lib/content/index.ts`) so
+they cannot reach a client component and, through it, the page's HTML or RSC
+payload (orrery#106). CI checks the built pages for this with
+`scripts/spoiler-check.mjs`. The text behind a `spoilerAfter` teaser is
+different: it is rendered on reveal, so it does ship in the page, hidden until
+the reader asks for it.
+
 ## The features
 
 ### The River - the franchise root, `/f/<slug>`

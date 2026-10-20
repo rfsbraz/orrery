@@ -1,0 +1,9 @@
+# A made-up wing for scripts/spoiler-check.mjs. Never part of the catalogue:
+# the check copies it into the built server's content folder, asks for the
+# page, then removes it. Every `note` below names a fake spoiler that must
+# never reach the served HTML or the RSC payload.
+id: spoiler-fixture
+name: Spoiler Fixture
+kind: author
+description: A made-up wing used only by the spoiler payload check.
+authorIds: []

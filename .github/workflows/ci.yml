@@ -32,8 +32,17 @@ jobs:
         run: npm run lint
       - name: Test
         run: npm test
+      - name: Add the spoiler fixture wing
+        # A made-up wing whose curator notes name fake spoilers. It has to be
+        # in the content folder at build time, because wing routes only exist
+        # for wings the build saw. CI only: the Docker image never has it.
+        run: node scripts/spoiler-check.mjs --install
       - name: Build
         run: npm run build
+      - name: Spoiler payload check
+        # Curator notes must not ship in the prerendered HTML or RSC payload
+        # (orrery#106). Reads the build output for the fixture wing.
+        run: node scripts/spoiler-check.mjs
 
       - name: Render check
         # Boots the built app and asks every page whether it actually renders:

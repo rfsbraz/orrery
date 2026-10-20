@@ -1,0 +1,8 @@
+- id: fixture-event-1992
+  date: 1992
+  title: An invented storm
+  scope: culture
+  reach: franchise
+  impact: low
+  description: "A made-up storm on the made-up coast."
+  note: "FIXTURE-EVENT-NOTE: the storm destroys the second lamp."

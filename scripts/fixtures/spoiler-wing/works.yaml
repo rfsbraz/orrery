@@ -1,0 +1,13 @@
+- id: spoiler-fixture/the-first-lamp
+  title: "The First Lamp"
+  authorIds: []
+  published: 1990
+  canonTier: core
+  synopsis: "FIXTURE-SYNOPSIS-VISIBLE: a keeper tends a lamp on an invented coast."
+  note: "FIXTURE-WORK-NOTE: the keeper turns out to be the narrator's twin."
+- id: spoiler-fixture/the-second-lamp
+  title: "The Second Lamp"
+  authorIds: []
+  published: 1994
+  canonTier: core
+  synopsis: "The invented coast, four years on."
