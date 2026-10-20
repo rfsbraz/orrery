@@ -25,6 +25,29 @@ describe("pickEdition", () => {
   it("returns null when the work has no editions", () => {
     expect(pickEdition("f/none", editions)).toBeNull();
   });
+
+  // #161: the Da Vinci Code has the 2003 Doubleday first edition and the 2016
+  // Young Adult adaptation, both English. Recency alone sent English readers
+  // to the YA abridgement.
+  it("never prefers a newer same-language edition marked primary: false", () => {
+    const dvc = [
+      ed("dan-brown/the-da-vinci-code/doubleday-2003-us", "dan-brown/the-da-vinci-code", {
+        language: "en",
+        year: 2003,
+        isbn13: "9780385504201",
+      }),
+      ed("dan-brown/the-da-vinci-code/delacorte-2016-us-ya", "dan-brown/the-da-vinci-code", {
+        language: "en",
+        year: 2016,
+        isbn13: "9781524715847",
+        primary: false,
+      }),
+    ];
+    const first = "dan-brown/the-da-vinci-code/doubleday-2003-us";
+    expect(pickEdition("dan-brown/the-da-vinci-code", dvc)?.id).toBe(first);
+    expect(pickEdition("dan-brown/the-da-vinci-code", dvc, "US", "en")?.id).toBe(first);
+    expect(pickEdition("dan-brown/the-da-vinci-code", dvc, "PT", "pt-PT")?.id).toBe(first);
+  });
 });
 
 describe("coverFor", () => {
