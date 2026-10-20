@@ -3,18 +3,22 @@ updates:
   - package-ecosystem: npm
     directory: "/"
     schedule:
-      interval: daily
+      interval: monthly
+    ignore:
+      # Hold TypeScript below 7 until typescript-eslint supports it; remove when that lands.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
     groups:
       npm-packages:
         patterns: ["*"]
   - package-ecosystem: docker
     directory: "/"
     schedule:
-      interval: daily
+      interval: monthly
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
-      interval: daily
+      interval: monthly
     groups:
       actions:
         patterns: ["*"]
@@ -22,4 +26,4 @@ updates:
   - package-ecosystem: gitsubmodule
     directory: "/"
     schedule:
-      interval: daily
+      interval: monthly
