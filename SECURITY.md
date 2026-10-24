@@ -14,7 +14,7 @@ supported; there are no maintained release branches yet.
 
 **Please do not open a public issue for a security problem.**
 
-Use [GitHub Security Advisories](https://github.com com/rfsbraz/orrery/security/advisories/new)
+Use [GitHub Security Advisories](https://github.com/rfsbraz/orrery/security/advisories/new)
 to report privately. If that is unavailable to you, email rfsbraz@gmail.com with
 "orrery security" in the subject.
 
