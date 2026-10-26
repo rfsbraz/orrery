@@ -110,7 +110,12 @@ The personal overlay folded into a year: books read (dated, finished only),
 franchises touched, publication-year span, average gap, longest wait closed,
 punctual reads, eras visited. `lib/progress/recap.ts`. A shareable 1200x630
 card renders at `/me/recap/<year>/card` (next/og) for the signed-in reader
-only - profiles stay private by default; sharing is the reader's act.
+only - profiles stay private by default; sharing is the reader's act. The card
+draws with its own fonts in `lib/og/fonts` (Latin, Greek, Cyrillic, Hebrew,
+Arabic, and the Japanese characters the catalogue uses), so it never asks
+Google Fonts for a glyph and never sends a title anywhere. `node scripts/og-fonts.mjs`
+refreshes them; content-sync runs it on every bump, and
+`lib/og/recap-card.test.ts` fails on any title character no font covers.
 
 ### Editions and store links
 `lib/content/editions.ts`: `pickEdition` (per-country language preference,
