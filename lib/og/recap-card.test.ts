@@ -9,9 +9,12 @@ import type { FranchiseBundle } from "../content/types";
 // draws an empty box when that fetch fails. Failing every fetch makes a missing
 // glyph show up here as a network call instead of as a blank title.
 let fetchCalls: string[];
+const realFetch = globalThis.fetch;
 beforeEach(() => {
   fetchCalls = [];
-  vi.stubGlobal("fetch", (input: unknown) => {
+  vi.stubGlobal("fetch", (input: string | URL | Request, init?: RequestInit) => {
+    // next/og loads its own WebAssembly from data: URLs.
+    if (String(input).startsWith("data:")) return realFetch(input, init);
     fetchCalls.push(String(input));
     return Promise.reject(new Error("the recap card must not need the network"));
   });
@@ -36,7 +39,7 @@ function recapReading(title: string) {
 }
 
 async function renderPng(title: string) {
-  return Buffer.from(await renderRecapCard(recapReading(title)).arrayBuffer());
+  return Buffer.from(await (await renderRecapCard(recapReading(title))).arrayBuffer());
 }
 
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47]);
@@ -48,6 +51,7 @@ describe("renderRecapCard", () => {
     ["Greek", "Ὀδύσσεια"],
     ["Japanese", "風の歌を聴け"],
     ["Arabic", "ألف ليلة وليلة"],
+    ["Hebrew", "שיר השירים"],
   ])("draws %s longest-wait titles from its own fonts", async (_script, title) => {
     const png = await renderPng(title);
     expect(png.subarray(0, 4)).toEqual(PNG_SIGNATURE);

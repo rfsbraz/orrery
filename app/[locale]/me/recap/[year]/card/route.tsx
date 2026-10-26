@@ -15,5 +15,5 @@ export async function GET(req: Request, ctx: { params: Promise<{ locale: string;
   const user = await getCurrentUser();
   if (!user) return new Response("Sign in required", { status: 401 });
 
-  return renderRecapCard(buildYearRecap(year, getAllBundles(), await getMyProgress()));
+  return await renderRecapCard(buildYearRecap(year, getAllBundles(), await getMyProgress()));
 }
