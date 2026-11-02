@@ -37,6 +37,19 @@ jobs:
         run: |
           git submodule update --remote orrery-content
           echo "content_sha=$(git -C orrery-content rev-parse --short HEAD)" >> "$GITHUB_ENV"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Refresh the recap card fonts
+        # The card's CJK font only carries the characters catalogue titles use,
+        # so a title with a new one needs the font fetched again. If Google
+        # Fonts is down the bump still goes out, and the recap card test in CI
+        # names the missing character.
+        continue-on-error: true
+        run: |
+          npm ci
+          node scripts/og-fonts.mjs
       - name: Open bump PR if content changed
         id: cpr
         uses: peter-evans/create-pull-request@v8
@@ -52,7 +65,9 @@ jobs:
           # PR is unvalidated, so the step below says so out loud rather than
           # letting it look green.
           token: ${{ secrets.CONTENT_SYNC_TOKEN || secrets.GITHUB_TOKEN }}
-          add-paths: orrery-content
+          add-paths: |
+            orrery-content
+            lib/og/fonts
           branch: bot/content-sync
           delete-branch: true
           title: "content: sync to latest canon (${{ env.content_sha }})"
