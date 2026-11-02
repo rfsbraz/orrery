@@ -1,13 +1,13 @@
-## Summary
+## What and why
 
-<!-- One or two lines: what changes and why. -->
+<!-- What does this change, and what problem did you hit? -->
 
-Closes #
+Closes #<!-- Please agree on the approach in an issue first. Typo and docs fixes can skip this. -->
 
-## Screenshots
+## How you tested it
 
-<!-- UI changes only. Delete this section otherwise. -->
+<!-- Tests added, and what you ran (`npm test`, `npm run lint`, `npm run build`). Screenshots for UI changes. Say so if a work id was renamed or a Row Level Security policy changed. -->
 
-## Tested
+## AI use
 
-<!-- One line: what you ran (`npm test`, `npm run lint`, `npm run build`). Say so if a work id was renamed or a Row Level Security policy changed. -->
+<!-- Fine to use, just say so and confirm you understand every line. -->

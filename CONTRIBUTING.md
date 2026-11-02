@@ -61,11 +61,29 @@ This project is openly AI-assisted and you are welcome to work the same way. The
 content repo ships the agents and scripts it was built with, and documents where
 they fail.
 
-Say how you produced a change if you like; it is not held against you. What is
-not acceptable is submitting code or content nobody read. The bar is the same
-either way: it builds, it is tested, and you understand it well enough to defend
-it in review.
+Say how you produced a change in the AI use section of the PR template; it is
+not held against you. What is not acceptable is submitting code or content
+nobody read. The bar is the same either way: it builds, it is tested, and you
+understand it well enough to defend it in review.
+
+## Low-effort and automated PRs
+
+Orrery is maintained in my spare time, and every PR takes real time to review.
+I'm happy to get contributions from people who read with Orrery and want to make
+it better.
+
+I will close, without review, PRs that look like contribution farming: accounts
+opening many PRs across unrelated projects, or changes made mainly to collect
+contributions rather than to fix something you ran into. This applies even when
+the change itself is correct.
+
+The easiest way to get a PR merged is to start with an issue, agree on the
+approach there, and then open the PR.
 
 ## Security
 
 Do not open a public issue for a vulnerability. See [SECURITY.md](SECURITY.md).
+
+## Code of Conduct
+
+By participating you agree to follow the [Code of Conduct](CODE_OF_CONDUCT.md).
