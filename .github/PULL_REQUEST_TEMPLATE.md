@@ -1,20 +1,13 @@
 ## Summary
 
-<!-- What changes and why. One or two sentences is fine. -->
+<!-- One or two lines: what changes and why. -->
 
-## Type of change
+Closes #
 
-- [ ] Bug fix
-- [ ] New feature
-- [ ] Refactor / cleanup
-- [ ] Documentation
-- [ ] CI / build
+## Screenshots
 
-## Checklist
+<!-- UI changes only. Delete this section otherwise. -->
 
-- [ ] `npm test` passes
-- [ ] `npm run lint` passes
-- [ ] `npm run build` passes
-- [ ] No work id was renamed (or a migration is included and explained)
-- [ ] No Row Level Security policy was weakened
-- [ ] Any new check was watched failing before being trusted
+## Tested
+
+<!-- One line: what you ran (`npm test`, `npm run lint`, `npm run build`). Say so if a work id was renamed or a Row Level Security policy changed. -->
