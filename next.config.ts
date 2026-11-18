@@ -27,6 +27,10 @@ const nextConfig: NextConfig = {
   },
   // Standalone output for a lean Docker image (homeberry now, cloud later).
   output: "standalone",
+  // The recap card reads its fonts from disk at request time; ship them.
+  outputFileTracingIncludes: {
+    "/[locale]/me/recap/[year]/card": ["./lib/og/fonts/*"],
+  },
 };
 
 export default nextConfig;
