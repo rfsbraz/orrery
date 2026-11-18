@@ -11,10 +11,21 @@ updates:
     groups:
       npm-packages:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
+      npm-packages-major:
+        patterns: ["*"]
+        update-types: ["major"]
   - package-ecosystem: docker
     directory: "/"
     schedule:
       interval: monthly
+    groups:
+      docker-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+      docker-major:
+        patterns: ["*"]
+        update-types: ["major"]
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
@@ -22,6 +33,10 @@ updates:
     groups:
       actions:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
+      actions-major:
+        patterns: ["*"]
+        update-types: ["major"]
   # Keep the content submodule fresh (the content-sync workflow also PRs bumps)
   - package-ecosystem: gitsubmodule
     directory: "/"
