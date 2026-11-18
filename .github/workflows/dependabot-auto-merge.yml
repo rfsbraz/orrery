@@ -5,11 +5,19 @@ on: pull_request
 permissions:
   contents: write
   pull-requests: write
+  actions: write # dispatch docker.yml after the merge (see the last step)
+
+# One watcher per PR. A Dependabot rebase pushes a new commit and starts a new
+# run, which supersedes the old one.
+concurrency:
+  group: dependabot-auto-merge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   auto-merge:
     if: github.actor == 'dependabot[bot]'
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     steps:
       - uses: dependabot/fetch-metadata@v3
         id: meta
@@ -18,4 +26,32 @@ jobs:
         run: gh pr merge --auto --squash "$PR_URL"
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # A merge made with GITHUB_TOKEN (which is what auto-merge uses) does not
+      # fire the push trigger in docker.yml, so the image was never built and
+      # the site fell behind main (#235). workflow_dispatch is the one event
+      # GITHUB_TOKEN may still trigger, so wait for the merge, then ask for the
+      # same build a push to main would have run. No new secret.
+      - name: Build the image once the PR has merged
+        if: ${{ steps.meta.outputs.update-type == 'version-update:semver-patch' || steps.meta.outputs.update-type == 'version-update:semver-minor' }}
+        run: |
+          for _ in $(seq 1 170); do
+            state=$(gh pr view "$PR_URL" --json state --jq .state)
+            case "$state" in
+              MERGED)
+                gh workflow run docker.yml --ref "$DEFAULT_BRANCH"
+                exit 0
+                ;;
+              CLOSED)
+                echo "PR closed without merging, nothing to build"
+                exit 0
+                ;;
+            esac
+            sleep 30
+          done
+          echo "::warning::PR not merged within the wait, no build was dispatched"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
